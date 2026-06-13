@@ -1,20 +1,20 @@
-// The no-login crisis side. The map is already the home screen behind this
-// panel (App shell); this panel is the *tonight* loop:
-//   one giant "I need help" → pick a need → add your words → matching places
-//   light up on the map + a beacon pulses → pick one → route + arrival card.
-// No account, no password (privacy #6). All copy is i18n (en/es); icon-only
-// controls carry aria-labels; tap targets ≥44px (accessibility.md). The map is
-// driven only through useMapController() — never edited here.
+// The no-login "Find help" side. The map is already the home screen behind this
+// panel (App shell); this panel is the tonight loop:
+//   one giant "I need help" → describe it in your own words + set where you are
+//   → the crew matches places (a brief reassuring wait) → three picks (Closest /
+//   Best fit / Best overall) → pick one → the way there is drawn on the map.
+// No account, no password (privacy #6). All copy is i18n; icon-only controls
+// carry aria-labels; tap targets ≥44px (accessibility.md). The map is driven
+// only through useMapController() — never edited here.
 //
 // Styled as the bottom-sheet glass card from Navigation Map/screens/CrisisHome.
 
 import { useTranslation } from "react-i18next";
 import { BigButton, Card, Icon, IconButton } from "../../components/kit";
-import LanguageToggle from "./LanguageToggle";
-import NeedTiles from "./NeedTiles";
-import WordsStep from "./WordsStep";
-import ResultsList from "./ResultsList";
-import ArrivalCard from "./ArrivalCard";
+import { useNodes } from "../../lib/data/hooks";
+import LocationStep from "./LocationStep";
+import MatchingLoader from "./MatchingLoader";
+import MatchResults from "./MatchResults";
 import { useCrisisFlow } from "./useCrisisFlow";
 
 function LogoMark() {
@@ -34,11 +34,12 @@ function LogoMark() {
 export default function CrisisPanel() {
   const { t } = useTranslation();
   const flow = useCrisisFlow();
+  const { data: nodes } = useNodes();
 
   return (
     <Card className="flex max-h-[82dvh] flex-col gap-4 overflow-y-auto">
       <div className="flex items-center justify-between gap-2">
-        {flow.step === "home" ? (
+        {flow.step === "home" || flow.step === "matching" ? (
           <LogoMark />
         ) : (
           <IconButton
@@ -47,7 +48,6 @@ export default function CrisisPanel() {
             onClick={flow.back}
           />
         )}
-        <LanguageToggle />
       </div>
 
       {flow.step === "home" ? (
@@ -64,41 +64,93 @@ export default function CrisisPanel() {
         </div>
       ) : null}
 
-      {flow.step === "needs" ? (
-        <div className="flex flex-col gap-3">
-          <h2 className="text-sm font-semibold text-wp-txd">
-            {t("crisis.needs.prompt")}
-          </h2>
-          <NeedTiles onChoose={flow.chooseNeed} selected={flow.selectedNeed} />
+      {flow.step === "describe" ? (
+        <div className="flex flex-col gap-4">
+          <div>
+            <label
+              htmlFor="crisis-words"
+              className="text-lg font-semibold text-wp-tx"
+            >
+              {t("crisis.describe.prompt")}
+            </label>
+            <p className="mt-1 text-sm text-wp-txd">{t("crisis.describe.hint")}</p>
+          </div>
+
+          <textarea
+            id="crisis-words"
+            value={flow.words}
+            onChange={(e) => flow.setWords(e.target.value)}
+            rows={3}
+            placeholder={t("crisis.describe.placeholder")}
+            className={
+              "w-full resize-none rounded-[12px] border border-wp-line2 bg-wp-surf2 p-3 text-base " +
+              "text-wp-tx placeholder:text-wp-txf focus-visible:outline-none focus-visible:ring-2 " +
+              "focus-visible:ring-wp-acc/60"
+            }
+          />
+
+          <LocationStep
+            locationStatus={flow.locationStatus}
+            locationSource={flow.locationSource}
+            picking={flow.picking}
+            geocoding={flow.geocoding}
+            addressNotFound={flow.addressNotFound}
+            hasLocation={flow.hasLocation}
+            requestDeviceLocation={flow.requestDeviceLocation}
+            pickOnMap={flow.pickOnMap}
+            cancelPick={flow.cancelPick}
+            searchAddress={flow.searchAddress}
+          />
+
+          {flow.hiccup ? (
+            <p className="text-sm text-wp-txd" role="status">
+              {t("crisis.describe.retry")}
+            </p>
+          ) : null}
+
+          <BigButton
+            onClick={() => void flow.submit()}
+            disabled={!flow.hasLocation || flow.submitting}
+          >
+            {t("crisis.describe.submit")}
+          </BigButton>
         </div>
       ) : null}
 
-      {flow.step === "words" ? (
-        <WordsStep
-          words={flow.words}
-          onWordsChange={flow.setWords}
-          onContinue={() => void flow.submitNeed()}
-          submitting={flow.submitting}
-          hiccup={flow.hiccup}
-        />
-      ) : null}
+      {flow.step === "matching" ? <MatchingLoader /> : null}
 
-      {flow.step === "results" ? (
+      {flow.step === "results" && flow.matches ? (
         <div className="flex flex-col gap-3">
           <h2 className="text-lg font-semibold text-wp-tx">
             {t("crisis.results.title")}
           </h2>
-          <ResultsList ranked={flow.ranked} onChoose={flow.chooseNode} />
+          <MatchResults
+            matches={flow.matches}
+            nodes={nodes}
+            onChoose={(kind, pick) => void flow.choosePick(kind, pick)}
+          />
         </div>
       ) : null}
 
-      {flow.step === "arrival" && flow.selectedNode ? (
-        <>
-          <ArrivalCard node={flow.selectedNode} onDone={flow.reset} />
+      {flow.step === "routed" && flow.selectedNode ? (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col items-center gap-3 py-2 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(76,195,138,0.14)] text-[#7ad6a6]">
+              <Icon name="check_circle" size={28} fill />
+            </span>
+            <div className="flex flex-col gap-1">
+              <h2 className="text-lg font-semibold text-wp-tx">
+                {t("crisis.routed.title")}
+              </h2>
+              <p className="text-sm text-wp-txd">
+                {t("crisis.routed.subtitle", { name: flow.selectedNode.name })}
+              </p>
+            </div>
+          </div>
           <BigButton variant="secondary" onClick={flow.reset}>
             {t("crisis.startOver")}
           </BigButton>
-        </>
+        </div>
       ) : null}
     </Card>
   );

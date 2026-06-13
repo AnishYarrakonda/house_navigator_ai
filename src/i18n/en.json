@@ -8,9 +8,8 @@
     "dismiss": "Dismiss"
   },
   "roles": {
-    "crisis": "I need help",
-    "volunteer": "Co-pilot",
-    "coordinator": "Coordinator"
+    "crisis": "Find help",
+    "volunteer": "Volunteer"
   },
   "crisis": {
     "needHelp": "I need help",
@@ -22,42 +21,57 @@
     "home": {
       "subtitle": "You're not alone. Let's find somewhere safe tonight."
     },
-    "needs": {
-      "prompt": "What would help most right now?"
-    },
-    "words": {
-      "prompt": "Anything you'd like us to know?",
-      "hint": "Only if you want to. You don't need to share your name or address.",
-      "placeholder": "e.g. me and my dog, nowhere safe tonight",
-      "continue": "Find a place",
-      "finding": "Finding places near you…",
+    "describe": {
+      "prompt": "Tell us what's going on",
+      "hint": "In your own words — what you need tonight, who's with you, anything that matters. No need to share your name or exact address.",
+      "placeholder": "e.g. me and my two kids, nowhere safe tonight, can't be split up",
+      "submit": "Find somewhere safe",
       "retry": "That didn't go through. Take your time and try again."
     },
+    "matching": {
+      "stage1": "Reading your situation…",
+      "stage2": "Checking what's open nearby…",
+      "stage3": "Finding your best options…"
+    },
     "results": {
-      "title": "Places that can help",
-      "empty": "Nothing's open right now — go back and try another kind of help, or check again in a little while.",
+      "title": "Here's what we found",
+      "empty": "Nothing's open right now — try changing what you wrote, or check again in a little while.",
+      "closest": "Closest",
+      "bestFit": "Best fit",
+      "bestOverall": "Best overall",
+      "recommended": "Recommended",
       "spotsOpen_one": "{{count}} open",
       "spotsOpen_other": "{{count}} open",
-      "walkMin": "~{{min}} min walk",
-      "nearby": "Nearby",
-      "choose": "See the way there",
-      "recommended": "Recommended"
+      "distanceEta": "~{{min}} min walk · {{blocks}} blocks",
+      "seeTheWay": "See the way there"
     },
-    "arrival": {
-      "title": "What to expect when you arrive",
-      "hours": "Hours:",
-      "point1": "Walk in and let someone know you need help — no appointment needed.",
-      "point2": "You don't need ID or paperwork to be welcomed.",
-      "point3": "It's okay to bring your things. Ask if you're unsure about pets.",
-      "reassure": "You belong here. The people inside are there to help, not to judge.",
-      "done": "Got it"
+    "routed": {
+      "title": "Your way there is on the map",
+      "subtitle": "Follow the glowing path to {{name}}. You've got this."
+    },
+    "location": {
+      "title": "Where are you right now?",
+      "subtitle": "We use this only to find the closest help. Your exact spot is never saved.",
+      "locating": "Finding your location…",
+      "found": "Got your area.",
+      "foundManual": "Location set.",
+      "error": {
+        "denied": "We couldn't use your device's location. You can set it yourself below.",
+        "unavailable": "Location isn't available on this device. You can set it yourself below.",
+        "timeout": "That took a while. Try again, or set your location yourself below."
+      },
+      "useCurrent": "Use my current location",
+      "orManual": "Or set your location yourself",
+      "changeLabel": "Use a different location",
+      "pickOnMap": "Tap my location on the map",
+      "picking": "Tap your location on the map…",
+      "cancel": "Cancel",
+      "addressLabel": "Search a city or address",
+      "addressPlaceholder": "City or address",
+      "search": "Search",
+      "searching": "Searching…",
+      "notFound": "We couldn't find that. Try a city or a nearby street."
     }
-  },
-  "volunteer": {
-    "panelStub": "Co-pilot side — Lane 3 builds here."
-  },
-  "coordinator": {
-    "panelStub": "Coordinator view — Lane 3 builds here."
   },
   "map": {
     "stub": "Map — Lane 1 builds here."

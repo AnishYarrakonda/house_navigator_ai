@@ -46,6 +46,12 @@ export interface DataLayer {
   // --- Resource nodes (pins + live capacity) ---
   getNodes(): Promise<ResourceNode[]>;
   subscribeNodes(cb: (nodes: ResourceNode[]) => void): Unsubscribe;
+  /** Create a new resource node (volunteer-posted listing). */
+  createNode(input: Omit<ResourceNode, "id">): Promise<ResourceNode>;
+  /** Patch a node's fields (e.g. capacity, mark full). */
+  updateNode(id: string, patch: Partial<ResourceNode>): Promise<void>;
+  /** Remove a node (volunteer removes their listing). */
+  removeNode(id: string): Promise<void>;
 
   // --- Needs (beacons) ---
   getNeeds(): Promise<Need[]>;

@@ -27,7 +27,7 @@ import type {
   ResourceNode,
   Waypoint,
 } from "../../types";
-import { geocellCenter, toGeocell } from "../geocell";
+import { geocellCenter } from "../geocell";
 import { supabase } from "../supabase";
 import type {
   AddWaypointInput,
@@ -60,6 +60,8 @@ interface NodeRow {
   capacity_open: number;
   hours: string | null;
   notes: string | null;
+  volunteer_id?: string | null;
+  address?: string | null;
 }
 interface NeedRow {
   id: string;
@@ -111,6 +113,8 @@ const toNode = (r: NodeRow): ResourceNode => ({
   capacity_open: r.capacity_open,
   hours: r.hours ?? undefined,
   notes: r.notes ?? undefined,
+  volunteer_id: r.volunteer_id ?? undefined,
+  address: r.address ?? undefined,
 });
 
 const toNeed = (r: NeedRow): Need => {
@@ -216,6 +220,41 @@ class SupabaseDataLayer implements DataLayer {
 
   subscribeNodes(cb: (nodes: ResourceNode[]) => void): Unsubscribe {
     return subscribeTable("rt-nodes", "resource_node", () => this.getNodes(), cb);
+  }
+
+  async createNode(input: Omit<ResourceNode, "id">): Promise<ResourceNode> {
+    const { data, error } = await db()
+      .from("resource_node")
+      .insert({
+        name: input.name,
+        type: input.type,
+        lat: input.lat,
+        lng: input.lng,
+        capacity_total: input.capacity_total,
+        capacity_open: input.capacity_open,
+        hours: input.hours,
+        notes: input.notes,
+        volunteer_id: input.volunteer_id,
+        address: input.address,
+      })
+      .select("*")
+      .single();
+    if (error) throw error;
+    // Realtime fans the new pin onto every map; return the canonical row.
+    return toNode(data as NodeRow);
+  }
+
+  async updateNode(id: string, patch: Partial<ResourceNode>): Promise<void> {
+    const { error } = await db()
+      .from("resource_node")
+      .update(patch)
+      .eq("id", id);
+    if (error) throw error;
+  }
+
+  async removeNode(id: string): Promise<void> {
+    const { error } = await db().from("resource_node").delete().eq("id", id);
+    if (error) throw error;
   }
 
   // --- Needs ---
@@ -424,19 +463,10 @@ class SupabaseDataLayer implements DataLayer {
 
   // --- Coordinator views ---
   async getHeatmapCells(opts?: HeatmapOptions): Promise<HeatCell[]> {
-    // Derived, k-anonymized aggregate (invariant #3). Built from need fuzzed
-    // cells + journey density — NEVER from raw points. Any cell below
-    // K_ANON_MIN active signals is dropped HERE in the derivation.
-    const [needs, waypoints, nodes] = await Promise.all([
-      this.getNeeds(),
-      // Journey density comes via waypoints (a journey row carries no geometry).
-      (async () => {
-        const { data, error } = await db().from("waypoint").select("*");
-        if (error) throw error;
-        return ((data ?? []) as WaypointRow[]).map(toWaypoint);
-      })(),
-      this.getNodes(),
-    ]);
+    // Derived, k-anonymized aggregate (invariant #3). Built ONLY from real need
+    // fuzzed cells — never from raw points and never synthetically inflated. Any
+    // cell below K_ANON_MIN active signals is dropped HERE in the derivation.
+    const needs = await this.getNeeds();
 
     const counts = new Map<string, { count: number; types: NeedType[] }>();
     const add = (cell: string, type?: NeedType) => {
@@ -450,18 +480,7 @@ class SupabaseDataLayer implements DataLayer {
       if (need.status === "expired") continue;
       add(need.fuzzed_geocell, need.type);
     }
-
-    // Synthesize aggregate signal near active journey nodes so some cells clear
-    // the k-anon threshold; the hour scrubber nudges the spread (matches mock).
-    const hour = opts?.hour ?? new Date().getHours();
-    const intensity = 4 + (Math.abs((hour % 24) - 18) <= 3 ? 6 : 2);
-    for (const wp of waypoints) {
-      if (!wp.node_id) continue;
-      const node = nodes.find((n) => n.id === wp.node_id);
-      if (!node) continue;
-      const cell = toGeocell(node.lat, node.lng);
-      for (let i = 0; i < intensity; i++) add(cell);
-    }
+    void opts;
 
     const cells: HeatCell[] = [];
     for (const [geocell, entry] of counts) {

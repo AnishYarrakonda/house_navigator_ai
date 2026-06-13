@@ -81,7 +81,9 @@ create table resource_node (
   capacity_total integer not null default 0,
   capacity_open  integer not null default 0,   -- SIMULATED (see note above)
   hours          text,
-  notes          text
+  notes          text,
+  volunteer_id   text,                          -- set when a volunteer posts the listing
+  address        text                           -- human-readable address the listing geocoded from
 );
 
 -- journey -------------------------------------------------------------------

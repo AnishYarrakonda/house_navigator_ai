@@ -77,6 +77,29 @@ class MockDataLayer implements DataLayer {
     this.emitter.emit("nodes", structuredClone(this.nodes));
   }
 
+  async createNode(input: Omit<ResourceNode, "id">): Promise<ResourceNode> {
+    const node: ResourceNode = {
+      ...input,
+      id: `node-vol-${Math.random().toString(36).slice(2, 8)}`,
+    };
+    this.nodes.push(node);
+    this.fireNodes(); // re-push so useNodes() re-renders → map pin appears live
+    return structuredClone(node);
+  }
+
+  async updateNode(id: string, patch: Partial<ResourceNode>): Promise<void> {
+    const node = this.nodes.find((n) => n.id === id);
+    if (!node) throw new Error(`Node not found: ${id}`);
+    Object.assign(node, patch);
+    this.fireNodes();
+  }
+
+  async removeNode(id: string): Promise<void> {
+    const before = this.nodes.length;
+    this.nodes = this.nodes.filter((n) => n.id !== id);
+    if (this.nodes.length !== before) this.fireNodes();
+  }
+
   // --- Needs ---
   private liveNeeds(): Need[] {
     // Server-side expiry enforcement (privacy invariant #5): expired beacons
@@ -254,20 +277,7 @@ class MockDataLayer implements DataLayer {
       if (need.status === "expired") continue;
       add(need.fuzzed_geocell, need.type);
     }
-
-    // Demo: synthesize extra aggregate signal near active journey nodes so
-    // some cells clear the k-anon threshold (hour scrubber nudges the spread).
-    const hour = opts?.hour ?? new Date().getHours();
-    const intensity = 4 + (Math.abs((hour % 24) - 18) <= 3 ? 6 : 2);
-    for (const wp of this.waypoints) {
-      if (!wp.node_id) continue;
-      const node = this.nodes.find((n) => n.id === wp.node_id);
-      if (!node) continue;
-      const cell = `g_${Math.floor(node.lat / 0.00225)}_${Math.floor(
-        node.lng / 0.00225,
-      )}`;
-      for (let i = 0; i < intensity; i++) add(cell);
-    }
+    void opts;
 
     const cells: HeatCell[] = [];
     for (const [geocell, entry] of counts) {

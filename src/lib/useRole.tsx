@@ -14,7 +14,7 @@ import {
 import type { Role } from "../types";
 
 const STORAGE_KEY = "waypoint.role";
-const ROLES: Role[] = ["crisis", "volunteer", "coordinator"];
+const ROLES: Role[] = ["crisis", "volunteer"];
 
 function isRole(v: string | null): v is Role {
   return v !== null && (ROLES as string[]).includes(v);

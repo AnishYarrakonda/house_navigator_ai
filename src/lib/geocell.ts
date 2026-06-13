@@ -28,26 +28,67 @@ export function geocellCenter(cell: string): [number, number] {
   return [lng, lat];
 }
 
-/**
- * Read the browser geolocation and return ONLY the fuzzed geocell — never the
- * raw coordinates. Falls back to a hard-coded SF cell for the demo / when
- * geolocation is denied or unavailable.
- */
-export async function getFuzzedLocation(): Promise<string> {
-  const fallback = toGeocell(SF_CENTER.lat, SF_CENTER.lng);
+/** Why a geolocation attempt failed (drives the crisis-side fallback copy). */
+export type GeoFailReason = "denied" | "unavailable" | "timeout";
 
+export type GeoResult =
+  | { ok: true; cell: string }
+  | { ok: false; reason: GeoFailReason };
+
+/**
+ * Read the browser geolocation ONCE and return only the fuzzed geocell — the
+ * raw coordinates never leave the callback. On failure it reports WHY (denied /
+ * unavailable / timeout) so the UI can show a meaningful message and offer the
+ * manual fallback, rather than silently pretending the person is in SF.
+ *
+ * This makes exactly one attempt — callers decide whether to retry (no loops).
+ */
+export async function getCurrentGeocell(): Promise<GeoResult> {
   if (typeof navigator === "undefined" || !navigator.geolocation) {
-    return fallback;
+    return { ok: false, reason: "unavailable" };
   }
 
-  return new Promise<string>((resolve) => {
+  return new Promise<GeoResult>((resolve) => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         // Fuzz immediately; the precise coords never leave this callback.
-        resolve(toGeocell(pos.coords.latitude, pos.coords.longitude));
+        resolve({ ok: true, cell: toGeocell(pos.coords.latitude, pos.coords.longitude) });
       },
-      () => resolve(fallback),
-      { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 },
+      (err) => {
+        const reason: GeoFailReason =
+          err.code === err.PERMISSION_DENIED
+            ? "denied"
+            : err.code === err.TIMEOUT
+              ? "timeout"
+              : "unavailable";
+        resolve({ ok: false, reason });
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
     );
   });
+}
+
+/**
+ * Resolve a typed city/address to a fuzzed geocell via OpenStreetMap Nominatim
+ * (free, no key). The precise lat/lng is fuzzed here and discarded — only the
+ * geocell is returned. Returns null if nothing matches or the lookup fails.
+ */
+export async function geocodeToGeocell(query: string): Promise<string | null> {
+  const q = query.trim();
+  if (!q) return null;
+  try {
+    const url =
+      "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=" +
+      encodeURIComponent(q);
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!res.ok) return null;
+    const data = (await res.json()) as Array<{ lat: string; lon: string }>;
+    if (!data.length) return null;
+    const lat = Number(data[0].lat);
+    const lng = Number(data[0].lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    return toGeocell(lat, lng);
+  } catch {
+    return null;
+  }
 }

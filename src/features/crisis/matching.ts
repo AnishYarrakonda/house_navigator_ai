@@ -42,6 +42,41 @@ export function matchNodes(
     .sort((a, b) => a.meters - b.meters);
 }
 
+/** Keyword → need-type cues for inferring needs from one free-text box. This is
+ * the no-LLM fallback the match crew degrades to; the server INTAKE agent does
+ * the real reasoning. Order roughly by how literal the cue is. */
+const NEED_KEYWORDS: Record<NeedType, string[]> = {
+  bed: ["bed", "sleep", "shelter", "stay", "night", "tonight", "safe", "roof", "housing", "rest"],
+  food: ["food", "eat", "hungry", "meal", "groceries", "pantry"],
+  hygiene: ["shower", "wash", "bathroom", "toilet", "hygiene", "clean", "water", "thirsty"],
+  medical: ["medical", "doctor", "nurse", "sick", "hurt", "pain", "meds", "medicine", "clinic", "injured"],
+  talk: ["talk", "someone", "alone", "scared", "help me", "counsel", "social worker"],
+};
+
+/** Infer which need types the person's free text implies. Defaults to ["bed"]
+ * (somewhere safe tonight) when nothing else matches — the most common ask. */
+export function inferNeedTypes(words: string): NeedType[] {
+  const text = words.toLowerCase();
+  const hits: NeedType[] = [];
+  for (const need of ["bed", "medical", "food", "hygiene", "talk"] as NeedType[]) {
+    if (NEED_KEYWORDS[need].some((kw) => text.includes(kw))) hits.push(need);
+  }
+  return hits.length ? hits : ["bed"];
+}
+
+/** Capacity-filter `nodes` to those that can serve the need types inferred from
+ * the free text. Returns the matching nodes (unsorted) — callers rank them. */
+export function matchNodesFromText(
+  words: string,
+  nodes: ResourceNode[],
+): ResourceNode[] {
+  const needs = inferNeedTypes(words);
+  const allowed = new Set<ResourceType>(
+    needs.flatMap((n) => NEED_TO_RESOURCE[n]),
+  );
+  return nodes.filter((n) => allowed.has(n.type) && n.capacity_open > 0);
+}
+
 /** Great-circle distance in metres. */
 function haversineMeters(
   lat1: number,

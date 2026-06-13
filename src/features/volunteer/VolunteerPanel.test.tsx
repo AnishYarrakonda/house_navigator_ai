@@ -1,13 +1,15 @@
-// Smoke + privacy test for the co-pilot side. Mounts the real panel against the
-// mock data layer and asserts: open needs render as cards, the accept affordance
-// is present, and — critically — NO identity or free-text words leak pre-accept
-// (privacy.md: volunteers see type + fuzzed area + distance only).
+// Smoke + behavior test for the volunteer "post & manage listings" panel.
+// Renders the real panel against the mock data layer and asserts that typing a
+// description and posting creates a listing that shows up under "Your listings".
+// In jsdom there's no /api/listing, so the panel's client-side fallback parser
+// runs — which is exactly the mock-first path we want to verify.
 
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import "../../i18n";
 import { MapProvider } from "../../map";
+import { db } from "../../lib/data";
 import VolunteerPanel from "./VolunteerPanel";
 
 // Tell React this is an act() environment so effects flush deterministically.
@@ -33,29 +35,50 @@ async function mount() {
       </MapProvider>,
     );
   });
-  // Flush the async data loads kicked off in useEffect.
   await act(async () => {
     await new Promise((r) => setTimeout(r, 0));
   });
 }
 
-it("shows open needs as cards with an accept affordance", async () => {
+it("renders the post-a-listing form", async () => {
   await mount();
+  const textarea = container.querySelector("textarea");
+  expect(textarea).not.toBeNull();
   const text = container.textContent ?? "";
-  // Two seeded open needs → an accept button each.
-  const acceptButtons = [...container.querySelectorAll("button")].filter((b) =>
-    b.textContent?.includes("Accept & help"),
-  );
-  expect(acceptButtons.length).toBeGreaterThanOrEqual(2);
-  expect(text).toContain("A few blocks from");
+  expect(text).toContain("Post listing");
+  expect(text).toContain("Your listings");
 });
 
-it("never leaks identity or the person's free-text words pre-accept", async () => {
+it("posting a description creates a listing that appears in 'Your listings'", async () => {
   await mount();
+
+  const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
+  // Drive a real React onChange.
+  await act(async () => {
+    const setter = Object.getOwnPropertyDescriptor(
+      window.HTMLTextAreaElement.prototype,
+      "value",
+    )?.set;
+    setter?.call(textarea, "Two spare beds near the Mission, dog-friendly");
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+
+  const submitBtn = [...container.querySelectorAll("button")].find((b) =>
+    b.textContent?.includes("Post listing"),
+  ) as HTMLButtonElement;
+  expect(submitBtn).toBeTruthy();
+
+  await act(async () => {
+    submitBtn.click();
+    // Let the async parse + createNode + subscription re-render settle.
+    await new Promise((r) => setTimeout(r, 0));
+  });
+
+  // The new node is owned by the demo volunteer and shows under "Your listings".
+  const nodes = await db.getNodes();
+  const mine = nodes.filter((n) => n.volunteer_id === "vol-amara");
+  expect(mine.length).toBeGreaterThanOrEqual(1);
+
   const text = container.textContent ?? "";
-  // need-open-1's words must not appear anywhere in the inbound view.
-  expect(text).not.toContain("my dog");
-  expect(text).not.toContain("nowhere safe tonight");
-  // No person id / alias surface either.
-  expect(text).not.toContain("person-jules");
+  expect(text).toContain("Mission");
 });

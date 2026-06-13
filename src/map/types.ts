@@ -15,6 +15,13 @@ export interface FlyToOptions {
   duration?: number;
 }
 
+/** A precise tapped coordinate. The caller MUST fuzz it before storing it
+ * (privacy.md invariant #2) — the map never stores or transmits it. */
+export interface LngLat {
+  lng: number;
+  lat: number;
+}
+
 /** Minimal GeoJSON LineString feature for a journey route. */
 export interface RouteGeoJSON {
   type: "Feature";
@@ -34,6 +41,13 @@ export interface MapController {
 
   /** Pulse a beacon from a FUZZED cell — never a precise point (privacy.md). */
   pulseBeacon(geocell: string): void;
+
+  /** Let the person tap their own location on the map (manual fallback when
+   * device geolocation isn't available). The callback fires ONCE with the
+   * tapped point; the caller fuzzes it before storing (privacy.md). */
+  pickLocation(onPick: (point: LngLat) => void): void;
+  /** Cancel an in-progress pickLocation without choosing a point. */
+  cancelPick(): void;
 
   drawRoute(journeyId: string, geojson: RouteGeoJSON): void;
   removeRoute(journeyId: string): void;

@@ -2,6 +2,7 @@
 // export stable while swapping the implementation.
 
 export { default as MapView } from "./MapView";
+export { default as MapBoundary } from "./MapBoundary";
 export { MapProvider, useMapController } from "./MapContext";
 export type {
   MapController,

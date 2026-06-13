@@ -4,7 +4,9 @@
 
 export type NeedType = "bed" | "food" | "hygiene" | "medical" | "talk";
 
-export type Role = "crisis" | "volunteer" | "coordinator";
+// Two modes only: "crisis" is labelled "Find help" in the UI; "volunteer" posts
+// and manages listings. (Coordinator was removed in the two-mode rebuild.)
+export type Role = "crisis" | "volunteer";
 
 /** Resource node categories the Resource agent classifies into. */
 export type ResourceType =
@@ -30,7 +32,7 @@ export type SenderRole = "person" | "volunteer" | "system";
 export interface Person {
   id: string;
   display_alias: string;
-  preferred_language: "en" | "es";
+  preferred_language: "en";
   consent_share_journey: boolean;
   /** Device-session token — no email/password (privacy invariant #6). */
   device_session_token: string;
@@ -61,6 +63,10 @@ export interface ResourceNode {
   capacity_open: number;
   hours?: string;
   notes?: string;
+  /** The volunteer who posted this listing (volunteer-side "post & manage"). */
+  volunteer_id?: string;
+  /** Human-readable street address the listing was geocoded from. */
+  address?: string;
 }
 
 export interface Journey {
