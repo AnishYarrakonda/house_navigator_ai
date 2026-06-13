@@ -18,6 +18,7 @@ import { geocellCenter } from "../lib/geocell";
 import type { HeatCell, Need, ResourceNode } from "../types";
 import type {
   FlyToOptions,
+  LngLat,
   MapController,
   RouteGeoJSON,
   ZoomLayer,
@@ -117,6 +118,17 @@ export function createMapEngine(map: MlMap): MapEngine {
   // --- Beacons ---
   const needCells = new Set<string>();
   const manualPulses = new Map<string, number>(); // cell -> expiry timer id
+
+  // --- Manual location pick ---
+  let pickHandler: ((e: maplibregl.MapMouseEvent) => void) | null = null;
+  function endPick(): void {
+    if (pickHandler) {
+      map.off("click", pickHandler);
+      pickHandler = null;
+    }
+    map.getContainer().classList.remove("is-picking");
+    map.getCanvas().style.cursor = "";
+  }
 
   // --- Heatmap ---
   let scrubHour = -1;
@@ -354,6 +366,25 @@ export function createMapEngine(map: MlMap): MapEngine {
       });
     },
 
+    pickLocation(onPick: (point: LngLat) => void) {
+      run(() => {
+        endPick(); // never stack handlers
+        map.getContainer().classList.add("is-picking");
+        map.getCanvas().style.cursor = "crosshair";
+        const handler = (e: maplibregl.MapMouseEvent) => {
+          const { lng, lat } = e.lngLat;
+          endPick();
+          onPick({ lng, lat });
+        };
+        pickHandler = handler;
+        map.on("click", handler);
+      });
+    },
+
+    cancelPick() {
+      run(() => endPick());
+    },
+
     drawRoute(journeyId: string, geojson: RouteGeoJSON) {
       run(() => {
         externalRoutes.set(journeyId, [
@@ -466,6 +497,7 @@ export function createMapEngine(map: MlMap): MapEngine {
     destroy() {
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
+      endPick();
       for (const timer of manualPulses.values()) window.clearTimeout(timer);
       manualPulses.clear();
       map.off("zoom", onZoom);

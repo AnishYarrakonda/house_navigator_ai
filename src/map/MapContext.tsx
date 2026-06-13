@@ -27,6 +27,8 @@ const proxyController: MapController = {
   highlightNodes: (ids) => dispatch((c) => c.highlightNodes(ids)),
   clearHighlights: () => dispatch((c) => c.clearHighlights()),
   pulseBeacon: (cell) => dispatch((c) => c.pulseBeacon(cell)),
+  pickLocation: (cb) => dispatch((c) => c.pickLocation(cb)),
+  cancelPick: () => dispatch((c) => c.cancelPick()),
   drawRoute: (id, geo) => dispatch((c) => c.drawRoute(id, geo)),
   removeRoute: (id) => dispatch((c) => c.removeRoute(id)),
   showHeatmap: (cells) => dispatch((c) => c.showHeatmap(cells)),

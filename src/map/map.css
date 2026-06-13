@@ -35,10 +35,13 @@
     system-ui,
     sans-serif;
   cursor: pointer;
-  transition:
-    transform 160ms ease,
-    opacity 160ms ease,
-    filter 160ms ease;
+  /* IMPORTANT: never transition `transform` on the marker root. MapLibre
+   * positions markers by writing `transform: translate(...)` to THIS element on
+   * every render frame; a transform transition would make each pan frame animate
+   * toward the new position, producing a "rope"/lag-behind effect. Visual
+   * emphasis (scale) lives on the child badge/pill instead, so the pin stays
+   * glued to the map while panning. */
+  transition: opacity 160ms ease;
 }
 
 .wp-pin__badge {
@@ -51,6 +54,10 @@
   background: rgba(18, 19, 22, 0.92);
   border: 2px solid var(--pin-color);
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
 }
 .wp-pin__badge .wp-icon {
   font-size: 18px;
@@ -67,10 +74,15 @@
   flex: none;
   padding: 4px 9px;
   border-radius: 9999px;
-  background: rgba(10, 11, 13, 0.88);
+  /* Opaque (no backdrop-filter): blur backdrops force an expensive repaint on
+   * every pan frame, which both stutters panning and worsens marker lag on
+   * low-end devices (accessibility.md perf). */
+  background: rgba(10, 11, 13, 0.96);
   border: 1px solid var(--pin-line);
   color: var(--pin-text);
-  backdrop-filter: blur(6px);
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
 }
 .wp-pin__num {
   font-family: "Space Mono", ui-monospace, monospace;
@@ -109,13 +121,15 @@
   border-style: dashed;
 }
 
-/* Crisis-side highlight: matched nodes glow + scale; the rest dim back. */
+/* Crisis-side highlight: matched nodes glow + scale; the rest dim back.
+ * NOTE: scale is applied to the badge (a child), never the marker root, so it
+ * doesn't fight MapLibre's translate transform on the root (see .wp-pin). */
 .wp-pin.is-highlighted {
-  transform: scale(1.16);
   z-index: 5;
   opacity: 1;
 }
 .wp-pin.is-highlighted .wp-pin__badge {
+  transform: scale(1.16);
   border-color: #5a8bff;
   box-shadow:
     0 0 0 2px rgba(47, 109, 246, 0.7),
@@ -129,6 +143,8 @@
 /* Pins lead at street zoom, recede as routes/heat take over on pull-back. */
 .maplibregl-map.zoom-city .wp-pin {
   opacity: 0.7;
+}
+.maplibregl-map.zoom-city .wp-pin__badge {
   transform: scale(0.92);
 }
 .maplibregl-map.zoom-region .wp-pin {
@@ -139,6 +155,21 @@
 .maplibregl-map.zoom-city .wp-pin.is-highlighted,
 .maplibregl-map.zoom-region .wp-pin.is-highlighted {
   opacity: 1;
+}
+
+/* --- Manual location pick mode --------------------------------------------- */
+/* While the person is tapping their own location, crosshair the canvas and ring
+ * the map so it's obvious the next tap sets their spot. */
+.maplibregl-map.is-picking .maplibregl-canvas {
+  cursor: crosshair;
+}
+.maplibregl-map.is-picking::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px rgba(47, 109, 246, 0.7);
+  z-index: 3;
 }
 
 /* --- Dark theming for built-in controls ----------------------------------- */

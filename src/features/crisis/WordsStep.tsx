@@ -1,7 +1,8 @@
 // "Own words" step — the person can add a short note in their own words
 // ("me and my dog, nowhere safe tonight"). Optional and gentle: the hint steers
-// away from legal name / precise address (privacy.md), there's a Skip, and the
-// note is captured on the Need so the Triage Agent can reason over it later (M2).
+// away from legal name / precise address (privacy.md), there's an implicit skip
+// (the field is optional), and the note is captured on the Need so the Triage
+// Agent can reason over it later (M2). Continue advances to the location step.
 
 import { useTranslation } from "react-i18next";
 import { BigButton } from "../../components/kit";
@@ -10,16 +11,12 @@ interface WordsStepProps {
   words: string;
   onWordsChange: (value: string) => void;
   onContinue: () => void;
-  submitting: boolean;
-  hiccup: boolean;
 }
 
 export default function WordsStep({
   words,
   onWordsChange,
   onContinue,
-  submitting,
-  hiccup,
 }: WordsStepProps) {
   const { t } = useTranslation();
   return (
@@ -47,15 +44,7 @@ export default function WordsStep({
         }
       />
 
-      {hiccup ? (
-        <p className="text-sm text-wp-txd" role="status">
-          {t("crisis.words.retry")}
-        </p>
-      ) : null}
-
-      <BigButton onClick={onContinue} disabled={submitting}>
-        {submitting ? t("crisis.words.finding") : t("crisis.words.continue")}
-      </BigButton>
+      <BigButton onClick={onContinue}>{t("crisis.words.continue")}</BigButton>
     </div>
   );
 }

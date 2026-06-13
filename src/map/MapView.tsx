@@ -11,11 +11,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "./map.css";
 
 import { DEFAULT_ZOOM, SF_CENTER } from "../config";
-import { useJourneys, useNeeds, useNodes } from "../lib/data/hooks";
+import { useNeeds, useNodes } from "../lib/data/hooks";
 import { registerMapController } from "./MapContext";
 import { warmDarkStyle } from "./style";
 import { createMapEngine, type MapEngine } from "./engine";
-import { buildJourneyRoutes } from "./routes";
 
 export default function MapView() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -24,7 +23,6 @@ export default function MapView() {
 
   const { data: nodes } = useNodes();
   const { data: needs } = useNeeds();
-  const { data: journeys } = useJourneys();
 
   // Create the map + engine once, and register the real controller.
   useEffect(() => {
@@ -68,16 +66,10 @@ export default function MapView() {
     engineRef.current?.setOpenNeeds(needs);
   }, [needs]);
 
-  // Auto-draw the seeded journeys so the hero shot lights up on load.
-  useEffect(() => {
-    let cancelled = false;
-    buildJourneyRoutes(journeys, nodes).then((features) => {
-      if (!cancelled) engineRef.current?.setSeededRoutes(features);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [journeys, nodes]);
+  // NOTE: we intentionally do NOT auto-draw decorative "journey" routes. The
+  // only routes shown are real ones the user creates (a person's fuzzed area →
+  // the resource they pick). Synthetic journey lines were removed because their
+  // origins were pseudo-random points with no real-world meaning.
 
   return <div ref={containerRef} className="absolute inset-0" aria-label="map" />;
 }

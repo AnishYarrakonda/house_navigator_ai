@@ -8,9 +8,8 @@
     "dismiss": "Dismiss"
   },
   "roles": {
-    "crisis": "I need help",
-    "volunteer": "Co-pilot",
-    "coordinator": "Coordinator"
+    "crisis": "Find help",
+    "volunteer": "Volunteer"
   },
   "crisis": {
     "needHelp": "I need help",
@@ -29,7 +28,7 @@
       "prompt": "Anything you'd like us to know?",
       "hint": "Only if you want to. You don't need to share your name or address.",
       "placeholder": "e.g. me and my dog, nowhere safe tonight",
-      "continue": "Find a place",
+      "continue": "Continue",
       "finding": "Finding places near you…",
       "retry": "That didn't go through. Take your time and try again."
     },
@@ -51,13 +50,31 @@
       "point3": "It's okay to bring your things. Ask if you're unsure about pets.",
       "reassure": "You belong here. The people inside are there to help, not to judge.",
       "done": "Got it"
+    },
+    "location": {
+      "title": "Where are you right now?",
+      "subtitle": "We use this only to find the closest help. Your exact spot is never saved.",
+      "locating": "Finding your location…",
+      "found": "Got your area.",
+      "foundManual": "Location set.",
+      "error": {
+        "denied": "We couldn't use your device's location. You can set it yourself below.",
+        "unavailable": "Location isn't available on this device. You can set it yourself below.",
+        "timeout": "That took a while. Try again, or set your location yourself below."
+      },
+      "useCurrent": "Use my current location",
+      "orManual": "Or set your location yourself",
+      "changeLabel": "Use a different location",
+      "pickOnMap": "Tap my location on the map",
+      "picking": "Tap your location on the map…",
+      "cancel": "Cancel",
+      "addressLabel": "Search a city or address",
+      "addressPlaceholder": "City or address",
+      "search": "Search",
+      "searching": "Searching…",
+      "notFound": "We couldn't find that. Try a city or a nearby street.",
+      "continue": "Find places near me"
     }
-  },
-  "volunteer": {
-    "panelStub": "Co-pilot side — Lane 3 builds here."
-  },
-  "coordinator": {
-    "panelStub": "Coordinator view — Lane 3 builds here."
   },
   "map": {
     "stub": "Map — Lane 1 builds here."

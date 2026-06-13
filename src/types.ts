@@ -4,7 +4,9 @@
 
 export type NeedType = "bed" | "food" | "hygiene" | "medical" | "talk";
 
-export type Role = "crisis" | "volunteer" | "coordinator";
+// Two modes only: "crisis" is labelled "Find help" in the UI; "volunteer" posts
+// and manages listings. (Coordinator was removed in the two-mode rebuild.)
+export type Role = "crisis" | "volunteer";
 
 /** Resource node categories the Resource agent classifies into. */
 export type ResourceType =

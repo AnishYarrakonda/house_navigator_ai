@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import type { Need, ResourceNode } from "../../types";
 import { NEED_ICON } from "./icons";
 import { formatMiles, hoursUntil, milesFromVolunteer, nearestLandmark } from "./format";
-import { Button } from "../../components/kit";
+import { Button, Icon } from "../../components/kit";
 
 interface NeedCardProps {
   need: Need;
@@ -26,10 +26,10 @@ export default function NeedCard({ need, nodes, onAccept }: NeedCardProps) {
     <div className="rounded-[14px] border border-wp-line bg-wp-surf p-4">
       <div className="flex items-start gap-3">
         <span
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] border border-wp-line2 bg-wp-surf2 text-xl"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] border border-wp-line2 bg-wp-surf2 text-wp-txd"
           aria-hidden="true"
         >
-          {NEED_ICON[need.type]}
+          <Icon name={NEED_ICON[need.type]} size={20} />
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[15px] font-semibold leading-tight text-wp-tx">

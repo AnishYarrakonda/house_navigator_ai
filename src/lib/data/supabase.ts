@@ -27,7 +27,7 @@ import type {
   ResourceNode,
   Waypoint,
 } from "../../types";
-import { geocellCenter, toGeocell } from "../geocell";
+import { geocellCenter } from "../geocell";
 import { supabase } from "../supabase";
 import type {
   AddWaypointInput,
@@ -424,19 +424,10 @@ class SupabaseDataLayer implements DataLayer {
 
   // --- Coordinator views ---
   async getHeatmapCells(opts?: HeatmapOptions): Promise<HeatCell[]> {
-    // Derived, k-anonymized aggregate (invariant #3). Built from need fuzzed
-    // cells + journey density — NEVER from raw points. Any cell below
-    // K_ANON_MIN active signals is dropped HERE in the derivation.
-    const [needs, waypoints, nodes] = await Promise.all([
-      this.getNeeds(),
-      // Journey density comes via waypoints (a journey row carries no geometry).
-      (async () => {
-        const { data, error } = await db().from("waypoint").select("*");
-        if (error) throw error;
-        return ((data ?? []) as WaypointRow[]).map(toWaypoint);
-      })(),
-      this.getNodes(),
-    ]);
+    // Derived, k-anonymized aggregate (invariant #3). Built ONLY from real need
+    // fuzzed cells — never from raw points and never synthetically inflated. Any
+    // cell below K_ANON_MIN active signals is dropped HERE in the derivation.
+    const needs = await this.getNeeds();
 
     const counts = new Map<string, { count: number; types: NeedType[] }>();
     const add = (cell: string, type?: NeedType) => {
@@ -450,18 +441,7 @@ class SupabaseDataLayer implements DataLayer {
       if (need.status === "expired") continue;
       add(need.fuzzed_geocell, need.type);
     }
-
-    // Synthesize aggregate signal near active journey nodes so some cells clear
-    // the k-anon threshold; the hour scrubber nudges the spread (matches mock).
-    const hour = opts?.hour ?? new Date().getHours();
-    const intensity = 4 + (Math.abs((hour % 24) - 18) <= 3 ? 6 : 2);
-    for (const wp of waypoints) {
-      if (!wp.node_id) continue;
-      const node = nodes.find((n) => n.id === wp.node_id);
-      if (!node) continue;
-      const cell = toGeocell(node.lat, node.lng);
-      for (let i = 0; i < intensity; i++) add(cell);
-    }
+    void opts;
 
     const cells: HeatCell[] = [];
     for (const [geocell, entry] of counts) {

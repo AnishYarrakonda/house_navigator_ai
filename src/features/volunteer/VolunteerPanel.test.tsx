@@ -8,7 +8,21 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import "../../i18n";
 import { MapProvider } from "../../map";
+import { db } from "../../lib/data";
+import { toGeocell } from "../../lib/geocell";
 import VolunteerPanel from "./VolunteerPanel";
+
+// A real inbound need (created via the data layer, not pre-seeded). Its fuzzed
+// cell sits on MSC South so the card resolves a public landmark.
+const SECRET_WORDS = "secret detail that must never leak";
+async function openTestNeed() {
+  await db.openNeed({
+    person_id: "test-person",
+    type: "bed",
+    words: SECRET_WORDS,
+    fuzzed_geocell: toGeocell(37.7765, -122.4053),
+  });
+}
 
 // Tell React this is an act() environment so effects flush deterministically.
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT =
@@ -40,22 +54,23 @@ async function mount() {
 }
 
 it("shows open needs as cards with an accept affordance", async () => {
+  await openTestNeed();
   await mount();
   const text = container.textContent ?? "";
-  // Two seeded open needs → an accept button each.
+  // A real open need → an accept button.
   const acceptButtons = [...container.querySelectorAll("button")].filter((b) =>
     b.textContent?.includes("Accept & help"),
   );
-  expect(acceptButtons.length).toBeGreaterThanOrEqual(2);
+  expect(acceptButtons.length).toBeGreaterThanOrEqual(1);
   expect(text).toContain("A few blocks from");
 });
 
 it("never leaks identity or the person's free-text words pre-accept", async () => {
+  await openTestNeed();
   await mount();
   const text = container.textContent ?? "";
-  // need-open-1's words must not appear anywhere in the inbound view.
-  expect(text).not.toContain("my dog");
-  expect(text).not.toContain("nowhere safe tonight");
-  // No person id / alias surface either.
-  expect(text).not.toContain("person-jules");
+  // The person's free-text words must not appear anywhere in the inbound view.
+  expect(text).not.toContain(SECRET_WORDS);
+  // No person id surfaces either.
+  expect(text).not.toContain("test-person");
 });

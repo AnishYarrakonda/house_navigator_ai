@@ -1,13 +1,13 @@
-// Icon-first glyphs for need types (low-data, no extra deps). Always paired
-// with a localized label + aria-label by the caller (accessibility.md — never
-// icon-only, never color-only).
+// Need-type glyphs (inbound cards, thread). Material Symbols ligature names,
+// rendered via the shared <Icon> kit component — monochrome and consistent with
+// the rest of the app, never decorative emoji. Always paired with a label.
 
 import type { NeedType } from "../../types";
 
 export const NEED_ICON: Record<NeedType, string> = {
-  bed: "🛏️",
-  food: "🍲",
-  hygiene: "🚿",
-  medical: "⚕️",
-  talk: "💬",
+  bed: "night_shelter",
+  food: "restaurant",
+  hygiene: "shower",
+  medical: "medical_services",
+  talk: "forum",
 };

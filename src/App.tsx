@@ -11,7 +11,6 @@ import { SegmentedControl, ToastProvider } from "./components/kit";
 import type { SegmentItem } from "./components/kit";
 import CrisisPanel from "./features/crisis/CrisisPanel";
 import VolunteerPanel from "./features/volunteer/VolunteerPanel";
-import CoordinatorPanel from "./features/coordinator/CoordinatorPanel";
 import type { Role } from "./types";
 
 function RoleSwitcher() {
@@ -39,8 +38,6 @@ function RolePanel() {
       return <CrisisPanel />;
     case "volunteer":
       return <VolunteerPanel />;
-    case "coordinator":
-      return <CoordinatorPanel />;
   }
 }
 

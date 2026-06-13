@@ -9,8 +9,10 @@
 
 import type { StyleSpecification } from "maplibre-gl";
 
-// Deep near-black — the same anchor as the `--wp-bg` design token.
-export const WARM_BG = "#08090a";
+// Charcoal base — lifted off pure near-black so the street network, labels, and
+// landmarks on the CARTO tiles stay legible (the old #08090a crushed them into
+// the background). Still a modern dark theme; just readable.
+export const WARM_BG = "#15171b";
 
 const CARTO_SUBDOMAINS = ["a", "b", "c", "d"];
 const cartoTiles = CARTO_SUBDOMAINS.map(
@@ -43,13 +45,15 @@ export const warmDarkStyle: StyleSpecification = {
       type: "raster",
       source: "carto-dark",
       paint: {
-        // Sink the basemap into the background so cobalt/teal overlays own the
-        // foreground: dim, slightly desaturated, neutral (no warm hue rotate).
-        "raster-opacity": 0.85,
-        "raster-saturation": -0.2,
-        "raster-brightness-max": 0.85,
-        "raster-brightness-min": 0,
-        "raster-contrast": 0.08,
+        // Keep the basemap readable: full opacity, blacks lifted toward charcoal
+        // so streets/labels/landmarks show, only lightly desaturated so cobalt/
+        // teal overlays still read in front. (Previously over-dimmed → invisible
+        // streets.)
+        "raster-opacity": 1,
+        "raster-saturation": -0.1,
+        "raster-brightness-max": 1,
+        "raster-brightness-min": 0.08,
+        "raster-contrast": 0,
       },
     },
   ],

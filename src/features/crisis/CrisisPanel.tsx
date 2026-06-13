@@ -13,6 +13,7 @@ import { BigButton, Card, Icon, IconButton } from "../../components/kit";
 import LanguageToggle from "./LanguageToggle";
 import NeedTiles from "./NeedTiles";
 import WordsStep from "./WordsStep";
+import LocationStep from "./LocationStep";
 import ResultsList from "./ResultsList";
 import ArrivalCard from "./ArrivalCard";
 import { useCrisisFlow } from "./useCrisisFlow";
@@ -77,9 +78,25 @@ export default function CrisisPanel() {
         <WordsStep
           words={flow.words}
           onWordsChange={flow.setWords}
-          onContinue={() => void flow.submitNeed()}
+          onContinue={flow.goToLocation}
+        />
+      ) : null}
+
+      {flow.step === "location" ? (
+        <LocationStep
+          locationStatus={flow.locationStatus}
+          locationSource={flow.locationSource}
+          picking={flow.picking}
+          geocoding={flow.geocoding}
+          addressNotFound={flow.addressNotFound}
+          hasLocation={flow.hasLocation}
           submitting={flow.submitting}
           hiccup={flow.hiccup}
+          requestDeviceLocation={flow.requestDeviceLocation}
+          pickOnMap={flow.pickOnMap}
+          cancelPick={flow.cancelPick}
+          searchAddress={flow.searchAddress}
+          submitNeed={flow.submitNeed}
         />
       ) : null}
 
