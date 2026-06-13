@@ -17,14 +17,15 @@ export function capacityLevel(open: number, total: number): CapacityLevel {
   return "limited";
 }
 
-/** Emoji glyph per node type — shape carries the type independent of color. */
+/** Material Symbols ligature per node type — the glyph (shape) carries the type
+ * independent of color. Rendered with the `wp-icon` font class on the pin. */
 export const TYPE_GLYPH: Record<ResourceType, string> = {
-  bed: "🛏️",
-  food: "🍲",
-  hygiene: "🚿",
-  water: "🚰",
-  medical: "✚",
-  "charging-wifi": "🔌",
+  bed: "night_shelter",
+  food: "restaurant",
+  hygiene: "shower",
+  water: "water_drop",
+  medical: "medical_services",
+  "charging-wifi": "bolt",
 };
 
 /** i18n key fragment + English fallback for a node type (Lane 2 owns the dict). */
@@ -44,12 +45,12 @@ export const LEVEL_LABEL: Record<CapacityLevel, string> = {
   full: "full",
 };
 
-// --- Route colors (the glowing path home) ---------------------------------- //
+// --- Route colors (the glowing path home — cobalt × deep teal) -------------- //
 export const ROUTE = {
-  /** Bright core of a completed segment. */
-  doneCore: "#ffd9a0",
-  /** Warm under-glow behind the core. */
-  doneGlow: "#f4a259",
-  /** Dim dotted upcoming segment. */
-  todo: "#c98a4a",
+  /** Bright core of a completed segment (cobalt-bright). */
+  doneCore: "#5ab8ff",
+  /** Teal under-glow behind the core. */
+  doneGlow: "#2cb8b4",
+  /** Dim dotted upcoming segment (cobalt). */
+  todo: "#2f6df6",
 } as const;

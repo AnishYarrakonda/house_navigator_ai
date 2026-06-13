@@ -1,7 +1,11 @@
 {
   "app": {
     "title": "Waypoint",
-    "tagline": "El camino a casa, hecho visible."
+    "tagline": "El camino a casa, hecho visible.",
+    "roleSwitcher": "Elegir una vista"
+  },
+  "common": {
+    "dismiss": "Descartar"
   },
   "roles": {
     "crisis": "Necesito ayuda",
@@ -36,7 +40,8 @@
       "spotsOpen_other": "{{count}} disponibles",
       "walkMin": "~{{min}} min a pie",
       "nearby": "Cerca",
-      "choose": "Ver cómo llegar"
+      "choose": "Ver cómo llegar",
+      "recommended": "Recomendado"
     },
     "arrival": {
       "title": "Qué esperar cuando llegues",

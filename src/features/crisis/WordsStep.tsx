@@ -27,11 +27,11 @@ export default function WordsStep({
       <div>
         <label
           htmlFor="crisis-words"
-          className="text-lg font-semibold text-white"
+          className="text-lg font-semibold text-wp-tx"
         >
           {t("crisis.words.prompt")}
         </label>
-        <p className="mt-1 text-sm text-white/60">{t("crisis.words.hint")}</p>
+        <p className="mt-1 text-sm text-wp-txd">{t("crisis.words.hint")}</p>
       </div>
 
       <textarea
@@ -41,14 +41,14 @@ export default function WordsStep({
         rows={3}
         placeholder={t("crisis.words.placeholder")}
         className={
-          "w-full resize-none rounded-2xl bg-white/10 p-3 text-base text-white " +
-          "placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-4 " +
-          "focus-visible:ring-waypoint-accent/60"
+          "w-full resize-none rounded-[12px] border border-wp-line2 bg-wp-surf2 p-3 text-base " +
+          "text-wp-tx placeholder:text-wp-txf focus-visible:outline-none focus-visible:ring-2 " +
+          "focus-visible:ring-wp-acc/60"
         }
       />
 
       {hiccup ? (
-        <p className="text-sm text-white/70" role="status">
+        <p className="text-sm text-wp-txd" role="status">
           {t("crisis.words.retry")}
         </p>
       ) : null}

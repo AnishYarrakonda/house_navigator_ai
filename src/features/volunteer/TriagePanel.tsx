@@ -6,6 +6,7 @@
 
 import { useTranslation } from "react-i18next";
 import type { TriageRecommendation } from "./triage";
+import { Button, Icon, RecommendedChip } from "../../components/kit";
 
 interface TriagePanelProps {
   rec: TriageRecommendation;
@@ -23,28 +24,28 @@ export default function TriagePanel({
   const { t } = useTranslation();
 
   return (
-    <div className="rounded-xl bg-waypoint-bg/60 p-3 ring-1 ring-white/10">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">{t("volunteer.triage.title")}</h3>
-        <span className="rounded-full bg-waypoint-accent/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-waypoint-accent">
-          {t("volunteer.triage.recommendedBadge")}
-        </span>
+    <div className="rounded-[14px] border border-wp-line bg-wp-surf p-4">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-[15px] font-semibold text-wp-tx">
+          {t("volunteer.triage.title")}
+        </h3>
+        <RecommendedChip label={t("volunteer.triage.recommendedBadge")} />
       </div>
 
       {/* The rationale — plain language, always shown alongside the options. */}
-      <p className="mt-2 text-xs leading-relaxed text-white/80">
-        <span className="font-semibold text-white/60">
+      <p className="mt-2 text-[13px] leading-relaxed text-wp-txd">
+        <span className="font-semibold text-wp-tx">
           {t("volunteer.triage.rationaleLabel")}:{" "}
         </span>
         {rec.rationale}
       </p>
 
       {escalated ? (
-        <p className="mt-3 rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-200 ring-1 ring-amber-400/30">
+        <p className="mt-3 rounded-[11px] border border-[rgba(216,182,92,0.32)] bg-[rgba(216,182,92,0.12)] px-3 py-2 text-xs leading-relaxed text-[#e0c878]">
           {t("volunteer.triage.escalated")}
         </p>
       ) : (
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 flex flex-col gap-[9px]">
           {rec.options.map((opt, i) => {
             const isConfirmed = confirmedNodeId === opt.node.id;
             const room =
@@ -55,36 +56,36 @@ export default function TriagePanel({
               <li
                 key={opt.node.id}
                 className={
-                  "rounded-lg p-2 ring-1 " +
+                  "flex items-center gap-3 rounded-[11px] border p-3 " +
                   (i === 0
-                    ? "bg-waypoint-accent/10 ring-waypoint-accent/40"
-                    : "bg-white/5 ring-white/10")
+                    ? "border-[rgba(47,109,246,0.35)] bg-[rgba(47,109,246,0.05)]"
+                    : "border-wp-line bg-wp-surf2")
                 }
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{opt.node.name}</p>
-                    <p className="text-[11px] text-white/60">
-                      {opt.miles.toFixed(1)} mi · {room}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-wp-tx">
+                    {opt.node.name}
+                  </p>
+                  <p className="mt-0.5 font-mono text-[11px] text-wp-txf">
+                    {opt.miles.toFixed(1)} mi · {room}
+                  </p>
+                </div>
+                {isConfirmed ? (
+                  <span className="flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-[#7ad6a6]">
+                    <Icon name="check_circle" size={17} />
+                    {t("volunteer.triage.held")}
+                  </span>
+                ) : (
+                  <Button
+                    variant="confirm"
                     onClick={() => onConfirm(opt.node.id)}
                     disabled={confirmedNodeId !== null}
                     aria-pressed={isConfirmed}
-                    className={
-                      "min-h-[44px] shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition " +
-                      (isConfirmed
-                        ? "bg-emerald-500 text-waypoint-bg"
-                        : confirmedNodeId !== null
-                          ? "bg-white/10 text-white/40"
-                          : "bg-waypoint-accent text-waypoint-bg hover:brightness-105")
-                    }
+                    className="min-h-[44px] shrink-0"
                   >
                     {t("volunteer.triage.confirm")}
-                  </button>
-                </div>
+                  </Button>
+                )}
               </li>
             );
           })}
@@ -92,12 +93,15 @@ export default function TriagePanel({
       )}
 
       {confirmedNodeId ? (
-        <p className="mt-3 text-xs text-emerald-300">
+        <p className="mt-3 flex items-center gap-1.5 text-[13px] font-medium text-[#7ad6a6]">
+          <Icon name="check_circle" size={17} />
           {t("volunteer.triage.confirmedNote")}
         </p>
       ) : (
         !escalated && (
-          <p className="mt-3 text-[11px] text-white/40">{t("volunteer.triage.hint")}</p>
+          <p className="mt-3 text-[11px] leading-relaxed text-wp-txf">
+            {t("volunteer.triage.hint")}
+          </p>
         )
       )}
     </div>

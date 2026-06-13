@@ -6,7 +6,7 @@ metadata:
 ---
 
 Chosen stack for Waypoint (hackathon-realistic, map-first):
-- **Map:** MapLibre GL JS (no token/billing), custom warm-dark style; built-in `heatmap`, animated GeoJSON `line` (routes), animated `circle` (beacons). deck.gl is stretch-only.
+- **Map:** MapLibre GL JS (no token/billing) over CARTO `dark_all` tiles, themed to the [[design-system]] (cobalt × deep-teal dark; was warm-amber); built-in `heatmap`, animated GeoJSON `line` (routes), animated `circle` (beacons). deck.gl is stretch-only.
 - **Frontend:** React + Vite + TypeScript + Tailwind; reusable big-tap-target kit for the crisis side.
 - **Backend/realtime:** Supabase (Postgres + Realtime + RLS). Realtime fan-out onto the map is the demo's wow; RLS enforces privacy.
 - **Auth:** Supabase anonymous sessions (crisis side, no login) + normal auth (volunteers/orgs).

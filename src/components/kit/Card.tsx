@@ -1,5 +1,6 @@
-// Card — the warm-dark surface container the crisis panels sit in. Floats over
-// the map with a subtle blur so the map (the hero) stays visible behind it.
+// Card — the glass surface container the panels float in over the map. Matches
+// the Navigation Map screen panels: translucent dark surface, hairline border,
+// 18px radius, heavy blur so the map (the hero) stays legible behind it.
 
 import type { ReactNode } from "react";
 
@@ -12,7 +13,8 @@ export default function Card({ children, className = "" }: CardProps) {
   return (
     <div
       className={
-        "rounded-2xl bg-waypoint-surface/95 p-4 text-white shadow-xl backdrop-blur " +
+        "rounded-[18px] border border-wp-line2 bg-[rgba(15,16,19,0.85)] p-5 " +
+        "text-wp-tx shadow-wp-lg backdrop-blur-[22px] " +
         className
       }
     >

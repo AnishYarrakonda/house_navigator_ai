@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import type { Need, ResourceNode } from "../../types";
 import { NEED_ICON } from "./icons";
 import { formatMiles, hoursUntil, milesFromVolunteer, nearestLandmark } from "./format";
+import { Button } from "../../components/kit";
 
 interface NeedCardProps {
   need: Need;
@@ -22,19 +23,24 @@ export default function NeedCard({ need, nodes, onAccept }: NeedCardProps) {
   const typeLabel = t(`volunteer.needType.${need.type}`);
 
   return (
-    <div className="rounded-xl bg-waypoint-bg/60 p-3 ring-1 ring-white/10">
+    <div className="rounded-[14px] border border-wp-line bg-wp-surf p-4">
       <div className="flex items-start gap-3">
-        <span className="text-2xl" aria-hidden="true">
+        <span
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] border border-wp-line2 bg-wp-surf2 text-xl"
+          aria-hidden="true"
+        >
           {NEED_ICON[need.type]}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold leading-tight">{typeLabel}</p>
+          <p className="text-[15px] font-semibold leading-tight text-wp-tx">
+            {typeLabel}
+          </p>
           {landmark && (
-            <p className="mt-0.5 text-xs text-white/70">
+            <p className="mt-1 text-xs text-wp-txd">
               {t("volunteer.inbound.nearLandmark", { place: landmark })}
             </p>
           )}
-          <p className="mt-0.5 text-xs text-white/50">
+          <p className="mt-1 font-mono text-[11px] text-wp-txf">
             {t("volunteer.inbound.away", { dist })}
             {" · "}
             {hrsLeft <= 0
@@ -43,13 +49,13 @@ export default function NeedCard({ need, nodes, onAccept }: NeedCardProps) {
           </p>
         </div>
       </div>
-      <button
-        type="button"
+      <Button
+        variant="primary"
         onClick={() => onAccept(need)}
-        className="mt-3 min-h-[44px] w-full rounded-lg bg-waypoint-accent px-4 py-2 text-sm font-semibold text-waypoint-bg transition hover:brightness-105"
+        className="mt-3 min-h-[44px] w-full"
       >
         {t("volunteer.inbound.accept")}
-      </button>
+      </Button>
     </div>
   );
 }

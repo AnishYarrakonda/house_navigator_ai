@@ -1,13 +1,16 @@
-// Warm-dark basemap style for Waypoint. MapLibre GL JS, NO token / billing
-// (see .claude/rules/map.md). Basemap is CARTO's free raster dark tiles, tinted
-// warm via raster paint + a warm background that bleeds through the shadows. If
-// the network/tiles fail, the warm background + our glowing overlays still read,
-// so the hero shot degrades gracefully on weak signal (accessibility.md).
+// Cool-dark basemap style for Waypoint (Navigation Map design system). MapLibre
+// GL JS, NO token / billing (see .claude/rules/map.md). Basemap is CARTO's free
+// raster dark tiles, kept neutral/cool to sit under cobalt routes + heat. A deep
+// near-black background bleeds through the shadows, so if the network/tiles fail
+// the background + our glowing overlays still read — the hero shot degrades
+// gracefully on weak signal (accessibility.md).
+//
+// Export names are kept (`warmDarkStyle`, `WARM_BG`) so importers don't churn.
 
 import type { StyleSpecification } from "maplibre-gl";
 
-// Warm near-black — the same anchor as the Tailwind `waypoint.bg` token.
-export const WARM_BG = "#1a1410";
+// Deep near-black — the same anchor as the `--wp-bg` design token.
+export const WARM_BG = "#08090a";
 
 const CARTO_SUBDOMAINS = ["a", "b", "c", "d"];
 const cartoTiles = CARTO_SUBDOMAINS.map(
@@ -40,13 +43,13 @@ export const warmDarkStyle: StyleSpecification = {
       type: "raster",
       source: "carto-dark",
       paint: {
-        // Let a little warm background bleed through the dark tiles, and nudge
-        // the cool grey basemap toward amber.
-        "raster-opacity": 0.9,
-        "raster-hue-rotate": 18,
-        "raster-saturation": -0.1,
-        "raster-brightness-min": 0.02,
-        "raster-contrast": 0.05,
+        // Sink the basemap into the background so cobalt/teal overlays own the
+        // foreground: dim, slightly desaturated, neutral (no warm hue rotate).
+        "raster-opacity": 0.85,
+        "raster-saturation": -0.2,
+        "raster-brightness-max": 0.85,
+        "raster-brightness-min": 0,
+        "raster-contrast": 0.08,
       },
     },
   ],

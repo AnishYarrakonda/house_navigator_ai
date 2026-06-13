@@ -2,6 +2,8 @@
 
 > The master plan. Everything else (`rules/`, `agents/`, the `M*` milestone plans) hangs off this. Read this first, then the milestone you're working on, then the rules it references.
 
+> **Status (2026-06-13):** the build below is **complete** — M0–M5 are all implemented and the app runs end-to-end on seeded data. This file remains the reference for *intent and architecture*; it is no longer a forward to-do list. Current work is a presentation-only front-end revamp to the cobalt × deep-teal **Navigation Map** design system (visual source of truth in `Navigation Map/`), replacing the old warm-amber theme. Where this plan still says "warm-dark," read "cobalt × deep-teal dark."
+
 ## The one-liner
 
 A two-sided app where a person in crisis can find safety *tonight* and watch their *path home* take shape on a living map — while volunteers walk that path alongside them instead of dispatching to a dot.
@@ -82,7 +84,7 @@ Heatmap is **derived**: aggregate `need.fuzzed_geocell` + journey density; **nev
 
 ## Tech stack (hackathon-realistic, map-first)
 
-- **Map:** MapLibre GL JS (no token/billing), custom warm-dark style; built-in `heatmap` layer; animated GeoJSON `line` for routes; animated `circle` for beacon pulses. *Stretch:* deck.gl glow.
+- **Map:** MapLibre GL JS (no token/billing) over CARTO `dark_all` tiles, themed cobalt × deep-teal dark (Navigation Map design system; was warm-amber); built-in `heatmap` layer; animated GeoJSON `line` for routes; animated `circle` for beacon pulses. *Stretch:* deck.gl glow.
 - **Frontend:** React + Vite + TypeScript + Tailwind; big-tap-target kit for the crisis side.
 - **Backend/realtime:** Supabase (Postgres + Realtime + RLS). Realtime is the wow with almost no code; RLS enforces privacy.
 - **Auth:** Supabase anonymous sessions (crisis side); normal auth (volunteers/orgs).

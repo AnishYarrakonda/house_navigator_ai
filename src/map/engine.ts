@@ -241,7 +241,7 @@ export function createMapEngine(map: MlMap): MapEngine {
       source: "beacons",
       paint: {
         "circle-radius": 4,
-        "circle-color": "#f4a259",
+        "circle-color": "#2f6df6",
         "circle-opacity": 0.4,
         "circle-blur": 0.6,
       },
@@ -252,8 +252,8 @@ export function createMapEngine(map: MlMap): MapEngine {
       source: "beacons",
       paint: {
         "circle-radius": 5,
-        "circle-color": "#ffd9a0",
-        "circle-stroke-color": "#f4a259",
+        "circle-color": "#5ab8ff",
+        "circle-stroke-color": "#2f6df6",
         "circle-stroke-width": 1.5,
       },
     } as unknown as LayerSpecification);
@@ -278,11 +278,11 @@ export function createMapEngine(map: MlMap): MapEngine {
           ["linear"],
           ["heatmap-density"],
           0, TRANSPARENT,
-          0.2, "rgba(120, 40, 20, 0.5)",
-          0.4, "#a8421f",
-          0.6, "#f4a259",
-          0.8, "#ffd27f",
-          1, "#fff1c9",
+          0.2, "rgba(31, 80, 200, 0.45)",
+          0.4, "#1f50c8",
+          0.6, "#2f6df6",
+          0.8, "#5a8bff",
+          1, "#bcd2ff",
         ],
       },
     } as unknown as LayerSpecification);
@@ -428,7 +428,7 @@ export function createMapEngine(map: MlMap): MapEngine {
 
           entry.el.className = `wp-pin wp-pin--${level}${highlighted.has(node.id) ? " is-highlighted" : ""}`;
           entry.el.setAttribute("aria-label", aria);
-          entry.el.innerHTML = `<span class="wp-pin__icon" aria-hidden="true">${glyph}</span><span class="wp-pin__cap">${node.capacity_open}/${node.capacity_total}</span>`;
+          entry.el.innerHTML = `<span class="wp-pin__badge" aria-hidden="true"><span class="wp-icon">${glyph}</span></span><span class="wp-pin__cap"><span class="wp-pin__num">${node.capacity_open}/${node.capacity_total}</span></span>`;
         }
 
         // Drop markers for nodes that disappeared.

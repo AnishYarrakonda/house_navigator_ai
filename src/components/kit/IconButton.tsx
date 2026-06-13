@@ -23,9 +23,9 @@ export default function IconButton({
       type={type}
       aria-label={label}
       className={
-        "flex h-11 w-11 items-center justify-center rounded-full text-white/80 " +
-        "transition hover:bg-white/10 hover:text-white focus-visible:outline-none " +
-        "focus-visible:ring-4 focus-visible:ring-waypoint-accent/60 " +
+        "flex h-11 w-11 items-center justify-center rounded-full text-wp-txd " +
+        "transition hover:bg-wp-surf3 hover:text-wp-tx focus-visible:outline-none " +
+        "focus-visible:ring-4 focus-visible:ring-wp-acc/60 " +
         className
       }
       {...rest}

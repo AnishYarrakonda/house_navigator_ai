@@ -21,6 +21,14 @@ import NeedCard from "./NeedCard";
 import TriagePanel from "./TriagePanel";
 import MessageThread from "./MessageThread";
 import JourneyCard from "./JourneyCard";
+import {
+  Button,
+  Icon,
+  SectionLabel,
+  SegmentedControl,
+  Skeleton,
+  useToast,
+} from "../../components/kit";
 
 /** The signed-in co-pilot for the demo (no auth — see lib/useRole). */
 const CURRENT_VOLUNTEER = { id: "vol-amara", name: "Amara" } as const;
@@ -32,9 +40,10 @@ const journeyIdForPerson = (personId: string) => `journey-${personId}`;
 export default function VolunteerPanel() {
   const { t } = useTranslation();
   const map = useMapController();
-  const { data: needs } = useNeeds();
+  const { showToast } = useToast();
+  const { data: needs, loading: needsLoading } = useNeeds();
   const { data: nodes } = useNodes();
-  const { data: journeys } = useJourneys();
+  const { data: journeys, loading: journeysLoading } = useJourneys();
 
   const [tab, setTab] = useState<Tab>("inbound");
   const [activeNeed, setActiveNeed] = useState<Need | null>(null);
@@ -107,6 +116,7 @@ export default function VolunteerPanel() {
     const node = nodes.find((n) => n.id === nodeId);
     await db.confirmResource(activeNeed.id, nodeId); // decrements capacity_open
     setConfirmedNodeId(nodeId);
+    showToast(t("volunteer.triage.toast"), "success");
     const jid = journeyIdForPerson(activeNeed.person_id);
     if (node) {
       await db.sendMessage({
@@ -137,26 +147,18 @@ export default function VolunteerPanel() {
   const consentFor = (journeyId: string) => consent[journeyId] ?? true;
 
   return (
-    <div className="flex max-h-[78dvh] flex-col gap-3 overflow-y-auto rounded-2xl bg-waypoint-surface/90 p-4 text-white shadow-xl backdrop-blur">
+    <div className="flex h-full flex-col gap-3 overflow-y-auto rounded-[18px] border border-wp-line2 bg-[rgba(14,15,18,0.87)] p-4 text-wp-tx shadow-wp-lg backdrop-blur-[22px]">
       {/* Tabs */}
-      <div className="flex gap-1 rounded-full bg-waypoint-bg/60 p-1">
-        {(["inbound", "journeys"] as Tab[]).map((tk) => (
-          <button
-            key={tk}
-            type="button"
-            onClick={() => setTab(tk)}
-            aria-pressed={tab === tk}
-            className={
-              "min-h-[36px] flex-1 rounded-full px-3 py-1 text-xs font-semibold transition " +
-              (tab === tk
-                ? "bg-waypoint-accent text-waypoint-bg"
-                : "text-white/70 hover:text-white")
-            }
-          >
-            {t(`volunteer.tabs.${tk}`)}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl<Tab>
+        ariaLabel={t("volunteer.tabs.inbound")}
+        stretch
+        value={tab}
+        onChange={setTab}
+        items={[
+          { value: "inbound", label: t("volunteer.tabs.inbound") },
+          { value: "journeys", label: t("volunteer.tabs.journeys") },
+        ]}
+      />
 
       {tab === "inbound" && (
         <>
@@ -171,31 +173,40 @@ export default function VolunteerPanel() {
                 />
               )}
               {selectedJourneyId && <MessageThread journeyId={selectedJourneyId} />}
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                icon={<Icon name="arrow_back" size={16} />}
                 onClick={() => {
                   setActiveNeed(null);
                   setConfirmedNodeId(null);
                   setSelectedJourneyId(null);
                   map.clearHighlights();
                 }}
-                className="min-h-[44px] rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
+                className="min-h-[44px] self-start"
               >
                 {t("volunteer.inbound.back")}
-              </button>
+              </Button>
             </>
           ) : (
             <>
               <div>
-                <h2 className="text-sm font-semibold">
+                <h2 className="font-serif text-lg leading-tight text-wp-tx">
                   {t("volunteer.inbound.title")}
                 </h2>
-                <p className="mt-0.5 text-[11px] text-white/50">
+                <p className="mt-1 text-xs leading-relaxed text-wp-txd">
                   {t("volunteer.privacyNote")}
                 </p>
               </div>
-              {openNeeds.length === 0 ? (
-                <p className="text-xs text-white/50">
+              {needsLoading ? (
+                <>
+                  <Skeleton
+                    className="h-28 rounded-[14px]"
+                    label={t("volunteer.inbound.loading")}
+                  />
+                  <Skeleton className="h-28 rounded-[14px]" />
+                </>
+              ) : openNeeds.length === 0 ? (
+                <p className="rounded-[14px] border border-wp-line bg-wp-surf px-4 py-3 text-xs leading-relaxed text-wp-txd">
                   {t("volunteer.inbound.empty")}
                 </p>
               ) : (
@@ -215,9 +226,19 @@ export default function VolunteerPanel() {
 
       {tab === "journeys" && (
         <>
-          <h2 className="text-sm font-semibold">{t("volunteer.journeys.title")}</h2>
-          {myJourneys.length === 0 ? (
-            <p className="text-xs text-white/50">{t("volunteer.journeys.empty")}</p>
+          <SectionLabel>{t("volunteer.journeys.title")}</SectionLabel>
+          {journeysLoading ? (
+            <>
+              <Skeleton
+                className="h-40 rounded-[14px]"
+                label={t("volunteer.journeys.loading")}
+              />
+              <Skeleton className="h-40 rounded-[14px]" />
+            </>
+          ) : myJourneys.length === 0 ? (
+            <p className="rounded-[14px] border border-wp-line bg-wp-surf px-4 py-3 text-xs leading-relaxed text-wp-txd">
+              {t("volunteer.journeys.empty")}
+            </p>
           ) : (
             myJourneys.map((j) => (
               <div key={j.id} className="space-y-2">

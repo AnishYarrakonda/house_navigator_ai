@@ -1,43 +1,34 @@
 // App shell. The full-bleed map IS the home screen on every side (not a tab).
-// An overlay role toggle switches the role-based panel slot. Wrapped in
-// RoleProvider + MapProvider + i18n. Lanes replace the stub components behind
-// MapView / CrisisPanel / VolunteerPanel / CoordinatorPanel — App.tsx itself
-// should not need editing again.
+// A top-right SegmentedControl switches role; the panel slot is placed per role
+// — crisis is a bottom-center sheet, co-pilot/coordinator dock to the right (and
+// collapse to a near-full-height sheet on small screens). Wrapped in
+// RoleProvider + MapProvider + ToastProvider + i18n.
 
 import { useTranslation } from "react-i18next";
 import { MapProvider, MapView } from "./map";
 import { RoleProvider, ROLES, useRole } from "./lib/useRole";
+import { SegmentedControl, ToastProvider } from "./components/kit";
+import type { SegmentItem } from "./components/kit";
 import CrisisPanel from "./features/crisis/CrisisPanel";
 import VolunteerPanel from "./features/volunteer/VolunteerPanel";
 import CoordinatorPanel from "./features/coordinator/CoordinatorPanel";
 import type { Role } from "./types";
 
-function RoleToggle() {
+function RoleSwitcher() {
   const { role, setRole } = useRole();
   const { t } = useTranslation();
+  const items: SegmentItem<Role>[] = ROLES.map((r: Role) => ({
+    value: r,
+    label: t(`roles.${r}`),
+  }));
   return (
-    <div
-      className="pointer-events-auto flex gap-1 rounded-full bg-waypoint-surface/90 p-1 shadow-lg backdrop-blur"
-      role="group"
-      aria-label="role"
-    >
-      {ROLES.map((r: Role) => (
-        <button
-          key={r}
-          type="button"
-          onClick={() => setRole(r)}
-          aria-pressed={role === r}
-          className={
-            "min-h-[36px] rounded-full px-3 py-1 text-xs font-medium transition " +
-            (role === r
-              ? "bg-waypoint-accent text-waypoint-bg"
-              : "text-white/70 hover:text-white")
-          }
-        >
-          {t(`roles.${r}`)}
-        </button>
-      ))}
-    </div>
+    <SegmentedControl
+      items={items}
+      value={role}
+      onChange={setRole}
+      ariaLabel={t("app.roleSwitcher", { defaultValue: "Choose a view" })}
+      className="backdrop-blur-[18px]"
+    />
   );
 }
 
@@ -53,26 +44,47 @@ function RolePanel() {
   }
 }
 
+function PanelSlot() {
+  const { role } = useRole();
+
+  // Crisis: bottom-center sheet (no-login, one-handed, thumb-reachable).
+  if (role === "crisis") {
+    return (
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center p-3 sm:p-4">
+        <div className="pointer-events-auto w-full max-w-[520px]">
+          <RolePanel />
+        </div>
+      </div>
+    );
+  }
+
+  // Co-pilot / coordinator: right-docked panel on desktop; on small screens it
+  // fills the area under the role switcher as a sheet.
+  return (
+    <div className="pointer-events-auto absolute bottom-3 left-3 right-3 top-[60px] z-10 sm:bottom-4 sm:left-auto sm:right-4 sm:w-[384px]">
+      <RolePanel />
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <RoleProvider>
       <MapProvider>
-        <div className="relative h-dvh w-screen overflow-hidden bg-waypoint-bg">
-          {/* Map is the home screen on both sides */}
-          <MapView />
+        <ToastProvider>
+          <div className="relative h-dvh w-screen overflow-hidden bg-wp-bg">
+            {/* Map is the home screen on every side */}
+            <MapView />
 
-          {/* Overlay UI */}
-          <div className="pointer-events-none absolute inset-0 flex flex-col">
-            <header className="flex items-start justify-end p-3">
-              <RoleToggle />
-            </header>
-            <div className="mt-auto flex justify-center p-3">
-              <div className="pointer-events-auto w-full max-w-md">
-                <RolePanel />
+            {/* Overlay UI */}
+            <div className="pointer-events-none absolute inset-0">
+              <div className="pointer-events-auto absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
+                <RoleSwitcher />
               </div>
+              <PanelSlot />
             </div>
           </div>
-        </div>
+        </ToastProvider>
       </MapProvider>
     </RoleProvider>
   );

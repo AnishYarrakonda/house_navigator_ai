@@ -1,0 +1,179 @@
+/**
+ * Waypoint Design System — Token Reference
+ * Mirrored from Navigation Map/tokens/tokens.css. Imported once at the root
+ * (main.tsx, before index.css). All tokens are prefixed --wp- to avoid
+ * collisions. Fonts are loaded in index.html.
+ */
+
+:root {
+  /* ── Surfaces ────────────────────────────────────── */
+  --wp-bg: #08090a; /* app background / map base    */
+  --wp-bg2: #0c0d0f; /* deepest chrome               */
+  --wp-surf: #121316; /* panels & sheets              */
+  --wp-surf2: #17181c; /* cards on panels              */
+  --wp-surf3: #1e1f24; /* raised elements / hover bg   */
+  --wp-surf4: #26272d; /* segmented active bg          */
+
+  /* ── Borders ─────────────────────────────────────── */
+  --wp-line: rgba(255, 255, 255, 0.08); /* default border   */
+  --wp-line2: rgba(255, 255, 255, 0.13); /* stronger border  */
+
+  /* ── Text ────────────────────────────────────────── */
+  --wp-tx: #f7f8f8; /* primary                       */
+  --wp-txd: #9395a1; /* secondary / supporting        */
+  --wp-txf: #6a6b76; /* muted / meta / captions       */
+
+  /* ── Accent — Cobalt (primary action) ───────────── */
+  --wp-acc: #2f6df6; /* default                       */
+  --wp-acc2: #5a8bff; /* hover / glow                  */
+  --wp-accd: #1f50c8; /* pressed                       */
+
+  /* ── Companion — Deep teal (live & routes) ──────── */
+  --wp-teal: #0e9594; /* default                       */
+  --wp-teal2: #2cb8b4; /* light / route stroke          */
+  --wp-teald: #0b7a72; /* pressed / deep                */
+
+  /* ── Capacity states (ALWAYS pair color + label) ── */
+  --wp-open: #4cc38a; /* space available — ● circle    */
+  --wp-low: #d8b65c; /* limited — ◆ diamond           */
+  --wp-full: #e36a7d; /* none — ▲ or call icon         */
+
+  /* ── Typography ──────────────────────────────────── */
+  --wp-serif: "DM Serif Display", Georgia, serif;
+  --wp-ui: "Hanken Grotesk", system-ui, sans-serif;
+  --wp-mono: "Space Mono", ui-monospace, monospace;
+
+  /* ── Spacing scale ───────────────────────────────── */
+  --wp-s1: 4px;
+  --wp-s2: 8px;
+  --wp-s3: 12px;
+  --wp-s4: 16px;
+  --wp-s5: 24px;
+  --wp-s6: 32px;
+  --wp-s7: 48px;
+  --wp-s8: 64px;
+
+  /* ── Radii ───────────────────────────────────────── */
+  --wp-r-sm: 8px;
+  --wp-r-md: 12px;
+  --wp-r-lg: 16px;
+  --wp-r-xl: 20px;
+  --wp-r-pill: 999px;
+
+  /* ── Shadows ─────────────────────────────────────── */
+  --wp-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --wp-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --wp-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --wp-shadow-acc: 0 8px 26px rgba(47, 109, 246, 0.28);
+  --wp-shadow-teal: 0 4px 16px rgba(14, 149, 148, 0.35);
+  --wp-inset-hi: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+  /* ── Animation ───────────────────────────────────── */
+  --wp-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --wp-dur: 200ms;
+}
+
+/* ── Material Symbols helper ─────────────────────────
+   Used by the kit <Icon> component and the map pins. */
+.wp-icon {
+  font-family: "Material Symbols Rounded";
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 300,
+    "GRAD" 0,
+    "opsz" 24;
+  user-select: none;
+}
+.wp-icon--fill {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+/* ── Keyframes used across the design system ─────────── */
+@keyframes wpPulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.6;
+  }
+  80% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+@keyframes wpDash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+@keyframes wpUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes wpGlow {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes wpSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes wpShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ── Loading skeleton (quiet, non-punishing) ─────────── */
+.wp-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--wp-surf2) 25%,
+    var(--wp-surf3) 50%,
+    var(--wp-surf2) 75%
+  );
+  background-size: 200% 100%;
+  animation: wpShimmer 1.4s linear infinite;
+  border-radius: var(--wp-r-md);
+}
+@media (prefers-reduced-motion: reduce) {
+  .wp-skeleton {
+    animation: none;
+  }
+}
