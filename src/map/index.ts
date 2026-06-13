@@ -9,4 +9,5 @@ export type {
   ZoomLayer,
   FlyToOptions,
   RouteGeoJSON,
+  RouteStyleOptions,
 } from "./types";

@@ -32,6 +32,16 @@ export interface RouteGeoJSON {
   properties?: Record<string, unknown>;
 }
 
+/** Per-route styling for the multi-option route layer (crisis "pick a path"). */
+export interface RouteStyleOptions {
+  /** Hex line color, e.g. "#5ab8ff". */
+  color?: string;
+  /** Render dimmed/translucent — an unselected option. */
+  dim?: boolean;
+  /** Render emphasized (brighter, thicker, on top) — the selected option. */
+  selected?: boolean;
+}
+
 export interface MapController {
   flyTo(opts: FlyToOptions): void;
   setZoomLayer(layer: ZoomLayer): void;
@@ -49,8 +59,13 @@ export interface MapController {
   /** Cancel an in-progress pickLocation without choosing a point. */
   cancelPick(): void;
 
-  drawRoute(journeyId: string, geojson: RouteGeoJSON): void;
-  removeRoute(journeyId: string): void;
+  drawRoute(id: string, geojson: RouteGeoJSON, options?: RouteStyleOptions): void;
+  removeRoute(id: string): void;
+  /** Remove every route currently drawn (all ids). */
+  clearRoutes(): void;
+  /** Emphasize one route id (bright/thick, raised) and dim all others. Pass
+   * null to render all equally. */
+  setSelectedRoute(id: string | null): void;
 
   showHeatmap(cells: HeatCell[]): void;
   hideHeatmap(): void;

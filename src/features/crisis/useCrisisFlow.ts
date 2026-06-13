@@ -6,9 +6,12 @@
 // address), and we never store or transmit a precise point.
 //
 // The "describe" step has BOTH a single free-text box (what you need, in your
-// own words) AND the location capture. On submit we open a beacon, run the match
-// crew (findMatches) over the live nodes, and show three picks: closest /
-// bestFit / balanced. Choosing one draws the road route on the map.
+// own words) AND the location capture. On submit we open a beacon, run the live
+// AI crew (useCrewStream → /api/crew, streaming reasoning + handoffs) over the
+// live nodes, and show three picks: closest / mostResources / balanced. When the
+// three picks are ready we draw ALL THREE as different-colored routes on the map
+// at once; tapping a card emphasizes that route (others dim) and confirming it
+// commits the pick (the chosen route stays drawn).
 
 import { useCallback, useState } from "react";
 import { db } from "../../lib/data";
@@ -23,7 +26,8 @@ import { useNodes } from "../../lib/data/hooks";
 import { useMapController } from "../../map/MapContext";
 import { DEFAULT_ZOOM } from "../../config";
 import { fetchRoute } from "../../lib/routing";
-import { findMatches, type MatchPick, type MatchResult } from "../../lib/match";
+import { type MatchPick, type MatchResult } from "../../lib/match";
+import { useCrewStream, type UseCrewStream } from "./useCrewStream";
 import type { Need, ResourceNode } from "../../types";
 import { getDevicePersonId } from "./session";
 
@@ -38,16 +42,34 @@ export type LocationStatus =
 export type LocationSource = "gps" | "manual";
 
 /** Which of the three picks the person tapped (for highlight styling). */
-export type PickKind = "closest" | "bestFit" | "balanced";
+export type PickKind = "closest" | "mostResources" | "balanced";
+
+/** Distinct route colors per pick — deliberately NOT the capacity
+ * green/amber/red palette. Cobalt / teal / violet read clearly on the dark map.
+ */
+export const ROUTE_COLORS: Record<PickKind, string> = {
+  closest: "#5ab8ff", // cobalt
+  mostResources: "#2cb8b4", // teal
+  balanced: "#b98cff", // violet
+};
+
+/** Stable per-kind route id drawn on the map. */
+export const routeIdFor = (kind: PickKind): string => `crisis-route-${kind}`;
+
+const ALL_KINDS: PickKind[] = ["closest", "mostResources", "balanced"];
 
 export interface CrisisFlow {
   step: CrisisStep;
   words: string;
   matches: MatchResult | null;
   selectedNode: ResourceNode | null;
+  /** Which pick the person is currently emphasizing on the map (pre-commit). */
+  selectedKind: PickKind | null;
   submitting: boolean;
   /** Soft, non-punishing flag if something didn't go through. */
   hiccup: boolean;
+  /** Live AI-crew reasoning state for the matching panel. */
+  crew: UseCrewStream;
 
   // --- Location capture (lives inside the "describe" step) ---
   locationStatus: LocationStatus;
@@ -68,21 +90,23 @@ export interface CrisisFlow {
   cancelPick: () => void;
   searchAddress: (query: string) => Promise<void>;
   submit: () => Promise<void>;
+  /** Emphasize a pick's route on the map (dims the others) without committing. */
+  selectPick: (kind: PickKind, pick: MatchPick) => void;
   choosePick: (kind: PickKind, pick: MatchPick) => Promise<void>;
   back: () => void;
   reset: () => void;
 }
 
-const ROUTE_ID = "crisis-route";
-
 export function useCrisisFlow(): CrisisFlow {
   const map = useMapController();
   const { data: nodes } = useNodes();
+  const crew = useCrewStream();
 
   const [step, setStep] = useState<CrisisStep>("home");
   const [words, setWords] = useState("");
   const [matches, setMatches] = useState<MatchResult | null>(null);
   const [selectedNode, setSelectedNode] = useState<ResourceNode | null>(null);
+  const [selectedKind, setSelectedKind] = useState<PickKind | null>(null);
   const [openedNeed, setOpenedNeed] = useState<Need | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [hiccup, setHiccup] = useState(false);
@@ -158,15 +182,60 @@ export function useCrisisFlow(): CrisisFlow {
     [acceptLocation],
   );
 
+  // Draw all three picks as distinct-colored ORS routes at once, then pre-select
+  // the balanced (recommended) one. Privacy: origin is ALWAYS the fuzzed cell
+  // center, never a precise point. De-dupes when picks share a node.
+  const drawOptionRoutes = useCallback(
+    async (result: MatchResult, cell: string) => {
+      const [originLng, originLat] = geocellCenter(cell);
+      const origin = { lat: originLat, lng: originLng };
+      const seenNodes = new Set<string>();
+
+      const tasks = ALL_KINDS.flatMap((kind) => {
+        const pick = result[kind];
+        if (!pick) return [];
+        if (seenNodes.has(pick.node_id)) return []; // de-dupe shared nodes
+        const node = nodes.find((n) => n.id === pick.node_id);
+        if (!node) return [];
+        seenNodes.add(pick.node_id);
+        return [{ kind, node }];
+      });
+
+      map.clearRoutes();
+      await Promise.all(
+        tasks.map(async ({ kind, node }) => {
+          const route = await fetchRoute(origin, { lat: node.lat, lng: node.lng });
+          map.drawRoute(routeIdFor(kind), route.geojson, {
+            color: ROUTE_COLORS[kind],
+          });
+        }),
+      );
+
+      // Pre-select the recommended (balanced) route if it was drawn; otherwise
+      // fall back to whatever was drawn first.
+      const recommended = result.balanced && !!nodes.find((n) => n.id === result.balanced?.node_id)
+        ? "balanced"
+        : (tasks[0]?.kind ?? null);
+      if (recommended) {
+        map.setSelectedRoute(routeIdFor(recommended));
+        setSelectedKind(recommended);
+      } else {
+        setSelectedKind(null);
+      }
+    },
+    [map, nodes],
+  );
+
   const submit = useCallback(async () => {
     if (!geocell || submitting) return;
     setSubmitting(true);
     setHiccup(false);
+    setSelectedKind(null);
     setStep("matching");
     try {
       // Open a beacon need so the signal pulses on the map / fans out via
       // Realtime. The free text is captured on the need; the inferred type is a
-      // coarse "bed" default — the match crew reasons over the words itself.
+      // coarse "bed" default — the AI crew reasons over the words itself.
       const need = await db.openNeed({
         person_id: getDevicePersonId(),
         type: "bed",
@@ -180,15 +249,19 @@ export function useCrisisFlow(): CrisisFlow {
       map.pulseBeacon(geocell);
       map.flyTo({ lng, lat, zoom: DEFAULT_ZOOM + 1, duration: 1200 });
 
-      const result = await findMatches(words.trim(), geocell, nodes);
+      // Stream the live AI crew (Scout → Analyst → Presenter). Never throws —
+      // falls back to synthetic narration + the local heuristic internally.
+      const result = await crew.run(words.trim(), geocell, nodes);
       setMatches(result);
 
-      const ids = [result.closest, result.bestFit, result.balanced]
+      const ids = [result.closest, result.mostResources, result.balanced]
         .filter((p): p is MatchPick => p !== null)
         .map((p) => p.node_id);
       map.highlightNodes(ids);
 
       setStep("results");
+      // Draw the three colored option routes once we're showing results.
+      void drawOptionRoutes(result, geocell);
     } catch {
       // Trauma-informed: no red error wall. Let the person try again gently.
       setHiccup(true);
@@ -196,22 +269,49 @@ export function useCrisisFlow(): CrisisFlow {
     } finally {
       setSubmitting(false);
     }
-  }, [geocell, submitting, words, nodes, map]);
+  }, [geocell, submitting, words, nodes, map, crew, drawOptionRoutes]);
+
+  // Emphasize one option's route on the map (others dim) without committing —
+  // fired when the person taps a card in the results list.
+  const selectPick = useCallback(
+    (kind: PickKind, pick: MatchPick) => {
+      const node = nodes.find((n) => n.id === pick.node_id);
+      if (!node) return;
+      setSelectedKind(kind);
+      map.setSelectedRoute(routeIdFor(kind));
+      map.highlightNodes([node.id]);
+      map.flyTo({ lng: node.lng, lat: node.lat, zoom: DEFAULT_ZOOM + 1, duration: 900 });
+    },
+    [map, nodes],
+  );
 
   const choosePick = useCallback(
-    async (_kind: PickKind, pick: MatchPick) => {
+    async (kind: PickKind, pick: MatchPick) => {
       const node = nodes.find((n) => n.id === pick.node_id);
       if (!node || !geocell) return;
       setSelectedNode(node);
+      setSelectedKind(kind);
       setStep("routed");
+
+      // Leave the chosen route drawn and emphasized; clear the other options.
+      for (const k of ALL_KINDS) {
+        if (k !== kind) map.removeRoute(routeIdFor(k));
+      }
+      map.setSelectedRoute(routeIdFor(kind));
 
       const [originLng, originLat] = geocellCenter(geocell);
       try {
+        // Re-fetch so the committed route uses real ORS road geometry in its
+        // own color, even if the earlier batch fell back.
         const route = await fetchRoute(
           { lat: originLat, lng: originLng },
           { lat: node.lat, lng: node.lng },
         );
-        map.drawRoute(ROUTE_ID, route.geojson);
+        map.drawRoute(routeIdFor(kind), route.geojson, {
+          color: ROUTE_COLORS[kind],
+          selected: true,
+        });
+        map.setSelectedRoute(routeIdFor(kind));
       } catch {
         // fetchRoute already falls back internally; ignore.
       }
@@ -223,12 +323,14 @@ export function useCrisisFlow(): CrisisFlow {
 
   const reset = useCallback(() => {
     map.cancelPick();
-    map.removeRoute(ROUTE_ID);
+    map.clearRoutes();
     map.clearHighlights();
+    crew.reset();
     setStep("home");
     setWords("");
     setMatches(null);
     setSelectedNode(null);
+    setSelectedKind(null);
     setOpenedNeed(null);
     setHiccup(false);
     setGeocell(null);
@@ -237,7 +339,7 @@ export function useCrisisFlow(): CrisisFlow {
     setPicking(false);
     setGeocoding(false);
     setAddressNotFound(false);
-  }, [map]);
+  }, [map, crew]);
 
   const back = useCallback(() => {
     map.cancelPick();
@@ -247,14 +349,19 @@ export function useCrisisFlow(): CrisisFlow {
         case "describe":
           return "home";
         case "results":
+          // Leaving the results: clear the three option routes.
+          map.clearRoutes();
+          setSelectedKind(null);
           return "describe";
         case "routed":
+          // Going back to results: redraw all three option routes.
+          if (matches && geocell) void drawOptionRoutes(matches, geocell);
           return "results";
         default:
           return "home";
       }
     });
-  }, [map]);
+  }, [map, matches, geocell, drawOptionRoutes]);
 
   // openedNeed is held for the beacon/Realtime lifecycle; reference it so the
   // lint rule for unused state setters is satisfied without changing behavior.
@@ -265,8 +372,10 @@ export function useCrisisFlow(): CrisisFlow {
     words,
     matches,
     selectedNode,
+    selectedKind,
     submitting,
     hiccup,
+    crew,
     locationStatus,
     locationSource,
     picking,
@@ -280,6 +389,7 @@ export function useCrisisFlow(): CrisisFlow {
     cancelPick,
     searchAddress,
     submit,
+    selectPick,
     choosePick,
     back,
     reset,

@@ -67,6 +67,11 @@ export interface ResourceNode {
   volunteer_id?: string;
   /** Human-readable street address the listing was geocoded from. */
   address?: string;
+  /** True when this node's inventory/capacity is simulated demo data (real SF
+   * location, but SF publishes no live per-bed feed — data-sources.md). The UI
+   * surfaces a subtle "demo data" tag so judges see the honesty. Volunteer-posted
+   * listings are NOT simulated (the volunteer reported them). */
+  simulated?: boolean;
 }
 
 export interface Journey {

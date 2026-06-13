@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { BigButton, Icon, IconButton } from "../../components/kit";
 import { useNodes } from "../../lib/data/hooks";
 import LocationStep from "./LocationStep";
-import MatchingLoader from "./MatchingLoader";
+import CrewReasoningPanel from "./CrewReasoningPanel";
 import MatchResults from "./MatchResults";
 import { useCrisisFlow } from "./useCrisisFlow";
 
@@ -101,16 +101,21 @@ export default function CrisisPanel() {
         </div>
       ) : null}
 
-      {flow.step === "matching" ? <MatchingLoader /> : null}
+      {flow.step === "matching" ? (
+        <CrewReasoningPanel agents={flow.crew.agents} handoff={flow.crew.handoff} />
+      ) : null}
 
       {flow.step === "results" && flow.matches ? (
         <div className="flex flex-col gap-3">
           <h2 className="text-lg font-semibold text-wp-tx">
             {t("crisis.results.title")}
           </h2>
+          <p className="text-sm text-wp-txd">{t("crisis.results.pickHint")}</p>
           <MatchResults
             matches={flow.matches}
             nodes={nodes}
+            selectedKind={flow.selectedKind}
+            onSelect={(kind, pick) => flow.selectPick(kind, pick)}
             onChoose={(kind, pick) => void flow.choosePick(kind, pick)}
           />
         </div>

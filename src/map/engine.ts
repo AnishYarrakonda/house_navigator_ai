@@ -21,6 +21,7 @@ import type {
   LngLat,
   MapController,
   RouteGeoJSON,
+  RouteStyleOptions,
   ZoomLayer,
 } from "./types";
 import type { RouteFeature } from "./routes";
@@ -107,10 +108,24 @@ export function createMapEngine(map: MlMap): MapEngine {
   let highlightedIds: string[] = [];
 
   // --- Routes ---
+  // Seeded journeys flow through the animated `routes` source (single shared
+  // reveal gradient). Externally drawn routes (drawRoute) each carry their own
+  // color + emphasis state, so they live in a SEPARATE `option-routes` source
+  // whose paint is fully data-driven off feature properties — no per-id layers,
+  // so an arbitrary number of colored options coexist without layer churn.
   const seededRoutes = new Map<string, RouteFeature[]>();
-  const externalRoutes = new Map<string, RouteFeature[]>();
   let routeAnimStart = 0;
   let routeAnimActive = false;
+
+  // Externally drawn routes: id -> { geometry, color, dim, selected }.
+  interface OptionRoute {
+    geometry: RouteGeoJSON["geometry"];
+    color: string;
+    dim: boolean;
+    selected: boolean;
+  }
+  const optionRoutes = new Map<string, OptionRoute>();
+  let selectedRouteId: string | null = null;
 
   // --- Beacons ---
   const needCells = new Set<string>();
@@ -166,14 +181,42 @@ export function createMapEngine(map: MlMap): MapEngine {
 
   // ------------------------------------------------------------------- routes
   function rebuildRoutes(): void {
-    const byJourney = new Map<string, RouteFeature[]>();
-    for (const [id, f] of seededRoutes) byJourney.set(id, f);
-    for (const [id, f] of externalRoutes) byJourney.set(id, f); // external wins
-    const features = [...byJourney.values()].flat();
+    const features = [...seededRoutes.values()].flat();
     setSourceData(map, "routes", { type: "FeatureCollection", features } as GeoJSON.FeatureCollection);
     routeAnimStart = performance.now();
     routeAnimActive = true;
     ensureLoop();
+  }
+
+  /** Re-emit the option-route source from the per-id map. Style is data-driven
+   * (color + selected/dim live as feature properties), so a single setData call
+   * updates every option at once — cheap enough for old Android. */
+  function rebuildOptionRoutes(): void {
+    const anySelected = selectedRouteId !== null;
+    const features: GeoJSON.Feature[] = [];
+    for (const [id, r] of optionRoutes) {
+      // An explicit selection wins over per-route flags; with no selection,
+      // honor the per-route `selected`/`dim` set at draw time.
+      const isSelected = anySelected ? id === selectedRouteId : r.selected;
+      const isDim = anySelected ? id !== selectedRouteId : r.dim;
+      features.push({
+        type: "Feature",
+        geometry: r.geometry,
+        properties: {
+          id,
+          color: r.color,
+          // Numeric so paint expressions stay simple/cheap.
+          selected: isSelected ? 1 : 0,
+          dim: isDim ? 1 : 0,
+          // Sort key: selected routes render on top of the rest.
+          z: isSelected ? 2 : isDim ? 0 : 1,
+        },
+      });
+    }
+    setSourceData(map, "option-routes", {
+      type: "FeatureCollection",
+      features,
+    } as GeoJSON.FeatureCollection);
   }
 
   // ------------------------------------------------------------------ beacons
@@ -418,6 +461,99 @@ export function createMapEngine(map: MlMap): MapEngine {
       },
     } as unknown as LayerSpecification);
 
+    // Option routes (drawRoute): an arbitrary number of independently colored
+    // routes — the crisis "pick a path" feature. One source, fully data-driven
+    // paint keyed off feature properties, so color + selected/dim emphasis are
+    // per-feature without per-id layers. `line-sort-key` raises the selected one.
+    map.addSource("option-routes", {
+      type: "geojson",
+      data: { type: "FeatureCollection", features: [] },
+    });
+    map.addLayer({
+      id: "option-route-glow",
+      type: "line",
+      source: "option-routes",
+      layout: {
+        "line-cap": "round",
+        "line-join": "round",
+        "line-sort-key": ["get", "z"],
+      },
+      paint: {
+        "line-color": ["get", "color"],
+        "line-blur": 8,
+        // Selected glows strongest, dim barely glows, normal in between.
+        "line-opacity": [
+          "case",
+          ["==", ["get", "selected"], 1], 0.55,
+          ["==", ["get", "dim"], 1], 0.12,
+          0.32,
+        ],
+        "line-width": [
+          "*",
+          ["interpolate", ["linear"], ["zoom"], 10, 6, 14, 12, 16, 18],
+          [
+            "case",
+            ["==", ["get", "selected"], 1], 1.15,
+            ["==", ["get", "dim"], 1], 0.55,
+            0.85,
+          ],
+        ],
+      },
+    } as unknown as LayerSpecification);
+    // Two core layers split by selection: the SELECTED route draws solid + thick;
+    // every other option draws dotted (a shape cue), so the chosen path reads
+    // without relying on color/opacity alone (accessibility.md). `line-dasharray`
+    // can't be data-driven, hence the split.
+    const optionWidth: ExpressionSpecification = [
+      "*",
+      ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 4, 16, 6],
+      [
+        "case",
+        ["==", ["get", "selected"], 1], 1.3,
+        ["==", ["get", "dim"], 1], 0.55,
+        0.9,
+      ],
+    ] as unknown as ExpressionSpecification;
+    const optionOpacity: ExpressionSpecification = [
+      "case",
+      ["==", ["get", "selected"], 1], 1,
+      ["==", ["get", "dim"], 1], 0.45,
+      0.85,
+    ] as unknown as ExpressionSpecification;
+    map.addLayer({
+      id: "option-route-core-solid",
+      type: "line",
+      source: "option-routes",
+      filter: ["==", ["get", "selected"], 1],
+      layout: {
+        "line-cap": "round",
+        "line-join": "round",
+        "line-sort-key": ["get", "z"],
+      },
+      paint: {
+        "line-color": ["get", "color"],
+        "line-opacity": optionOpacity,
+        "line-width": optionWidth,
+      },
+    } as unknown as LayerSpecification);
+    map.addLayer({
+      id: "option-route-core-dotted",
+      type: "line",
+      source: "option-routes",
+      filter: ["!=", ["get", "selected"], 1],
+      layout: {
+        "line-cap": "round",
+        "line-join": "round",
+        "line-sort-key": ["get", "z"],
+      },
+      paint: {
+        "line-color": ["get", "color"],
+        "line-opacity": optionOpacity,
+        "line-width": optionWidth,
+        "line-dasharray": [1.6, 1.6],
+      },
+    } as unknown as LayerSpecification);
+
     // Beacons (pulse ripple from a FUZZED cell center).
     map.addSource("beacons", {
       type: "geojson",
@@ -566,24 +702,42 @@ export function createMapEngine(map: MlMap): MapEngine {
       run(() => endPick());
     },
 
-    drawRoute(journeyId: string, geojson: RouteGeoJSON) {
+    drawRoute(id: string, geojson: RouteGeoJSON, options?: RouteStyleOptions) {
       run(() => {
-        externalRoutes.set(journeyId, [
-          {
-            type: "Feature",
-            geometry: geojson.geometry,
-            properties: { journeyId, segment: "done" },
-          },
-        ]);
+        optionRoutes.set(id, {
+          geometry: geojson.geometry,
+          // Default to the theme's bright route core when no color is given —
+          // a plain 2-arg drawRoute looks like a normal on-theme route.
+          color: options?.color ?? ROUTE.doneCore,
+          dim: options?.dim ?? false,
+          selected: options?.selected ?? false,
+        });
+        rebuildOptionRoutes();
+      });
+    },
+
+    removeRoute(id: string) {
+      run(() => {
+        optionRoutes.delete(id);
+        seededRoutes.delete(id);
+        if (selectedRouteId === id) selectedRouteId = null;
+        rebuildOptionRoutes();
         rebuildRoutes();
       });
     },
 
-    removeRoute(journeyId: string) {
+    clearRoutes() {
       run(() => {
-        externalRoutes.delete(journeyId);
-        seededRoutes.delete(journeyId);
-        rebuildRoutes();
+        optionRoutes.clear();
+        selectedRouteId = null;
+        rebuildOptionRoutes();
+      });
+    },
+
+    setSelectedRoute(id: string | null) {
+      run(() => {
+        selectedRouteId = id;
+        rebuildOptionRoutes();
       });
     },
 

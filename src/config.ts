@@ -15,6 +15,3 @@ export const GEOCELL_SIZE_DEG = 0.00225;
 
 /** Default need expiry in hours (see .claude/rules/privacy.md). */
 export const NEED_EXPIRY_HOURS = 6;
-
-/** Data layer selection. "live" → Supabase impl, anything else → mock. */
-export const DATA_MODE = import.meta.env.VITE_DATA_MODE ?? "mock";

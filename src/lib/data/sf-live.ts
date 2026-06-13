@@ -42,10 +42,11 @@ function pitStopsToNodes(stops: Awaited<ReturnType<typeof fetchSFPitStops>>): Re
       capacity_total: total,
       capacity_open: open,
       hours: s.hours,
-      notes: [s.neighborhood, "Staffed toilet, sink, needle disposal."]
+      notes: [s.neighborhood, "Staffed toilet stalls, handwashing sink, needle disposal, dog waste bags."]
         .filter(Boolean)
         .join(" · "),
       address: s.address,
+      simulated: true, // capacity_open is SIMULATED — SF has no per-stall feed
     });
   }
   return out;

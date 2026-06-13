@@ -33,13 +33,31 @@
       "stage2": "Checking what's open nearby…",
       "stage3": "Finding your best options…"
     },
+    "crew": {
+      "reassure": "Looking for safe places near you…",
+      "showDetail": "See how we're deciding",
+      "hideDetail": "Hide the details",
+      "status": {
+        "pending": "Waiting",
+        "active": "Working",
+        "done": "Done"
+      },
+      "agent": {
+        "scout": { "title": "Scout" },
+        "analyst": { "title": "Analyst" },
+        "presenter": { "title": "Presenter" }
+      }
+    },
     "results": {
       "title": "Here's what we found",
+      "pickHint": "Tap an option to see its path on the map, then choose your way.",
       "empty": "Nothing's open right now — try changing what you wrote, or check again in a little while.",
       "closest": "Closest",
-      "bestFit": "Best fit",
+      "mostResources": "Most resources",
       "bestOverall": "Best overall",
       "recommended": "Recommended",
+      "routeSwatch": "Route color on the map",
+      "demoData": "Demo data",
       "spotsOpen_one": "{{count}} open",
       "spotsOpen_other": "{{count}} open",
       "distanceEta": "~{{min}} min walk · {{blocks}} blocks",
