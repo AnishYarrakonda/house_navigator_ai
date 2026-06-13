@@ -1,4 +1,5 @@
 import type { SF311Report } from './types';
+import { datasfAppToken } from './env';
 
 const BASE_URL = 'https://data.sfgov.org/resource/vw6y-z8j6.json';
 
@@ -12,7 +13,7 @@ export async function fetchSF311Encampments(
 ): Promise<SF311Report[]> {
   const { limit = 100, offset = 0 } = options;
 
-  const appToken = process.env.DATASF_APP_TOKEN;
+  const appToken = datasfAppToken();
 
   const params = new URLSearchParams({
     $where: "service_name='Encampment'",

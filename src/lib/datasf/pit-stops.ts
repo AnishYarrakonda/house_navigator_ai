@@ -1,4 +1,5 @@
 import type { SFPitStop, SodaPoint } from './types';
+import { datasfAppToken } from './env';
 
 const BASE_URL = 'https://data.sfgov.org/resource/mr6h-cr3u.json';
 
@@ -11,7 +12,7 @@ export async function fetchSFPitStops(
 ): Promise<SFPitStop[]> {
   const { limit = 500 } = options;
 
-  const appToken = process.env.DATASF_APP_TOKEN;
+  const appToken = datasfAppToken();
 
   const params = new URLSearchParams({ $limit: String(limit) });
 

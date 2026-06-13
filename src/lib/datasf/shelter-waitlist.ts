@@ -1,4 +1,5 @@
 import type { ShelterWaitlistEntry, ShelterWaitlistRaw } from './types';
+import { datasfAppToken } from './env';
 
 const BASE_URL = 'https://data.sfgov.org/resource/w4sk-nq57.json';
 
@@ -17,7 +18,7 @@ function resolveField(
 }
 
 export async function fetchShelterWaitlist(): Promise<ShelterWaitlistEntry[]> {
-  const appToken = process.env.DATASF_APP_TOKEN;
+  const appToken = datasfAppToken();
 
   const params = new URLSearchParams({
     $limit: '30',

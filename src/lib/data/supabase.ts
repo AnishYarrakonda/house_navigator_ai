@@ -181,8 +181,8 @@ function subscribeTable<T>(
   const channel = db()
     .channel(channelName)
     .on(
-      // @ts-expect-error supabase-js types `postgres_changes` via overloads that
-      // the untyped client doesn't narrow; the payload is unused (we refetch).
+      // supabase-js types `postgres_changes` via overloads; the payload is
+      // unused here (we refetch on any change).
       "postgres_changes",
       { event: "*", schema: "public", table },
       emit,

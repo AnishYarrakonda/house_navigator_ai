@@ -14,10 +14,10 @@ import { resolve } from 'path';
 // Load .env.local from the project root before importing the fetch functions
 config({ path: resolve(process.cwd(), '.env.local') });
 
-import { fetchSF311Encampments } from '../src1/lib/datasf/sf311';
-import { fetchSFPitStops } from '../src1/lib/datasf/pit-stops';
-import { fetchShelterWaitlist } from '../src1/lib/datasf/shelter-waitlist';
-import { fetchSFWeather } from '../src1/lib/datasf/weather';
+import { fetchSF311Encampments } from '../src/lib/datasf/sf311';
+import { fetchSFPitStops } from '../src/lib/datasf/pit-stops';
+import { fetchShelterWaitlist } from '../src/lib/datasf/shelter-waitlist';
+import { fetchSFWeather } from '../src/lib/datasf/weather';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
