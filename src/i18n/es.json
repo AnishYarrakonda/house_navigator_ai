@@ -10,7 +10,43 @@
   },
   "crisis": {
     "needHelp": "Necesito ayuda",
-    "panelStub": "Lado de crisis — Lane 2 construye aquí."
+    "back": "Atrás",
+    "startOver": "Empezar de nuevo",
+    "lang": {
+      "label": "Idioma"
+    },
+    "home": {
+      "subtitle": "No estás solo. Busquemos un lugar seguro esta noche."
+    },
+    "needs": {
+      "prompt": "¿Qué te ayudaría más en este momento?"
+    },
+    "words": {
+      "prompt": "¿Algo que quieras contarnos?",
+      "hint": "Solo si quieres. No necesitas dar tu nombre ni tu dirección.",
+      "placeholder": "p. ej. mi perro y yo, sin un lugar seguro esta noche",
+      "continue": "Buscar un lugar",
+      "finding": "Buscando lugares cerca de ti…",
+      "retry": "No se pudo enviar. Tómate tu tiempo e inténtalo de nuevo."
+    },
+    "results": {
+      "title": "Lugares que pueden ayudar",
+      "empty": "No hay nada abierto ahora mismo: vuelve atrás y prueba otro tipo de ayuda, o vuelve a mirar en un rato.",
+      "spotsOpen_one": "{{count}} disponible",
+      "spotsOpen_other": "{{count}} disponibles",
+      "walkMin": "~{{min}} min a pie",
+      "nearby": "Cerca",
+      "choose": "Ver cómo llegar"
+    },
+    "arrival": {
+      "title": "Qué esperar cuando llegues",
+      "hours": "Horario:",
+      "point1": "Entra y avisa que necesitas ayuda: no hace falta cita.",
+      "point2": "No necesitas identificación ni papeles para ser bienvenido.",
+      "point3": "Puedes llevar tus cosas. Pregunta si tienes dudas sobre mascotas.",
+      "reassure": "Este es tu lugar. Las personas dentro están para ayudar, no para juzgar.",
+      "done": "Entendido"
+    }
   },
   "volunteer": {
     "panelStub": "Lado del copiloto — Lane 3 construye aquí."

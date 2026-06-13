@@ -10,7 +10,43 @@
   },
   "crisis": {
     "needHelp": "I need help",
-    "panelStub": "Crisis side — Lane 2 builds here."
+    "back": "Back",
+    "startOver": "Start over",
+    "lang": {
+      "label": "Language"
+    },
+    "home": {
+      "subtitle": "You're not alone. Let's find somewhere safe tonight."
+    },
+    "needs": {
+      "prompt": "What would help most right now?"
+    },
+    "words": {
+      "prompt": "Anything you'd like us to know?",
+      "hint": "Only if you want to. You don't need to share your name or address.",
+      "placeholder": "e.g. me and my dog, nowhere safe tonight",
+      "continue": "Find a place",
+      "finding": "Finding places near you…",
+      "retry": "That didn't go through. Take your time and try again."
+    },
+    "results": {
+      "title": "Places that can help",
+      "empty": "Nothing's open right now — go back and try another kind of help, or check again in a little while.",
+      "spotsOpen_one": "{{count}} open",
+      "spotsOpen_other": "{{count}} open",
+      "walkMin": "~{{min}} min walk",
+      "nearby": "Nearby",
+      "choose": "See the way there"
+    },
+    "arrival": {
+      "title": "What to expect when you arrive",
+      "hours": "Hours:",
+      "point1": "Walk in and let someone know you need help — no appointment needed.",
+      "point2": "You don't need ID or paperwork to be welcomed.",
+      "point3": "It's okay to bring your things. Ask if you're unsure about pets.",
+      "reassure": "You belong here. The people inside are there to help, not to judge.",
+      "done": "Got it"
+    }
   },
   "volunteer": {
     "panelStub": "Co-pilot side — Lane 3 builds here."
