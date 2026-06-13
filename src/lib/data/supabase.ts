@@ -163,6 +163,15 @@ const toAlert = (r: AlertRow): ForesightAlert => ({
   created_at: r.created_at,
 });
 
+// Channels must have a UNIQUE topic per subscription instance. The same hook
+// (e.g. useNodes) is consumed by several components at once — MapView AND the
+// active panel both subscribe to "rt-nodes" — and Supabase Realtime rejects a
+// second channel that reuses a live topic with
+//   "cannot add `postgres_changes` callbacks for realtime:<topic> after `subscribe()`".
+// A monotonic suffix gives each subscriber its own channel; removeChannel cleans
+// each up independently on unmount.
+let channelSeq = 0;
+
 /**
  * Open a Realtime channel on one table; on every change (and once immediately)
  * run `load` and hand the fresh value to `cb`. Returns an unsubscribe.
@@ -178,8 +187,9 @@ function subscribeTable<T>(
   const emit = () => {
     void load().then(cb);
   };
+  const topic = `${channelName}-${++channelSeq}`;
   const channel = db()
-    .channel(channelName)
+    .channel(topic)
     .on(
       // supabase-js types `postgres_changes` via overloads; the payload is
       // unused here (we refetch on any change).
