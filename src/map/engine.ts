@@ -24,13 +24,7 @@ import type {
   ZoomLayer,
 } from "./types";
 import type { RouteFeature } from "./routes";
-import {
-  capacityLevel,
-  LEVEL_LABEL,
-  ROUTE,
-  TYPE_GLYPH,
-  TYPE_LABEL,
-} from "./visuals";
+import { capacityLevel, ROUTE, TYPE_GLYPH } from "./visuals";
 
 const TRANSPARENT = "rgba(0, 0, 0, 0)";
 const ROUTE_ANIM_MS = 1800;
@@ -105,9 +99,12 @@ export function createMapEngine(map: MlMap): MapEngine {
   const pending: Array<() => void> = [];
   const run = (fn: () => void) => (ready ? fn() : void pending.push(fn));
 
-  // --- Markers (street pins) ---
-  const markers = new Map<string, { marker: maplibregl.Marker; el: HTMLElement }>();
-  const highlighted = new Set<string>();
+  // --- Pins (clustered GL source) ---
+  // Base pins are a single clustered GeoJSON source + GL layers (NOT one DOM
+  // marker per node). This scales to hundreds of real SF locations without lag,
+  // and MapLibre's clustering declutters dense areas like Google Maps: nearby
+  // pins collapse into a count bubble that splits apart as you zoom in.
+  let highlightedIds: string[] = [];
 
   // --- Routes ---
   const seededRoutes = new Map<string, RouteFeature[]>();
@@ -196,8 +193,187 @@ export function createMapEngine(map: MlMap): MapEngine {
     c.add(`zoom-${layer}`);
   }
 
+  // ------------------------------------------------------------- node icons
+  // Generate one white type-glyph image per resource type from the Material
+  // Symbols font, on a canvas, then register it so the symbol layer can draw it
+  // on top of the colored capacity dot. Degrades gracefully: if the font/canvas
+  // isn't ready the colored dot still renders, just without the glyph.
+  async function buildTypeIcons(): Promise<void> {
+    const fonts = (document as unknown as { fonts?: FontFaceSet }).fonts;
+    try {
+      await fonts?.load('400 32px "Material Symbols Rounded"');
+      await fonts?.ready;
+    } catch {
+      /* fall through — dots still render */
+    }
+    const SIZE = 44;
+    for (const [type, glyph] of Object.entries(TYPE_GLYPH)) {
+      const name = `pin-${type}`;
+      if (map.hasImage(name)) continue;
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = SIZE;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) continue;
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = '400 26px "Material Symbols Rounded"';
+      ctx.fillText(glyph, SIZE / 2, SIZE / 2 + 1);
+      const data = ctx.getImageData(0, 0, SIZE, SIZE);
+      if (!map.hasImage(name)) map.addImage(name, data, { pixelRatio: 2 });
+    }
+    map.triggerRepaint();
+  }
+
+  /** Capacity color (open/limited/full) as a data-driven match expression. */
+  const LEVEL_COLOR: ExpressionSpecification = [
+    "match",
+    ["get", "level"],
+    "open",
+    "#4cc38a",
+    "limited",
+    "#d8b65c",
+    "full",
+    "#e36a7d",
+    "#4cc38a",
+  ] as unknown as ExpressionSpecification;
+
+  const NONE_FILTER = ["in", ["get", "id"], ["literal", []]] as unknown as ExpressionSpecification;
+
+  function addNodeLayers(): void {
+    map.addSource("nodes", {
+      type: "geojson",
+      data: { type: "FeatureCollection", features: [] },
+      cluster: true,
+      clusterMaxZoom: 13,
+      clusterRadius: 48,
+    });
+
+    // Highlight ring for matched nodes (under the dot so the dot stays crisp).
+    map.addLayer({
+      id: "node-highlight-ring",
+      type: "circle",
+      source: "nodes",
+      filter: NONE_FILTER,
+      paint: {
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 11, 16, 20],
+        "circle-color": "rgba(47,109,246,0.16)",
+        "circle-stroke-color": "#5ab8ff",
+        "circle-stroke-width": 3,
+      },
+    } as unknown as LayerSpecification);
+
+    // Unclustered capacity dot.
+    map.addLayer({
+      id: "node-dot",
+      type: "circle",
+      source: "nodes",
+      filter: ["!", ["has", "point_count"]],
+      paint: {
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 14, 8, 16, 11],
+        "circle-color": LEVEL_COLOR,
+        "circle-stroke-color": "rgba(8,9,10,0.92)",
+        "circle-stroke-width": 2,
+        "circle-opacity": 0.96,
+      },
+    } as unknown as LayerSpecification);
+
+    // Type glyph on top of the dot.
+    map.addLayer({
+      id: "node-icon",
+      type: "symbol",
+      source: "nodes",
+      filter: ["!", ["has", "point_count"]],
+      layout: {
+        "icon-image": ["concat", "pin-", ["get", "type"]],
+        "icon-size": ["interpolate", ["linear"], ["zoom"], 10, 0.32, 14, 0.46, 16, 0.6],
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
+      },
+    } as unknown as LayerSpecification);
+
+    // Cluster bubble + count.
+    map.addLayer({
+      id: "node-cluster",
+      type: "circle",
+      source: "nodes",
+      filter: ["has", "point_count"],
+      paint: {
+        "circle-color": "rgba(14,149,148,0.82)",
+        "circle-stroke-color": "#5ab8ff",
+        "circle-stroke-width": 1.5,
+        "circle-radius": ["step", ["get", "point_count"], 15, 10, 19, 30, 24],
+      },
+    } as unknown as LayerSpecification);
+    map.addLayer({
+      id: "node-cluster-count",
+      type: "symbol",
+      source: "nodes",
+      filter: ["has", "point_count"],
+      layout: {
+        "text-field": ["get", "point_count_abbreviated"],
+        "text-font": ["Open Sans Bold"],
+        "text-size": 12,
+      },
+      paint: { "text-color": "#eaf4ff" },
+    } as unknown as LayerSpecification);
+
+    // The "capacity pill" — name + open/total — shown ONLY for matched nodes
+    // (declutter: never drawn for the whole map, just the few picks).
+    map.addLayer({
+      id: "node-highlight-label",
+      type: "symbol",
+      source: "nodes",
+      filter: NONE_FILTER,
+      layout: {
+        "text-field": [
+          "concat",
+          ["get", "name"],
+          "  ",
+          ["to-string", ["get", "capOpen"]],
+          "/",
+          ["to-string", ["get", "capTotal"]],
+        ],
+        "text-font": ["Open Sans Bold"],
+        "text-size": 11,
+        "text-offset": [0, 1.5],
+        "text-anchor": "top",
+        "text-allow-overlap": true,
+        "text-max-width": 13,
+      },
+      paint: {
+        "text-color": "#eaf4ff",
+        "text-halo-color": "rgba(8,9,10,0.96)",
+        "text-halo-width": 1.6,
+      },
+    } as unknown as LayerSpecification);
+
+    // Cluster interactions: click a bubble to zoom into it.
+    map.on("click", "node-cluster", (e) => {
+      const feats = map.queryRenderedFeatures(e.point, { layers: ["node-cluster"] });
+      const f = feats[0];
+      if (!f) return;
+      const clusterId = f.properties?.cluster_id as number;
+      const src = map.getSource("nodes") as GeoJSONSource;
+      void src.getClusterExpansionZoom(clusterId).then((z) => {
+        const coords = (f.geometry as GeoJSON.Point).coordinates as [number, number];
+        map.easeTo({ center: coords, zoom: z, duration: 600 });
+      });
+    });
+    map.on("mouseenter", "node-cluster", () => {
+      map.getCanvas().style.cursor = "pointer";
+    });
+    map.on("mouseleave", "node-cluster", () => {
+      map.getCanvas().style.cursor = "";
+    });
+  }
+
   // --------------------------------------------------------------------- init
   function initLayers(): void {
+    // Base pins first so routes/beacons draw on top of them.
+    addNodeLayers();
+    void buildTypeIcons();
+
     // Routes (lineMetrics enables the animated line-progress reveal).
     map.addSource("routes", {
       type: "geojson",
@@ -334,19 +510,24 @@ export function createMapEngine(map: MlMap): MapEngine {
 
     highlightNodes(ids: string[]) {
       run(() => {
-        highlighted.clear();
-        ids.forEach((id) => highlighted.add(id));
-        for (const [id, { el }] of markers) {
-          el.classList.toggle("is-highlighted", highlighted.has(id));
-        }
+        highlightedIds = ids;
+        const filter = ["in", ["get", "id"], ["literal", ids]] as unknown as ExpressionSpecification;
+        map.setFilter("node-highlight-ring", filter);
+        map.setFilter("node-highlight-label", filter);
+        // Dim the rest so the matched picks stand out (like the old DOM effect).
+        map.setPaintProperty("node-dot", "circle-opacity", ids.length > 0 ? 0.32 : 0.96);
+        map.setPaintProperty("node-icon", "icon-opacity", ids.length > 0 ? 0.4 : 1);
         map.getContainer().classList.toggle("has-highlights", ids.length > 0);
       });
     },
 
     clearHighlights() {
       run(() => {
-        highlighted.clear();
-        for (const { el } of markers.values()) el.classList.remove("is-highlighted");
+        highlightedIds = [];
+        map.setFilter("node-highlight-ring", NONE_FILTER);
+        map.setFilter("node-highlight-label", NONE_FILTER);
+        map.setPaintProperty("node-dot", "circle-opacity", 0.96);
+        map.setPaintProperty("node-icon", "icon-opacity", 1);
         map.getContainer().classList.remove("has-highlights");
       });
     },
@@ -435,40 +616,25 @@ export function createMapEngine(map: MlMap): MapEngine {
     // --------------------------------------------------- data-sync (MapView)
     setNodes(nodes: ResourceNode[], label: LabelFn) {
       run(() => {
-        const seen = new Set<string>();
-        for (const node of nodes) {
-          seen.add(node.id);
-          const level = capacityLevel(node.capacity_open, node.capacity_total);
-          const glyph = TYPE_GLYPH[node.type];
-          const typeLabel = label(`map.type.${node.type}`, TYPE_LABEL[node.type]);
-          const stateLabel = label(`map.capacity.${level}`, LEVEL_LABEL[level]);
-          const aria = `${node.name}, ${typeLabel}, ${node.capacity_open} of ${node.capacity_total} — ${stateLabel}`;
-
-          let entry = markers.get(node.id);
-          if (!entry) {
-            const el = document.createElement("div");
-            el.setAttribute("role", "img");
-            const marker = new maplibregl.Marker({ element: el, anchor: "center" })
-              .setLngLat([node.lng, node.lat])
-              .addTo(map);
-            entry = { marker, el };
-            markers.set(node.id, entry);
-          } else {
-            entry.marker.setLngLat([node.lng, node.lat]);
-          }
-
-          entry.el.className = `wp-pin wp-pin--${level}${highlighted.has(node.id) ? " is-highlighted" : ""}`;
-          entry.el.setAttribute("aria-label", aria);
-          entry.el.innerHTML = `<span class="wp-pin__badge" aria-hidden="true"><span class="wp-icon">${glyph}</span></span><span class="wp-pin__cap"><span class="wp-pin__num">${node.capacity_open}/${node.capacity_total}</span></span>`;
-        }
-
-        // Drop markers for nodes that disappeared.
-        for (const [id, { marker }] of markers) {
-          if (!seen.has(id)) {
-            marker.remove();
-            markers.delete(id);
-          }
-        }
+        void label; // labels now live in the GL layers' data-driven text
+        const features: GeoJSON.Feature[] = nodes.map((node) => ({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [node.lng, node.lat] },
+          properties: {
+            id: node.id,
+            type: node.type,
+            level: capacityLevel(node.capacity_open, node.capacity_total),
+            name: node.name,
+            capOpen: node.capacity_open,
+            capTotal: node.capacity_total,
+          },
+        }));
+        setSourceData(map, "nodes", {
+          type: "FeatureCollection",
+          features,
+        } as GeoJSON.FeatureCollection);
+        // Re-assert highlight filters in case ids were set before data arrived.
+        if (highlightedIds.length) this.highlightNodes(highlightedIds);
       });
     },
 
@@ -501,8 +667,6 @@ export function createMapEngine(map: MlMap): MapEngine {
       for (const timer of manualPulses.values()) window.clearTimeout(timer);
       manualPulses.clear();
       map.off("zoom", onZoom);
-      for (const { marker } of markers.values()) marker.remove();
-      markers.clear();
     },
   };
 

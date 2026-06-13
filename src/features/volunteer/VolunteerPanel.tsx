@@ -1,14 +1,16 @@
-// Volunteer side — "post & manage listings".
+// Volunteer side — "offer a place / resources".
 //
-// A volunteer types a plain-English description of housing / resources they can
-// offer. An LLM (api/listing.ts) turns it into a ResourceNode, which we save via
-// the data layer; it appears live as a map pin. Below, "Your listings" lets them
-// adjust capacity, mark a listing full, or remove it.
+// Mirror of the person side: the volunteer first TAPS THEIR LOCATION on the map
+// (where their house / the resources are), then types a plain-English
+// description of what they can offer. An LLM (api/listing.ts) turns the text
+// into a ResourceNode; we save it AT THE TAPPED POINT via the data layer; it
+// appears live as a map pin. Below, "Your listings" lets them adjust capacity,
+// mark a listing full, or remove it.
 //
-// Mock-first: if /api/listing isn't reachable (e.g. plain `npm run dev` with no
-// serverless functions), we fall back to a tiny client-side parser so the flow
-// still works offline. Drives the map ONLY through useMapController. All copy
-// goes through react-i18next.
+// Unlike the person side, a volunteer's location is a PUBLIC resource location
+// (a place that offers help), not a vulnerable person — so we store its exact
+// point on purpose. Mock-first: if /api/listing isn't reachable we fall back to
+// a tiny client-side parser. Drives the map ONLY through useMapController.
 
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,7 +19,6 @@ import { db } from "../../lib/data";
 import { useNodes } from "../../lib/data/hooks";
 import { useMapController } from "../../map";
 import type { ResourceNode, ResourceType } from "../../types";
-import { SF_CENTER } from "../../config";
 import {
   Button,
   Card,
@@ -63,8 +64,9 @@ const KEYWORDS: Array<[ResourceType, string[]]> = [
   ["charging-wifi", ["charg", "wifi", "wi-fi", "internet", "outlet"]],
 ];
 
-/** Tiny offline parser used when the serverless function isn't reachable. */
-function clientParse(text: string): ListingResponse {
+/** Tiny offline parser used when the serverless function isn't reachable. The
+ *  location comes from the tapped point passed in, NOT from geocoding. */
+function clientParse(text: string, at: { lat: number; lng: number }): ListingResponse {
   const lower = text.toLowerCase();
   let type: ResourceType = "bed";
   for (const [t, words] of KEYWORDS) {
@@ -76,32 +78,35 @@ function clientParse(text: string): ListingResponse {
   const numMatch = lower.match(/(\d+)/);
   const capacity = numMatch ? Math.max(1, parseInt(numMatch[1], 10)) : 1;
   const firstLine = text.trim().split(/[.\n]/)[0].slice(0, 60);
-  const jitter = () => (Math.random() - 0.5) * 0.02;
   return {
     name: firstLine || "Volunteer listing",
     type,
     capacity_total: capacity,
     capacity_open: capacity,
     notes: text.trim().slice(0, 160),
-    lat: SF_CENTER.lat + jitter(),
-    lng: SF_CENTER.lng + jitter(),
+    lat: at.lat,
+    lng: at.lng,
   };
 }
 
-async function parseListing(text: string): Promise<ListingResponse> {
+async function parseListing(
+  text: string,
+  at: { lat: number; lng: number },
+): Promise<ListingResponse> {
   try {
     const res = await fetch("/api/listing", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text }),
+      // Pass the tapped point so the LLM doesn't have to geocode an address.
+      body: JSON.stringify({ text, lat: at.lat, lng: at.lng }),
     });
     if (!res.ok) throw new Error(`Listing API ${res.status}`);
     const data = (await res.json()) as ListingResponse;
     if (!data || typeof data.lat !== "number") throw new Error("Bad response");
-    return data;
+    // Always honor the volunteer's tapped location over any geocode.
+    return { ...data, lat: at.lat, lng: at.lng };
   } catch {
-    // Offline / no functions → still produce a usable listing.
-    return clientParse(text);
+    return clientParse(text, at);
   }
 }
 
@@ -120,11 +125,27 @@ export default function VolunteerPanel() {
 
   const [text, setText] = useState("");
   const [posting, setPosting] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [point, setPoint] = useState<{ lat: number; lng: number } | null>(null);
 
   const myListings = useMemo(
     () => nodes.filter((n) => n.volunteer_id === CURRENT_VOLUNTEER.id),
     [nodes],
   );
+
+  const pickOnMap = () => {
+    setPicking(true);
+    map.pickLocation((p) => {
+      setPoint({ lat: p.lat, lng: p.lng });
+      setPicking(false);
+      map.flyTo({ lat: p.lat, lng: p.lng, zoom: 15 });
+    });
+  };
+
+  const cancelPick = () => {
+    setPicking(false);
+    map.cancelPick();
+  };
 
   const submit = async () => {
     const trimmed = text.trim();
@@ -132,9 +153,13 @@ export default function VolunteerPanel() {
       if (!trimmed) showToast(t("volunteer.post.empty"), "info");
       return;
     }
+    if (!point) {
+      showToast(t("volunteer.post.needLocation"), "info");
+      return;
+    }
     setPosting(true);
     try {
-      const listing = await parseListing(trimmed);
+      const listing = await parseListing(trimmed, point);
       const created = await db.createNode({
         name: listing.name,
         type: listing.type,
@@ -148,9 +173,12 @@ export default function VolunteerPanel() {
         volunteer_id: CURRENT_VOLUNTEER.id,
       });
       setText("");
+      setPoint(null);
       showToast(t("volunteer.post.success"), "success");
       map.flyTo({ lat: created.lat, lng: created.lng, zoom: 15 });
       map.highlightNodes([created.id]);
+    } catch {
+      showToast(t("volunteer.post.error"), "info");
     } finally {
       setPosting(false);
     }
@@ -173,21 +201,45 @@ export default function VolunteerPanel() {
   };
 
   return (
-    <div className="flex h-full flex-col gap-3 overflow-y-auto rounded-[18px] border border-wp-line2 bg-[rgba(14,15,18,0.87)] p-4 text-wp-tx shadow-wp-lg backdrop-blur-[22px]">
-      {/* Post a listing */}
-      <div>
-        <h2 className="font-serif text-lg leading-tight text-wp-tx">
-          {t("volunteer.title")}
-        </h2>
-        <p className="mt-1 text-xs leading-relaxed text-wp-txd">
-          {t("volunteer.intro")}
-        </p>
-      </div>
+    <div className="flex flex-col gap-3 text-wp-tx">
+      <p className="text-xs leading-relaxed text-wp-txd">{t("volunteer.intro")}</p>
 
       <Card className="!p-4">
+        {/* Step 1 — tap the location of the place / resources */}
+        <SectionLabel>{t("volunteer.post.locationLabel")}</SectionLabel>
+        {point ? (
+          <div className="mt-2 flex items-center gap-2.5 rounded-[12px] border border-[rgba(76,195,138,0.32)] bg-[rgba(76,195,138,0.1)] p-3 text-sm text-[#7ad6a6]">
+            <Icon name="check_circle" size={20} fill />
+            <span className="flex-1">{t("volunteer.post.locationSet")}</span>
+            <Button variant="ghost" size="sm" onClick={pickOnMap} data-no-drag>
+              {t("volunteer.post.changeLocation")}
+            </Button>
+          </div>
+        ) : picking ? (
+          <div className="mt-2 flex items-center justify-between gap-2 rounded-[12px] border border-wp-line2 bg-wp-surf2 p-3 text-sm text-wp-txd">
+            <span className="flex items-center gap-2">
+              <Icon name="touch_app" size={18} className="text-wp-acc2" />
+              {t("volunteer.post.picking")}
+            </span>
+            <Button variant="ghost" size="sm" onClick={cancelPick}>
+              {t("volunteer.post.cancel")}
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="secondary"
+            onClick={pickOnMap}
+            icon={<Icon name="add_location_alt" size={18} />}
+            className="mt-2 w-full"
+          >
+            {t("volunteer.post.pickOnMap")}
+          </Button>
+        )}
+
+        {/* Step 2 — describe what you can offer */}
         <label
           htmlFor="vol-listing-text"
-          className="mb-2 block text-[13px] font-semibold text-wp-tx"
+          className="mb-2 mt-4 block text-[13px] font-semibold text-wp-tx"
         >
           {t("volunteer.post.label")}
         </label>

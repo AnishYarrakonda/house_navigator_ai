@@ -9,8 +9,26 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import "../../i18n";
 import { MapProvider } from "../../map";
+import type { MapController } from "../../map";
 import { db } from "../../lib/data";
 import VolunteerPanel from "./VolunteerPanel";
+
+// A fake controller: pickLocation immediately resolves to an SF point so the
+// "tap your location" step completes deterministically in jsdom.
+const fakeController: MapController = {
+  flyTo: () => {},
+  setZoomLayer: () => {},
+  highlightNodes: () => {},
+  clearHighlights: () => {},
+  pulseBeacon: () => {},
+  pickLocation: (cb) => cb({ lat: 37.7599, lng: -122.4148 }),
+  cancelPick: () => {},
+  drawRoute: () => {},
+  removeRoute: () => {},
+  showHeatmap: () => {},
+  hideHeatmap: () => {},
+  setTimeScrub: () => {},
+};
 
 // Tell React this is an act() environment so effects flush deterministically.
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT =
@@ -30,7 +48,7 @@ afterEach(() => {
 async function mount() {
   await act(async () => {
     createRoot(container).render(
-      <MapProvider>
+      <MapProvider controller={fakeController}>
         <VolunteerPanel />
       </MapProvider>,
     );
@@ -51,6 +69,14 @@ it("renders the post-a-listing form", async () => {
 
 it("posting a description creates a listing that appears in 'Your listings'", async () => {
   await mount();
+
+  // Step 1: tap the location (fake controller resolves immediately).
+  await act(async () => {
+    const pickBtn = [...container.querySelectorAll("button")].find((b) =>
+      b.textContent?.includes("Tap the location"),
+    ) as HTMLButtonElement;
+    pickBtn.click();
+  });
 
   const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
   // Drive a real React onChange.

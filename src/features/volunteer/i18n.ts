@@ -11,13 +11,20 @@ const en = {
     intro:
       "Describe what you can offer in plain words. We'll turn it into a listing on the map.",
     post: {
+      locationLabel: "Where is it?",
+      pickOnMap: "Tap the location on the map",
+      picking: "Tap your spot on the map…",
+      cancel: "Cancel",
+      locationSet: "Location set",
+      changeLocation: "Change",
+      needLocation: "Tap the location on the map first.",
       label: "What can you offer?",
       placeholder:
         "e.g. Two spare beds in my place near the Mission, open evenings, dog-friendly.",
       submit: "Post listing",
       posting: "Creating your listing…",
       success: "Your listing is live on the map.",
-      error: "Couldn't reach the assistant — posted a basic listing instead.",
+      error: "Couldn't post that — please try again.",
       empty: "Write a short description first.",
     },
     type: {

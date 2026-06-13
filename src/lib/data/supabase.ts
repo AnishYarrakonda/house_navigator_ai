@@ -269,6 +269,24 @@ class SupabaseDataLayer implements DataLayer {
   }
 
   async openNeed(input: OpenNeedInput): Promise<Need> {
+    // No-login crisis side (privacy invariant #6): person_id is a device-minted
+    // token, not an account. need.person_id is a FK to person(id), so we must
+    // ensure a matching person row exists first or the insert fails (23503).
+    // Upsert a MINIMAL anonymous person — display_alias only, device token = the
+    // id. No legal name, no contact, no PII (privacy.md). DO NOTHING on conflict
+    // so we never clobber an existing person or their consent flag.
+    const { error: personErr } = await db()
+      .from("person")
+      .upsert(
+        {
+          id: input.person_id,
+          display_alias: "Guest",
+          device_session_token: input.person_id,
+        },
+        { onConflict: "id", ignoreDuplicates: true },
+      );
+    if (personErr) throw personErr;
+
     const { data, error } = await db()
       .from("need")
       .insert({

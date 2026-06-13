@@ -33,6 +33,7 @@ import {
   seedNodes,
   seedWaypoints,
 } from "./seed";
+import { fetchLiveSFNodes } from "./sf-live";
 
 type Listener<T> = (value: T) => void;
 
@@ -63,6 +64,23 @@ class MockDataLayer implements DataLayer {
   private messages: Message[] = structuredClone(seedMessages);
   private alerts: ForesightAlert[] = structuredClone(seedForesightAlerts);
   private emitter = new Emitter();
+
+  constructor() {
+    // Augment the curated real baseline with LIVE DataSF locations (best effort
+    // — see ./sf-live). If DataSF is reachable, real pit stops stream onto the
+    // map a beat after load. Never throws.
+    void this.loadLiveNodes();
+  }
+
+  private async loadLiveNodes(): Promise<void> {
+    const live = await fetchLiveSFNodes();
+    if (!live.length) return;
+    const existing = new Set(this.nodes.map((n) => n.id));
+    const add = live.filter((n) => !existing.has(n.id));
+    if (!add.length) return;
+    this.nodes.push(...add);
+    this.fireNodes();
+  }
 
   // --- Resource nodes ---
   async getNodes(): Promise<ResourceNode[]> {

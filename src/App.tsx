@@ -1,66 +1,68 @@
-// App shell. The full-bleed map IS the home screen on every side (not a tab).
-// A top-right SegmentedControl switches role; the panel slot is placed per role
-// — crisis is a bottom-center sheet, co-pilot/coordinator dock to the right (and
-// collapse to a near-full-height sheet on small screens). Wrapped in
-// RoleProvider + MapProvider + ToastProvider + i18n.
+// App shell. The full-bleed map IS the home screen on both sides (not a tab).
+// A single top-left ModeToggle flips between the two sides — "I need help"
+// (person) and "Volunteer". Each side's input lives in a LEFT-DOCKED DRAGGABLE
+// panel so it never covers the map center (where your current location flies
+// to). Wrapped in RoleProvider + MapProvider + ToastProvider + i18n.
 
 import { useTranslation } from "react-i18next";
 import { MapBoundary, MapProvider, MapView } from "./map";
-import { RoleProvider, ROLES, useRole } from "./lib/useRole";
-import { SegmentedControl, ToastProvider } from "./components/kit";
-import type { SegmentItem } from "./components/kit";
+import { RoleProvider, useRole } from "./lib/useRole";
+import { DraggablePanel, Icon, ModeToggle, ToastProvider } from "./components/kit";
+import type { ModeOption } from "./components/kit";
 import CrisisPanel from "./features/crisis/CrisisPanel";
 import VolunteerPanel from "./features/volunteer/VolunteerPanel";
 import type { Role } from "./types";
 
-function RoleSwitcher() {
+function ModeSwitcher() {
   const { role, setRole } = useRole();
   const { t } = useTranslation();
-  const items: SegmentItem<Role>[] = ROLES.map((r: Role) => ({
-    value: r,
-    label: t(`roles.${r}`),
-  }));
+  const options: [ModeOption<Role>, ModeOption<Role>] = [
+    {
+      value: "crisis",
+      label: t("roles.crisis"),
+      icon: <Icon name="waving_hand" size={16} fill />,
+    },
+    {
+      value: "volunteer",
+      label: t("roles.volunteer"),
+      icon: <Icon name="volunteer_activism" size={16} fill />,
+    },
+  ];
   return (
-    <SegmentedControl
-      items={items}
+    <ModeToggle
+      options={options}
       value={role}
       onChange={setRole}
-      ariaLabel={t("app.roleSwitcher", { defaultValue: "Choose a view" })}
-      className="backdrop-blur-[18px]"
+      ariaLabel={t("app.roleSwitcher", { defaultValue: "Switch mode" })}
     />
   );
 }
 
-function RolePanel() {
-  const { role } = useRole();
-  switch (role) {
-    case "crisis":
-      return <CrisisPanel />;
-    case "volunteer":
-      return <VolunteerPanel />;
-  }
-}
-
 function PanelSlot() {
   const { role } = useRole();
+  const { t } = useTranslation();
 
-  // Crisis: bottom-center sheet (no-login, one-handed, thumb-reachable).
+  // The two modes are mirror images: same left-docked, draggable chrome, swapped
+  // body. Mounting only the active one keeps each side a clean, separate space.
   if (role === "crisis") {
     return (
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center p-3 sm:p-4">
-        <div className="pointer-events-auto w-full max-w-[520px]">
-          <RolePanel />
-        </div>
-      </div>
+      <DraggablePanel
+        storageKey="crisis"
+        title={t("roles.crisis")}
+        icon={<Icon name="waving_hand" size={18} fill />}
+      >
+        <CrisisPanel />
+      </DraggablePanel>
     );
   }
-
-  // Co-pilot / coordinator: right-docked panel on desktop; on small screens it
-  // fills the area under the role switcher as a sheet.
   return (
-    <div className="pointer-events-auto absolute bottom-3 left-3 right-3 top-[60px] z-10 sm:bottom-4 sm:left-auto sm:right-4 sm:w-[384px]">
-      <RolePanel />
-    </div>
+    <DraggablePanel
+      storageKey="volunteer"
+      title={t("roles.volunteer")}
+      icon={<Icon name="volunteer_activism" size={18} fill />}
+    >
+      <VolunteerPanel />
+    </DraggablePanel>
   );
 }
 
@@ -78,8 +80,8 @@ export default function App() {
 
             {/* Overlay UI */}
             <div className="pointer-events-none absolute inset-0">
-              <div className="pointer-events-auto absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
-                <RoleSwitcher />
+              <div className="pointer-events-auto absolute left-3 top-3 z-30">
+                <ModeSwitcher />
               </div>
               <PanelSlot />
             </div>

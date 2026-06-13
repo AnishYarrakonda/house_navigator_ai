@@ -10,26 +10,12 @@
 // Styled as the bottom-sheet glass card from Navigation Map/screens/CrisisHome.
 
 import { useTranslation } from "react-i18next";
-import { BigButton, Card, Icon, IconButton } from "../../components/kit";
+import { BigButton, Icon, IconButton } from "../../components/kit";
 import { useNodes } from "../../lib/data/hooks";
 import LocationStep from "./LocationStep";
 import MatchingLoader from "./MatchingLoader";
 import MatchResults from "./MatchResults";
 import { useCrisisFlow } from "./useCrisisFlow";
-
-function LogoMark() {
-  const { t } = useTranslation();
-  return (
-    <div className="flex items-center gap-2.5">
-      <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[7px] bg-wp-acc">
-        <Icon name="explore" size={16} fill className="text-white" />
-      </div>
-      <span className="font-serif text-[19px] leading-none text-wp-tx">
-        {t("app.title")}
-      </span>
-    </div>
-  );
-}
 
 export default function CrisisPanel() {
   const { t } = useTranslation();
@@ -37,18 +23,16 @@ export default function CrisisPanel() {
   const { data: nodes } = useNodes();
 
   return (
-    <Card className="flex max-h-[82dvh] flex-col gap-4 overflow-y-auto">
-      <div className="flex items-center justify-between gap-2">
-        {flow.step === "home" || flow.step === "matching" ? (
-          <LogoMark />
-        ) : (
+    <div className="flex flex-col gap-4">
+      {flow.step !== "home" && flow.step !== "matching" ? (
+        <div className="flex items-center gap-2">
           <IconButton
             icon={<Icon name="arrow_back" size={22} />}
             label={t("crisis.back")}
             onClick={flow.back}
           />
-        )}
-      </div>
+        </div>
+      ) : null}
 
       {flow.step === "home" ? (
         <div className="flex flex-col gap-3 pb-1">
@@ -152,6 +136,6 @@ export default function CrisisPanel() {
           </BigButton>
         </div>
       ) : null}
-    </Card>
+    </div>
   );
 }
