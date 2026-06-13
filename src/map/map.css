@@ -1,0 +1,111 @@
+/* Map-owned styles (Lane 1). Plain CSS so the imperative MapLibre markers are
+ * fully self-contained and not subject to Tailwind purge. See map.md / a11y. */
+
+/* --- Resource pins (HTML markers) ------------------------------------------ */
+
+.wp-pin {
+  --pin-color: #f4a259;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px 3px 3px;
+  border-radius: 9999px;
+  background: rgba(26, 20, 16, 0.92);
+  border: 1.5px solid var(--pin-color);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font:
+    600 12px/1 system-ui,
+    -apple-system,
+    sans-serif;
+  cursor: default;
+  white-space: nowrap;
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease,
+    box-shadow 160ms ease;
+  /* Big enough hit area (a11y minimum tap target). */
+  min-height: 28px;
+}
+
+.wp-pin__icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: var(--pin-color);
+  /* Glyph sits on the capacity color — shape (emoji) encodes node type so we
+   * never rely on color alone (a11y). */
+  font-size: 13px;
+  line-height: 1;
+  filter: saturate(1.1);
+}
+
+.wp-pin__cap {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  padding-right: 2px;
+}
+
+/* Capacity level — color PLUS a distinct border treatment so the state reads
+ * without color (open = solid ring, limited = double, full = dashed + dim). */
+.wp-pin--open {
+  --pin-color: #4ade80;
+}
+.wp-pin--limited {
+  --pin-color: #fbbf24;
+  border-style: double;
+  border-width: 3px;
+}
+.wp-pin--full {
+  --pin-color: #f87171;
+  border-style: dashed;
+  opacity: 0.78;
+}
+
+/* Crisis-side highlight: matched nodes glow + scale; the rest dim back. */
+.wp-pin.is-highlighted {
+  transform: scale(1.18);
+  box-shadow:
+    0 0 0 2px rgba(244, 162, 89, 0.9),
+    0 0 18px 4px rgba(244, 162, 89, 0.6);
+  z-index: 5;
+}
+.maplibregl-map.has-highlights .wp-pin:not(.is-highlighted) {
+  opacity: 0.32;
+}
+
+/* --- Zoom-keyed emphasis (street / city / region) -------------------------- */
+/* Pins lead at street zoom, recede as routes/heat take over on pull-back. */
+.maplibregl-map.zoom-city .wp-pin {
+  opacity: 0.7;
+  transform: scale(0.92);
+}
+.maplibregl-map.zoom-region .wp-pin {
+  opacity: 0.18;
+  pointer-events: none;
+}
+/* Highlights always win, even when zoomed out. */
+.maplibregl-map.zoom-city .wp-pin.is-highlighted,
+.maplibregl-map.zoom-region .wp-pin.is-highlighted {
+  opacity: 1;
+}
+
+/* --- Dark theming for built-in controls ----------------------------------- */
+.maplibregl-ctrl-group {
+  background: rgba(36, 28, 22, 0.92) !important;
+  border: 1px solid rgba(244, 162, 89, 0.25) !important;
+}
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.maplibregl-ctrl button .maplibregl-ctrl-icon {
+  filter: invert(1) hue-rotate(180deg) brightness(1.1);
+}
+.maplibregl-ctrl-attrib {
+  background: rgba(26, 20, 16, 0.7) !important;
+}
+.maplibregl-ctrl-attrib a {
+  color: rgba(255, 255, 255, 0.7) !important;
+}

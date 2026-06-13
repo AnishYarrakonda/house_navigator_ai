@@ -1,45 +1,60 @@
-// MapController context. Ships with a NO-OP stub so the app compiles and the
-// panels render before Lane 1 lands the real MapLibre controller. Lane 1
-// replaces `createStubController` wiring with the real implementation (exposed
-// via this same `useMapController` hook) — panel code never changes.
+// MapController context. The public surface (MapProvider, useMapController) is
+// FROZEN for the lanes. Internally it now ships a *buffering proxy* instead of a
+// no-op stub: panels can call the controller before MapView's real MapLibre
+// engine has mounted, and those calls are replayed once Lane 1 registers the
+// real controller via `registerMapController`. Panel code never changes.
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import type { MapController } from "./types";
 
-/** No-op controller — logs in dev so lanes can see calls land, does nothing. */
-function createStubController(): MapController {
-  const log = (method: string, ...args: unknown[]) => {
-    if (import.meta.env.DEV) {
-      console.debug(`[map stub] ${method}`, ...args);
-    }
-  };
-  return {
-    flyTo: (opts) => log("flyTo", opts),
-    setZoomLayer: (layer) => log("setZoomLayer", layer),
-    highlightNodes: (ids) => log("highlightNodes", ids),
-    clearHighlights: () => log("clearHighlights"),
-    pulseBeacon: (cell) => log("pulseBeacon", cell),
-    drawRoute: (id, geo) => log("drawRoute", id, geo),
-    removeRoute: (id) => log("removeRoute", id),
-    showHeatmap: (cells) => log("showHeatmap", cells),
-    hideHeatmap: () => log("hideHeatmap"),
-    setTimeScrub: (hour) => log("setTimeScrub", hour),
-  };
+// --- The registered real controller + a buffer for early calls -------------
+let active: MapController | null = null;
+const buffer: Array<(c: MapController) => void> = [];
+
+function dispatch(fn: (c: MapController) => void): void {
+  if (active) fn(active);
+  else buffer.push(fn);
+}
+
+/**
+ * A stable controller that forwards to the real one once it registers, and
+ * buffers calls made before then. This is what `useMapController` returns until
+ * (and after) MapView mounts — the reference never changes, so callers are safe.
+ */
+const proxyController: MapController = {
+  flyTo: (opts) => dispatch((c) => c.flyTo(opts)),
+  setZoomLayer: (layer) => dispatch((c) => c.setZoomLayer(layer)),
+  highlightNodes: (ids) => dispatch((c) => c.highlightNodes(ids)),
+  clearHighlights: () => dispatch((c) => c.clearHighlights()),
+  pulseBeacon: (cell) => dispatch((c) => c.pulseBeacon(cell)),
+  drawRoute: (id, geo) => dispatch((c) => c.drawRoute(id, geo)),
+  removeRoute: (id) => dispatch((c) => c.removeRoute(id)),
+  showHeatmap: (cells) => dispatch((c) => c.showHeatmap(cells)),
+  hideHeatmap: () => dispatch((c) => c.hideHeatmap()),
+  setTimeScrub: (hour) => dispatch((c) => c.setTimeScrub(hour)),
+};
+
+/**
+ * Lane 1 (MapView) registers the real controller on mount and clears it (null)
+ * on unmount. Buffered early calls are flushed in order on registration.
+ */
+export function registerMapController(controller: MapController | null): void {
+  active = controller;
+  if (controller) {
+    while (buffer.length) buffer.shift()?.(controller);
+  }
 }
 
 const MapControllerContext = createContext<MapController | null>(null);
 
 interface MapProviderProps {
   children: ReactNode;
-  /** Lane 1 passes the real controller here; defaults to the no-op stub. */
+  /** Optional override (e.g. tests); defaults to the buffering proxy. */
   controller?: MapController;
 }
 
 export function MapProvider({ children, controller }: MapProviderProps) {
-  const value = useMemo(
-    () => controller ?? createStubController(),
-    [controller],
-  );
+  const value = useMemo(() => controller ?? proxyController, [controller]);
   return (
     <MapControllerContext.Provider value={value}>
       {children}
