@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0}</style>
+</helmet>
+<div style="--bg:#08090a;--surf:#121316;--surf2:#17181c;--surf3:#1e1f24;--surf4:#26272d;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.13);--tx:#f7f8f8;--txd:#9395a1;--txf:#6a6b76;--acc:#2f6df6;--acc2:#5a8bff;--accd:#1f50c8;--teal:#0e9594;--teal2:#2cb8b4;--open:#4cc38a;--serif:'DM Serif Display',Georgia,serif;--ui:'Hanken Grotesk',system-ui,sans-serif;--mono:'Space Mono',ui-monospace,monospace;background:var(--bg);color:var(--tx);font-family:var(--ui);padding:36px;min-height:100vh;-webkit-font-smoothing:antialiased;max-width:900px">
+  <div style="margin-bottom:32px">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--acc);text-transform:uppercase;margin-bottom:6px">Waypoint · Component</div>
+    <div style="font-family:var(--serif);font-size:44px;letter-spacing:-.01em;line-height:1.05;margin-bottom:8px">Button</div>
+    <p style="font-size:15px;color:var(--txd);max-width:56ch;margin:0">Compact, short-labelled, never punishing. The crisis CTA is the one exception — full-width, large, unmissable. Confirmation lives in green.</p>
+  </div>
+
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Variants</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <button style="background:var(--acc);color:#fff;border:none;border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 6px rgba(0,0,0,.35)">Primary</button>
+      <button style="background:var(--surf3);color:var(--tx);border:1px solid var(--line2);border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Secondary</button>
+      <button style="background:transparent;color:var(--txd);border:1px solid var(--line);border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Ghost</button>
+      <button style="display:flex;align-items:center;gap:6px;background:rgba(76,195,138,.14);color:#7ad6a6;border:1px solid rgba(76,195,138,.32);border-radius:9px;padding:9px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:16px">check</span>Confirm</button>
+      <button style="display:flex;align-items:center;gap:6px;background:rgba(14,149,148,.14);color:#5fd6d2;border:1px solid rgba(14,149,148,.34);border-radius:9px;padding:9px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Teal</button>
+      <button style="background:none;border:none;color:var(--acc2);padding:9px 4px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Text link</button>
+    </div>
+  </div>
+
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Primary · States</div>
+    <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end">
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+        <button style="background:var(--acc);color:#fff;border:none;border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 6px rgba(0,0,0,.35)">Continue</button>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--txf)">default</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+        <button style="background:var(--acc2);color:#fff;border:none;border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 4px 14px rgba(47,109,246,.35)">Continue</button>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--txf)">hover</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+        <button style="background:var(--accd);color:#dce8ff;border:none;border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;transform:translateY(1px)">Continue</button>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--txf)">pressed</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+        <button style="background:var(--surf3);color:var(--txf);border:1px solid var(--line);border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;cursor:not-allowed">Continue</button>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--txf)">disabled</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+    <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Sizes</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button style="background:var(--acc);color:#fff;border:none;border-radius:7px;padding:7px 12px;font:inherit;font-weight:600;font-size:12px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)">Small</button>
+        <button style="background:var(--acc);color:#fff;border:none;border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)">Medium</button>
+        <button style="background:var(--acc);color:#fff;border:none;border-radius:11px;padding:13px 22px;font:inherit;font-weight:700;font-size:16px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)">Large</button>
+      </div>
+    </div>
+    <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Icon-only</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--surf3);color:var(--txd);border:1px solid var(--line);border-radius:9px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:20px">more_horiz</span></button>
+        <button style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--surf3);color:var(--txd);border:1px solid var(--line);border-radius:9px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:20px">close</span></button>
+        <button style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(47,109,246,.14);color:var(--acc2);border:1px solid rgba(47,109,246,.3);border-radius:9px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:20px">add</span></button>
+        <button style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(76,195,138,.14);color:#7ad6a6;border:1px solid rgba(76,195,138,.32);border-radius:9px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:20px">check</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Crisis action · Full-width exception</div>
+    <button style="display:flex;align-items:center;justify-content:center;gap:11px;width:100%;background:var(--acc);color:#fff;border:none;border-radius:14px;padding:19px;font:inherit;font-weight:700;font-size:19px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 8px 28px rgba(47,109,246,.32)"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:24px">waving_hand</span>I need help</button>
+  </div>
+
+  <div style="background:var(--surf);border:1px solid rgba(47,109,246,.25);border-radius:16px;padding:24px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--acc);text-transform:uppercase;margin-bottom:16px">Live preview · adjust props in panel →</div>
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <button style="background:{{btnBg}};color:{{btnTx}};border:{{btnBd}};box-shadow:{{btnShadow}};padding:{{btnPad}};font-size:{{btnFs}};border-radius:9px;font:inherit;font-weight:600;cursor:{{btnCursor}}">{{btnLabel}}</button>
+      <span style="font-size:13px;color:var(--txd)">variant: <span style="font-family:var(--mono);color:var(--tx)">{{btnVariant}}</span> · size: <span style="font-family:var(--mono);color:var(--tx)">{{btnSize}}</span></span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 900, &quot;height&quot;: 640},
+  &quot;variant&quot;:  {&quot;editor&quot;:&quot;enum&quot;,    &quot;default&quot;:&quot;primary&quot;, &quot;options&quot;:[&quot;primary&quot;,&quot;secondary&quot;,&quot;ghost&quot;,&quot;confirm&quot;,&quot;teal&quot;,&quot;text&quot;], &quot;tsType&quot;:&quot;'primary'|'secondary'|'ghost'|'confirm'|'teal'|'text'&quot;},
+  &quot;label&quot;:    {&quot;editor&quot;:&quot;text&quot;,    &quot;default&quot;:&quot;Continue&quot;},
+  &quot;disabled&quot;: {&quot;editor&quot;:&quot;boolean&quot;, &quot;default&quot;:false},
+  &quot;size&quot;:     {&quot;editor&quot;:&quot;enum&quot;,    &quot;default&quot;:&quot;md&quot;, &quot;options&quot;:[&quot;sm&quot;,&quot;md&quot;,&quot;lg&quot;], &quot;tsType&quot;:&quot;'sm'|'md'|'lg'&quot;}
+}">
+class Component extends DCLogic {
+  renderVals() {
+    const v    = this.props.variant  ?? 'primary';
+    const size = this.props.size     ?? 'md';
+    const d    = this.props.disabled ?? false;
+    const label = this.props.label   ?? 'Continue';
+    const pads  = { sm:'7px 12px', md:'9px 15px', lg:'13px 22px' };
+    const fonts = { sm:'12px', md:'13px', lg:'16px' };
+    const variants = {
+      primary:   { bg: d?'var(--surf3)':'var(--acc)',           tx: d?'var(--txf)':'#fff',       bd:'none',                           shadow: d?'none':'inset 0 1px 0 rgba(255,255,255,.18),0 2px 6px rgba(0,0,0,.35)' },
+      secondary: { bg: 'var(--surf3)',                          tx: d?'var(--txf)':'var(--tx)',  bd:'1px solid var(--line2)',          shadow:'none' },
+      ghost:     { bg: 'transparent',                           tx: d?'var(--txf)':'var(--txd)', bd:'1px solid var(--line)',           shadow:'none' },
+      confirm:   { bg: 'rgba(76,195,138,.14)',                  tx: d?'var(--txf)':'#7ad6a6',    bd:'1px solid rgba(76,195,138,.32)', shadow:'none' },
+      teal:      { bg: 'rgba(14,149,148,.14)',                  tx: d?'var(--txf)':'#5fd6d2',    bd:'1px solid rgba(14,149,148,.34)', shadow:'none' },
+      text:      { bg: 'none',                                  tx: d?'var(--txf)':'var(--acc2)',bd:'none',                           shadow:'none' },
+    };
+    const s = variants[v] || variants.primary;
+    return {
+      btnBg: s.bg, btnTx: s.tx, btnBd: s.bd, btnShadow: s.shadow,
+      btnPad: pads[size] || pads.md,
+      btnFs:  fonts[size] || fonts.md,
+      btnCursor: d ? 'not-allowed' : 'pointer',
+      btnLabel: label, btnVariant: v, btnSize: size,
+    };
+  }
+}
+</script>
+</body>
+</html>

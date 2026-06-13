@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0}@keyframes wpPulse{0%{transform:scale(.4);opacity:.6}80%{opacity:0}100%{transform:scale(3);opacity:0}}@keyframes wpDash{to{stroke-dashoffset:-28}}@keyframes wpUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes wpGlow{0%,100%{opacity:.7}50%{opacity:1}}</style>
+</helmet>
+<div style="--bg:#08090a;--surf:#121316;--surf2:#17181c;--surf3:#1e1f24;--surf4:#26272d;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.13);--tx:#f7f8f8;--txd:#9395a1;--txf:#6a6b76;--acc:#2f6df6;--acc2:#5a8bff;--accd:#1f50c8;--teal:#0e9594;--teal2:#2cb8b4;--open:#4cc38a;--low:#d8b65c;--full:#e36a7d;--serif:'DM Serif Display',Georgia,serif;--ui:'Hanken Grotesk',system-ui,sans-serif;--mono:'Space Mono',ui-monospace,monospace;background:var(--bg);color:var(--tx);font-family:var(--ui);height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased">
+
+  <!-- MAP -->
+  <div style="position:absolute;inset:0;background:#08090a">
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.032) 1px,transparent 1px);background-size:60px 60px;transform:rotate(-13deg) scale(1.4);transform-origin:center"></div>
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:18px 18px;transform:rotate(-13deg) scale(1.4);opacity:.5"></div>
+    <div style="position:absolute;right:-6%;top:-10%;width:46%;height:60%;background:radial-gradient(circle at 60% 40%,rgba(30,40,70,.5),transparent 70%);transform:rotate(20deg)"></div>
+    <div style="position:absolute;inset:0;background:radial-gradient(120% 120% at 50% 30%,transparent 40%,rgba(0,0,0,.55))"></div>
+    <div style="position:absolute;top:18%;left:6%;font-family:var(--ui);font-size:26px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.065)">SAN FRANCISCO</div>
+    <svg viewBox="0 0 1280 720" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+      <path d="M 220 560 L 340 480 L 460 440 L 570 370" fill="none" stroke="#2cb8b4" stroke-width="9" stroke-linecap="round" opacity=".18" style="filter:blur(7px)"></path>
+      <path d="M 220 560 L 340 480 L 460 440 L 570 370" fill="none" stroke="#5ab8ff" stroke-width="2.5" stroke-linecap="round" style="animation:wpGlow 3s ease-in-out infinite"></path>
+      <path d="M 570 370 L 650 330 L 730 310" fill="none" stroke="#2f6df6" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="2 9" opacity=".55" style="animation:wpDash 1.2s linear infinite"></path>
+      <circle cx="220" cy="560" r="5" fill="#5ab8ff"></circle>
+      <circle cx="460" cy="440" r="5" fill="#5ab8ff"></circle>
+      <circle cx="570" cy="370" r="6" fill="#fff" stroke="#2f6df6" stroke-width="3"></circle>
+    </svg>
+    <!-- pins -->
+    <div style="position:absolute;left:19%;top:73%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(18,19,22,.9);border:2px solid var(--open);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(76,195,138,.4);flex:none"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:#79d4a6">night_shelter</span></div>
+      <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(10,11,13,.88);border:1px solid rgba(76,195,138,.3);color:#79d4a6;font-size:12px;font-weight:600;backdrop-filter:blur(6px)"><span style="font-family:var(--mono);font-size:11px">4</span>open</span>
+    </div>
+    <div style="position:absolute;left:40%;top:61%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(18,19,22,.9);border:2px solid var(--low);display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:#e0c878">restaurant</span></div>
+      <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(10,11,13,.88);border:1px solid rgba(216,182,92,.3);color:#e0c878;font-size:12px;font-weight:600"><span style="font-family:var(--mono);font-size:11px">2</span>left</span>
+    </div>
+    <div style="position:absolute;left:61%;top:51%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(18,19,22,.9);border:2px solid var(--full);display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:#ef8896">shower</span></div>
+      <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(10,11,13,.88);border:1px solid rgba(227,106,125,.3);color:#ef8896;font-size:12px;font-weight:600">Full</span>
+    </div>
+    <!-- beacon -->
+    <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px">
+      <div style="position:absolute;inset:0;border-radius:50%;background:rgba(47,109,246,.35);animation:wpPulse 2.4s ease-out infinite"></div>
+      <div style="position:absolute;inset:5px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc)"></div>
+    </div>
+    <!-- zoom -->
+    <div style="position:absolute;bottom:100px;right:18px;display:flex;flex-direction:column;background:rgba(18,19,22,.75);border:1px solid var(--line);border-radius:10px;backdrop-filter:blur(14px);overflow:hidden;z-index:5">
+      <button style="width:36px;height:36px;border:none;border-bottom:1px solid var(--line);background:none;color:var(--txd);font-size:20px;cursor:pointer">+</button>
+      <button style="width:36px;height:36px;border:none;background:none;color:var(--txd);font-size:20px;cursor:pointer">−</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET -->
+  <div style="position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:min(520px,calc(100% - 32px));background:rgba(15,16,19,.85);border:1px solid var(--line2);border-radius:18px;backdrop-filter:blur(22px);box-shadow:0 20px 60px rgba(0,0,0,.5);padding:20px;z-index:10">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:26px;height:26px;border-radius:7px;background:var(--acc);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:16px;color:#fff">explore</span></div>
+        <span style="font-family:var(--serif);font-size:19px">Waypoint</span>
+      </div>
+      <div style="display:inline-flex;gap:2px;padding:3px;background:var(--surf2);border:1px solid var(--line);border-radius:999px">
+        <button onClick="{{ setEn }}" style="display:flex;align-items:center;gap:5px;padding:6px 12px;border:none;border-radius:999px;background:{{enBg}};color:{{enTx}};font:inherit;font-weight:600;font-size:12px;cursor:pointer">EN</button>
+        <button onClick="{{ setEs }}" style="padding:6px 12px;border:none;border-radius:999px;background:{{esBg}};color:{{esTx}};font:inherit;font-weight:600;font-size:12px;cursor:pointer">ES</button>
+      </div>
+    </div>
+    <button onClick="{{ toggleNeed }}" style="display:flex;align-items:center;justify-content:center;gap:11px;width:100%;background:var(--acc);color:#fff;border:none;border-radius:14px;padding:18px;font:inherit;font-weight:700;font-size:18px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 8px 26px rgba(47,109,246,.32)"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:22px">waving_hand</span>{{ helpLabel }}</button>
+    <sc-if value="{{ needOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px;animation:wpUp .3s ease both">
+        <div style="font-size:14px;font-weight:600;color:var(--txd);margin-bottom:10px">{{ needPrompt }}</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+          <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="5">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 4px;background:var(--surf2);border:1px solid var(--line);border-radius:13px;cursor:pointer" style-hover="border-color:var(--acc);background:var(--surf3)">
+              <span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 0,'wght' 300;font-size:26px;color:var(--tx)">{{ t.icon }}</span>
+              <span style="font-size:12px;font-weight:600;color:var(--txd);text-align:center">{{ t.name }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <p style="margin:12px 0 0;font-size:13px;color:var(--txf);text-align:center">{{ tagline }}</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:720}}">
+class Component extends DCLogic {
+  state = { lang:'en', needOpen:false };
+  renderVals() {
+    const { lang, needOpen } = this.state;
+    const t = (en,es) => lang==='es' ? es : en;
+    const seg = on => on ? 'var(--surf4)' : 'transparent';
+    const tx  = on => on ? 'var(--tx)'    : 'var(--txd)';
+    const tiles = [
+      {icon:'bed',              name:t('Sleep','Dormir')},
+      {icon:'restaurant',       name:t('Food','Comida')},
+      {icon:'shower',           name:t('Shower','Ducha')},
+      {icon:'medical_services', name:t('Medical','Médico')},
+      {icon:'forum',            name:t('Talk','Hablar')},
+    ];
+    return {
+      needOpen, tiles,
+      helpLabel:  t('I need help','Necesito ayuda'),
+      tagline:    t("You're not alone. Let's find somewhere safe tonight.","No estás solo/a. Encontremos un lugar seguro esta noche."),
+      needPrompt: t('What do you need first?','¿Qué necesitas primero?'),
+      enBg: seg(lang==='en'), enTx: tx(lang==='en'),
+      esBg: seg(lang==='es'), esTx: tx(lang==='es'),
+      setEn: () => this.setState({lang:'en'}),
+      setEs: () => this.setState({lang:'es'}),
+      toggleNeed: () => this.setState(s => ({needOpen:!s.needOpen})),
+    };
+  }
+}
+</script>
+</body>
+</html>

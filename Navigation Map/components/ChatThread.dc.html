@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0}@keyframes wpUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}</style>
+</helmet>
+<div style="--bg:#08090a;--surf:#121316;--surf2:#17181c;--surf3:#1e1f24;--surf4:#26272d;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.13);--tx:#f7f8f8;--txd:#9395a1;--txf:#6a6b76;--acc:#2f6df6;--acc2:#5a8bff;--open:#4cc38a;--serif:'DM Serif Display',Georgia,serif;--ui:'Hanken Grotesk',system-ui,sans-serif;--mono:'Space Mono',ui-monospace,monospace;background:var(--bg);color:var(--tx);font-family:var(--ui);padding:36px;min-height:100vh;-webkit-font-smoothing:antialiased;max-width:760px">
+
+  <div style="margin-bottom:32px">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--acc);text-transform:uppercase;margin-bottom:6px">Waypoint · Component</div>
+    <div style="font-family:var(--serif);font-size:44px;letter-spacing:-.01em;line-height:1.05;margin-bottom:8px">Chat thread</div>
+    <p style="font-size:15px;color:var(--txd);max-width:54ch;margin:0">Private thread between a person in crisis and their co-pilot volunteer. Three message types: outgoing (accent-tinted), incoming (surface), and system (italic, faint). Type and send below.</p>
+  </div>
+
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:14px">
+    <div style="font-weight:600;font-size:15px;margin-bottom:16px">Private thread</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <sc-for list="{{ messages }}" as="m" hint-placeholder-count="4">
+        <div style="align-self:{{m.align}};max-width:84%;background:{{m.bg}};border:{{m.bd}};color:{{m.tx}};padding:11px 14px;border-radius:{{m.radius}};font-size:14px;line-height:1.55;font-style:{{m.italic}}">{{ m.text }}</div>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:10px">
+      <input onInput="{{ handleInput }}" value="{{ draft }}" placeholder="Send a message…" style="flex:1;background:var(--surf2);border:1px solid var(--line2);border-radius:9px;padding:10px 14px;color:var(--tx);font:inherit;font-size:14px;outline:none"></input>
+      <button onClick="{{ sendMsg }}" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:var(--acc);color:#fff;border:none;border-radius:9px;cursor:pointer;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:20px">send</span></button>
+    </div>
+  </div>
+
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:14px">Message anatomy</div>
+    <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;color:var(--txd)">
+      <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:40px;height:24px;border-radius:8px 8px 3px 8px;background:rgba(47,109,246,.16);border:1px solid rgba(47,109,246,.28);flex:none"></div><span><span style="color:var(--tx)">Outgoing (co-pilot)</span> — right-aligned · accent tint bg · rounded 13/13/4/13px</span></div>
+      <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:40px;height:24px;border-radius:8px 8px 8px 3px;background:var(--surf3);border:1px solid var(--line);flex:none"></div><span><span style="color:var(--tx)">Incoming (person)</span> — left-aligned · surface3 bg · rounded 13/13/13/4px</span></div>
+      <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:40px;height:24px;border-radius:8px;background:var(--surf2);border:1px solid var(--line);flex:none"></div><span><span style="color:var(--tx)">System / agent</span> — left-aligned · italic · var(--txd)</span></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:580}}">
+class Component extends DCLogic {
+  state = {
+    draft: '',
+    msgs: [
+      { id:1, type:'out', text:"Hi — I'm Amara, your co-pilot. I'll help you find somewhere safe tonight." },
+      { id:2, type:'sys', text:"Sanctuary SF is holding a spot — they're expecting you." },
+      { id:3, type:'out', text:"You're all set for tonight. I'll check in tomorrow morning." },
+    ],
+  };
+  renderVals() {
+    const { draft, msgs } = this.state;
+    const messages = msgs.map(m => ({
+      ...m,
+      align:  m.type === 'out' ? 'flex-end'   : 'flex-start',
+      bg:     m.type === 'out' ? 'rgba(47,109,246,.16)' : m.type === 'sys' ? 'var(--surf2)' : 'var(--surf3)',
+      bd:     m.type === 'out' ? '1px solid rgba(47,109,246,.28)' : '1px solid var(--line)',
+      tx:     m.type === 'out' ? '#dce8ff' : 'var(--txd)',
+      italic: m.type === 'sys' ? 'italic' : 'normal',
+      radius: m.type === 'out' ? '13px 13px 4px 13px' : '13px 13px 13px 4px',
+    }));
+    return {
+      messages, draft,
+      handleInput: e => this.setState({ draft: e.target.value }),
+      sendMsg: () => {
+        if (!draft.trim()) return;
+        this.setState(s => ({
+          msgs: [...s.msgs, { id: Date.now(), type:'out', text: s.draft.trim() }],
+          draft: '',
+        }));
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

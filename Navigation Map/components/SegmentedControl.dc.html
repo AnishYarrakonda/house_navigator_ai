@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0}</style>
+</helmet>
+<div style="--bg:#08090a;--surf:#121316;--surf2:#17181c;--surf3:#1e1f24;--surf4:#26272d;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.13);--tx:#f7f8f8;--txd:#9395a1;--txf:#6a6b76;--acc:#2f6df6;--acc2:#5a8bff;--serif:'DM Serif Display',Georgia,serif;--ui:'Hanken Grotesk',system-ui,sans-serif;--mono:'Space Mono',ui-monospace,monospace;background:var(--bg);color:var(--tx);font-family:var(--ui);padding:36px;min-height:100vh;-webkit-font-smoothing:antialiased;max-width:760px">
+
+  <div style="margin-bottom:32px">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--acc);text-transform:uppercase;margin-bottom:6px">Waypoint · Component</div>
+    <div style="font-family:var(--serif);font-size:44px;letter-spacing:-.01em;line-height:1.05;margin-bottom:8px">Segmented control</div>
+    <p style="font-size:15px;color:var(--txd);max-width:52ch;margin:0">Switches context without navigating. Quiet when inactive; clear when active. Used for role selection and language toggling.</p>
+  </div>
+
+  <!-- Role switcher -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Role switcher · 3-option</div>
+    <div style="display:inline-flex;gap:2px;padding:3px;background:var(--surf2);border:1px solid var(--line);border-radius:11px;margin-bottom:16px">
+      <button onClick="{{ setHelp }}" style="padding:9px 16px;border:none;border-radius:8px;background:{{helpBg}};color:{{helpTx}};font:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:background .15s">I need help</button>
+      <button onClick="{{ setCopilot }}" style="padding:9px 16px;border:none;border-radius:8px;background:{{copBg}};color:{{copTx}};font:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:background .15s">Co-pilot</button>
+      <button onClick="{{ setCoord }}" style="padding:9px 16px;border:none;border-radius:8px;background:{{coordBg}};color:{{coordTx}};font:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:background .15s">Coordinator</button>
+    </div>
+    <div style="font-size:13px;color:var(--txd)">Active: <span style="font-family:var(--mono);color:var(--tx)">{{role}}</span></div>
+  </div>
+
+  <!-- Language toggle -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Language toggle · 2-option pill</div>
+    <div style="display:inline-flex;gap:2px;padding:3px;background:var(--surf2);border:1px solid var(--line);border-radius:999px">
+      <button onClick="{{ setEn }}" style="display:flex;align-items:center;gap:6px;padding:8px 15px;border:none;border-radius:999px;background:{{enBg}};color:{{enTx}};font:inherit;font-weight:600;font-size:13px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:16px">language</span>English</button>
+      <button onClick="{{ setEs }}" style="padding:8px 15px;border:none;border-radius:999px;background:{{esBg}};color:{{esTx}};font:inherit;font-weight:600;font-size:13px;cursor:pointer">Español</button>
+    </div>
+  </div>
+
+  <!-- Anatomy -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Anatomy</div>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--txd)">
+      <div style="display:flex;gap:14px"><span style="font-family:var(--mono);color:var(--tx);width:120px;flex:none">container</span>background var(--surf2) · border 1px var(--line) · radius 11px · padding 3px</div>
+      <div style="display:flex;gap:14px"><span style="font-family:var(--mono);color:var(--tx);width:120px;flex:none">segment</span>padding 9px 16px · radius 8px (pill: 999px) · font-weight 600</div>
+      <div style="display:flex;gap:14px"><span style="font-family:var(--mono);color:var(--tx);width:120px;flex:none">active</span>background var(--surf4) · color var(--tx)</div>
+      <div style="display:flex;gap:14px"><span style="font-family:var(--mono);color:var(--tx);width:120px;flex:none">inactive</span>background transparent · color var(--txd)</div>
+    </div>
+  </div>
+
+  <!-- Tokens -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:14px">Token reference</div>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--txd);line-height:2">
+      --wp-surf2  container background<br>
+      --wp-surf4  active segment background<br>
+      --wp-line   container border<br>
+      --wp-tx     active text<br>
+      --wp-txd    inactive text
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:560}}">
+class Component extends DCLogic {
+  state = { lang: 'en', role: 'help' };
+  renderVals() {
+    const { lang, role } = this.state;
+    const seg = on => on ? 'var(--surf4)' : 'transparent';
+    const tx  = on => on ? 'var(--tx)'    : 'var(--txd)';
+    return {
+      role, lang,
+      enBg:    seg(lang === 'en'),   enTx:    tx(lang === 'en'),
+      esBg:    seg(lang === 'es'),   esTx:    tx(lang === 'es'),
+      helpBg:  seg(role === 'help'), helpTx:  tx(role === 'help'),
+      copBg:   seg(role === 'copilot'), copTx: tx(role === 'copilot'),
+      coordBg: seg(role === 'coord'),   coordTx: tx(role === 'coord'),
+      setEn:      () => this.setState({ lang: 'en' }),
+      setEs:      () => this.setState({ lang: 'es' }),
+      setHelp:    () => this.setState({ role: 'help' }),
+      setCopilot: () => this.setState({ role: 'copilot' }),
+      setCoord:   () => this.setState({ role: 'coord' }),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  ::selection{background:rgba(47,109,246,.35);color:#fff}
+  @keyframes wpPulse{0%{transform:scale(.4);opacity:.6}80%{opacity:0}100%{transform:scale(3);opacity:0}}
+  @keyframes wpDash{to{stroke-dashoffset:-28}}
+  @keyframes wpUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes wpGlow{0%,100%{opacity:.7}50%{opacity:1}}
+</style>
+</helmet>
+<div style="--bg:#08090a;--bg2:#0c0d0f;--surf:#121316;--surf2:#17181c;--surf3:#1e1f24;--surf4:#26272d;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.13);--tx:#f7f8f8;--txd:#9395a1;--txf:#6a6b76;--acc:#2f6df6;--acc2:#5a8bff;--accd:#1f50c8;--open:#4cc38a;--low:#d8b65c;--full:#e36a7d;--serif:'DM Serif Display',Georgia,serif;--ui:'Hanken Grotesk',system-ui,sans-serif;--mono:'Space Mono',ui-monospace,monospace;background:var(--bg);color:var(--tx);font-family:'Hanken Grotesk',system-ui,sans-serif;line-height:1.5;min-height:100vh;padding:0 0 100px;-webkit-font-smoothing:antialiased">
+
+  <!-- ============ BRAND HEADER ============ -->
+  <div style="position:relative;overflow:hidden;padding:76px 56px 60px;border-bottom:1px solid var(--line);background:radial-gradient(110% 130% at 78% -20%,rgba(47,109,246,.16),transparent 52%),linear-gradient(180deg,#0e0f12,var(--bg))">
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(75% 75% at 72% 0%,#000,transparent);pointer-events:none"></div>
+    <div style="position:relative;max-width:1180px;margin:0 auto">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
+        <div style="width:34px;height:34px;border-radius:9px;background:#2f6df6;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 4px 16px rgba(47,109,246,.4)">
+          <span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:19px;color:#fff">explore</span>
+        </div>
+        <span style="font-size:24px;font-weight:400;letter-spacing:0;font-family:var(--serif)">Waypoint</span>
+        <span style="margin-left:6px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;border:1px solid var(--line);padding:4px 9px;border-radius:6px">Design System</span>
+      </div>
+      <h1 style="font-size:clamp(42px,6.2vw,72px);font-weight:400;letter-spacing:-.012em;line-height:1.03;font-family:var(--serif);margin:0 0 22px;max-width:17ch;text-wrap:balance">The calm, map-first system for finding somewhere safe tonight.</h1>
+      <p style="font-size:18px;color:var(--txd);max-width:62ch;margin:0 0 34px;text-wrap:pretty">A premium dark foundation built for pressure. The map is home on every side; the interface stays quiet around it — hairline borders, glass surfaces, a single restrained accent, and routes that glow only when a path home is growing.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:9px">
+        <span style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:8px;background:var(--surf);border:1px solid var(--line);font-size:13px;color:var(--txd)"><span style="width:7px;height:7px;border-radius:50%;background:var(--acc)"></span>Trauma-informed</span>
+        <span style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:8px;background:var(--surf);border:1px solid var(--line);font-size:13px;color:var(--txd)"><span style="width:7px;height:7px;border-radius:50%;background:var(--open)"></span>WCAG AA · 44px targets</span>
+        <span style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:8px;background:var(--surf);border:1px solid var(--line);font-size:13px;color:var(--txd)"><span style="width:7px;height:7px;border-radius:50%;background:var(--low)"></span>Icon-first · EN / ES</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1180px;margin:0 auto;padding:0 56px">
+
+    <!-- ============ 01 COLOR ============ -->
+    <div style="padding:64px 0 0">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase">01 — Foundations</span>
+      <h2 style="font-size:35px;font-weight:400;letter-spacing:-.008em;font-family:var(--serif);margin:8px 0 6px">Color &amp; light</h2>
+      <p style="color:var(--txd);margin:0 0 30px;max-width:62ch">One cool, near-black world. Surfaces step up by light, not by hue. The indigo accent is rationed — used for the primary action and a person's living route, almost nowhere else. Capacity is the only color that carries meaning, and it's always paired with a label and shape.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin-bottom:16px;letter-spacing:.1em">SURFACES</div>
+          <sc-for list="{{ surfaces }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+              <div style="width:46px;height:46px;border-radius:11px;border:1px solid var(--line2);background:{{ s.hex }};flex:none"></div>
+              <div style="flex:1"><div style="font-weight:600;font-size:15px">{{ s.name }}</div><div style="font-size:13px;color:var(--txf)">{{ s.note }}</div></div>
+              <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--txd)">{{ s.hex }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin-bottom:16px;letter-spacing:.1em">TEXT</div>
+          <sc-for list="{{ texts }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+              <div style="width:46px;height:46px;border-radius:11px;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;flex:none"><span style="font-size:23px;font-weight:700;color:{{ s.hex }}">Aa</span></div>
+              <div style="flex:1"><div style="font-weight:600;font-size:15px">{{ s.name }}</div><div style="font-size:13px;color:var(--txf)">{{ s.note }}</div></div>
+              <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--txd)">{{ s.hex }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:var(--surf);border:1px solid rgba(47,109,246,.22);border-radius:16px;padding:22px">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--acc);margin-bottom:16px;letter-spacing:.1em">ACCENT — BLUE</div>
+          <sc-for list="{{ brand }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+              <div style="width:46px;height:46px;border-radius:11px;background:{{ s.hex }};flex:none;box-shadow:0 0 16px rgba(47,109,246,.3)"></div>
+              <div style="flex:1"><div style="font-weight:600;font-size:15px">{{ s.name }}</div><div style="font-size:13px;color:var(--txf)">{{ s.note }}</div></div>
+              <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--txd)">{{ s.hex }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin-bottom:16px;letter-spacing:.1em">CAPACITY · WITH SHAPE + LABEL</div>
+          <sc-for list="{{ states }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+              <div style="width:46px;height:46px;border-radius:11px;background:{{ s.tint }};border:1px solid {{ s.bd }};flex:none;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:22px;color:{{ s.hex }}">{{ s.icon }}</span></div>
+              <div style="flex:1"><div style="font-weight:600;font-size:15px;color:{{ s.hex }}">{{ s.name }}</div><div style="font-size:13px;color:var(--txf)">{{ s.note }}</div></div>
+              <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--txd)">{{ s.hex }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 02 TYPE ============ -->
+    <div style="padding:64px 0 0">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase">02 — Foundations</span>
+      <h2 style="font-size:35px;font-weight:400;letter-spacing:-.008em;font-family:var(--serif);margin:8px 0 6px">Typography</h2>
+      <p style="color:var(--txd);margin:0 0 30px;max-width:62ch">An editorial pairing — chosen so the product reads as human and unmistakably <em>ours</em>, not another Inter or Geist interface. Headlines are set in a serif, <strong style="color:var(--tx)">DM Serif Display</strong>; everything you read and tap is <strong style="color:var(--tx)">Hanken Grotesk</strong>; counts, distances and codes use <strong style="color:var(--tx)">Space Mono</strong>. Want a different voice? Choose one in <em>Type directions</em> below.</p>
+      <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;overflow:hidden">
+        <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="6">
+          <div style="display:flex;align-items:baseline;gap:28px;padding:18px 26px;border-bottom:1px solid var(--line)">
+            <div style="width:170px;flex:none">
+              <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--tx);text-transform:uppercase;letter-spacing:.06em">{{ t.label }}</div>
+              <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txf);margin-top:3px">{{ t.spec }}</div>
+            </div>
+            <div style="flex:1;color:var(--tx);font-family:{{ t.fontFam }};font-size:{{ t.size }};font-weight:{{ t.weight }};letter-spacing:-.015em">{{ t.sample }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- ============ 03 TYPE DIRECTIONS ============ -->
+    <div style="padding:64px 0 0">
+      <span style="font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase">03 — Foundations</span>
+      <h2 style="font-size:35px;font-weight:400;letter-spacing:-.008em;font-family:var(--serif);margin:8px 0 6px">Type directions</h2>
+      <p style="color:var(--txd);margin:0 0 30px;max-width:64ch">Four distinct voices — each deliberately <em>not</em> the default sans every app ships with. Same words, four feelings. Editorial is applied now; say the word and I'll switch the whole system to any of these.</p>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+
+        <!-- Editorial (current) -->
+        <div style="background:var(--surf);border:1px solid rgba(47,109,246,.3);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txd)">Editorial</span><span style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8fb2ff;background:rgba(47,109,246,.12);border:1px solid rgba(47,109,246,.3);border-radius:999px;padding:3px 9px">Applied</span></div>
+          <div style="font-family:'DM Serif Display',serif;font-weight:400;font-size:46px;line-height:1.04;letter-spacing:-.01em">A path home.</div>
+          <div style="font-family:'Hanken Grotesk',sans-serif;font-size:16px;color:var(--txd);line-height:1.5">You're not alone — we'll walk with you, one safe step at a time.</div>
+          <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--txf);border-top:1px solid var(--line);padding-top:12px;margin-top:2px">DM Serif Display · Hanken Grotesk · Space Mono</div>
+        </div>
+
+        <!-- Literary -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txd)">Literary</span><span style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txf);background:var(--surf3);border:1px solid var(--line);border-radius:999px;padding:3px 9px">Option</span></div>
+          <div style="font-family:'Instrument Serif',serif;font-weight:400;font-size:50px;line-height:1.0;letter-spacing:0">A path <span style="font-style:italic">home.</span></div>
+          <div style="font-family:'Hanken Grotesk',sans-serif;font-size:16px;color:var(--txd);line-height:1.5">You're not alone — we'll walk with you, one safe step at a time.</div>
+          <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--txf);border-top:1px solid var(--line);padding-top:12px;margin-top:2px">Instrument Serif · Hanken Grotesk · Space Mono</div>
+        </div>
+
+        <!-- Characterful -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txd)">Characterful</span><span style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txf);background:var(--surf3);border:1px solid var(--line);border-radius:999px;padding:3px 9px">Option</span></div>
+          <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:44px;line-height:1.02;letter-spacing:-.02em">A path home.</div>
+          <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:400;font-size:16px;color:var(--txd);line-height:1.5">You're not alone — we'll walk with you, one safe step at a time.</div>
+          <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--txf);border-top:1px solid var(--line);padding-top:12px;margin-top:2px">Bricolage Grotesque · Space Mono</div>
+        </div>
+
+        <!-- Geometric -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txd)">Geometric</span><span style="font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txf);background:var(--surf3);border:1px solid var(--line);border-radius:999px;padding:3px 9px">Option</span></div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:44px;line-height:1.04;letter-spacing:-.02em">A path home.</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:400;font-size:16px;color:var(--txd);line-height:1.5">You're not alone — we'll walk with you, one safe step at a time.</div>
+          <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--txf);border-top:1px solid var(--line);padding-top:12px;margin-top:2px">Space Grotesk · Space Mono</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ 04 BUTTONS ============ -->
+    <div style="padding:64px 0 0">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase">04 — Components</span>
+      <h2 style="font-size:35px;font-weight:400;letter-spacing:-.008em;font-family:var(--serif);margin:8px 0 6px">Buttons</h2>
+      <p style="color:var(--txd);margin:0 0 30px;max-width:62ch">Compact and crisp by default, with a subtle top highlight and soft shadow. The crisis action is the one exception — large, calm, and impossible to miss. Confirmation lives in green: the color of a held bed. Nothing is ever red-as-punishment.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- variants -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px;grid-column:1 / -1">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin-bottom:18px;letter-spacing:.1em">VARIANTS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+            <button style="display:flex;align-items:center;gap:8px;background:#2f6df6;color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 8px rgba(0,0,0,.4)"><span style="font-family:'Material Symbols Rounded';font-size:18px">bolt</span>Primary</button>
+            <button style="background:var(--surf3);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:11px 18px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)">Secondary</button>
+            <button style="background:transparent;color:var(--txd);border:1px solid var(--line);border-radius:10px;padding:11px 18px;font:inherit;font-weight:600;font-size:14px;cursor:pointer">Ghost</button>
+            <button style="display:flex;align-items:center;gap:8px;background:rgba(76,195,138,.14);color:#7ad6a6;border:1px solid rgba(76,195,138,.32);border-radius:10px;padding:11px 18px;font:inherit;font-weight:600;font-size:14px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:18px">check</span>Confirm</button>
+            <button style="background:none;color:var(--acc2);border:none;padding:11px 6px;font:inherit;font-weight:600;font-size:14px;cursor:pointer">Text link</button>
+            <button style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--surf3);color:var(--txd);border:1px solid var(--line);border-radius:10px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:20px">more_horiz</span></button>
+          </div>
+        </div>
+        <!-- states -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin-bottom:18px;letter-spacing:.1em">PRIMARY · STATES</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:14px"><button style="background:#2f6df6;color:#fff;border:none;border-radius:10px;padding:10px 18px;font:inherit;font-weight:600;font-size:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 8px rgba(0,0,0,.4)">Continue</button><span style="font-size:13px;color:var(--txf)">default</span></div>
+            <div style="display:flex;align-items:center;gap:14px"><button style="background:#5a8bff;color:#fff;border:none;border-radius:10px;padding:10px 18px;font:inherit;font-weight:600;font-size:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 4px 14px rgba(47,109,246,.35)">Continue</button><span style="font-size:13px;color:var(--txf)">hover</span></div>
+            <div style="display:flex;align-items:center;gap:14px"><button style="background:var(--accd);color:#eef;border:none;border-radius:10px;padding:10px 18px;font:inherit;font-weight:600;font-size:14px;transform:translateY(1px)">Continue</button><span style="font-size:13px;color:var(--txf)">pressed</span></div>
+            <div style="display:flex;align-items:center;gap:14px"><button style="background:var(--surf3);color:var(--txf);border:1px solid var(--line);border-radius:10px;padding:10px 18px;font:inherit;font-weight:600;font-size:14px;cursor:not-allowed">Continue</button><span style="font-size:13px;color:var(--txf)">disabled</span></div>
+          </div>
+        </div>
+        <!-- crisis CTA -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px;display:flex;flex-direction:column">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin-bottom:18px;letter-spacing:.1em">CRISIS ACTION · THE EXCEPTION</div>
+          <button style="display:flex;align-items:center;justify-content:center;gap:11px;width:100%;background:#2f6df6;color:#fff;border:none;border-radius:14px;padding:19px;font:inherit;font-weight:700;font-size:19px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 8px 28px rgba(47,109,246,.32)"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:24px">waving_hand</span>I need help</button>
+          <p style="margin:14px 2px 0;font-size:14px;color:var(--txf);text-align:center">Big target, warm word, zero jargon. Same button, localized first.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 04 CONTROLS + CHIPS ============ -->
+    <div style="padding:64px 0 0">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase">05 — Components</span>
+      <h2 style="font-size:35px;font-weight:400;letter-spacing:-.008em;font-family:var(--serif);margin:8px 0 6px">Controls, chips &amp; pins</h2>
+      <p style="color:var(--txd);margin:0 0 30px;max-width:62ch">Segmented controls switch roles and language. Capacity chips and map pins read at a glance — count in mono, state by color <em>and</em> shape, type by glyph.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin-bottom:18px;letter-spacing:.1em">SEGMENTED CONTROLS</div>
+          <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+            <div style="display:inline-flex;gap:2px;padding:3px;background:var(--surf2);border:1px solid var(--line);border-radius:11px">
+              <span style="padding:8px 16px;border-radius:8px;background:var(--surf4);color:var(--tx);font-weight:600;font-size:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)">I need help</span>
+              <span style="padding:8px 16px;border-radius:8px;color:var(--txd);font-weight:600;font-size:14px">Co-pilot</span>
+              <span style="padding:8px 16px;border-radius:8px;color:var(--txd);font-weight:600;font-size:14px">Coordinator</span>
+            </div>
+            <div style="display:inline-flex;gap:2px;padding:3px;background:var(--surf2);border:1px solid var(--line);border-radius:999px">
+              <span style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--surf4);color:var(--tx);font-weight:600;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:16px">language</span>English</span>
+              <span style="padding:7px 14px;border-radius:999px;color:var(--txd);font-weight:600;font-size:13px">Español</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin-bottom:18px;letter-spacing:.1em">CAPACITY CHIPS &amp; BADGES</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;background:rgba(76,195,138,.12);border:1px solid rgba(76,195,138,.3);color:#79d4a6;font-size:13px;font-weight:600"><span style="width:7px;height:7px;border-radius:50%;background:#4cc38a"></span><span style="font-family:'Space Mono',monospace;font-size:12px">4</span> open</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;background:rgba(216,182,92,.12);border:1px solid rgba(216,182,92,.3);color:#e0c878;font-size:13px;font-weight:600"><span style="width:7px;height:7px;border-radius:1px;background:#d8b65c;transform:rotate(45deg)"></span><span style="font-family:'Space Mono',monospace;font-size:12px">2</span> left</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;background:rgba(227,106,125,.12);border:1px solid rgba(227,106,125,.3);color:#ef8896;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:13px">call</span>Full — call</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;background:rgba(47,109,246,.12);border:1px solid rgba(47,109,246,.3);color:#8fb2ff;font-family:'Space Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Recommended</span>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin:22px 0 14px;letter-spacing:.1em">MAP PINS</div>
+          <div style="display:flex;gap:18px;align-items:center">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:40px;height:40px;border-radius:50%;background:var(--surf3);border:2px solid #4cc38a;display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(76,195,138,.4)"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:#79d4a6">night_shelter</span></div><span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txf)">shelter</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:40px;height:40px;border-radius:50%;background:var(--surf3);border:2px solid #d8b65c;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:#e0c878">restaurant</span></div><span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txf)">food</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:40px;height:40px;border-radius:50%;background:var(--surf3);border:2px solid #e36a7d;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:#ef8896">shower</span></div><span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txf)">full</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:40px;height:40px;border-radius:50%;background:var(--surf3);border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(47,109,246,.5)"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--acc2)">person_pin_circle</span></div><span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txf)">you</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 05 CARDS & TILES ============ -->
+    <div style="padding:64px 0 0">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase">06 — Components</span>
+      <h2 style="font-size:35px;font-weight:400;letter-spacing:-.008em;font-family:var(--serif);margin:8px 0 6px">Cards, tiles &amp; conversation</h2>
+      <p style="color:var(--txd);margin:0 0 30px;max-width:62ch">Need-selection tiles are large and icon-first. The suggested-place card always leads with a plain-language <em>why</em>. The co-pilot thread keeps the human and the agent visibly distinct.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+        <!-- need tiles -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin-bottom:18px;letter-spacing:.1em">NEED-SELECTION TILES</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <sc-for list="{{ needTilesDoc }}" as="n" hint-placeholder-count="6">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 8px;background:var(--surf2);border:1px solid var(--line);border-radius:14px;min-height:96px;justify-content:center" style-hover="border-color:var(--line2);background:var(--surf3)">
+                <span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 0,'wght' 300;font-size:30px;color:var(--tx)">{{ n.icon }}</span>
+                <span style="font-size:13px;font-weight:600;color:var(--txd);text-align:center">{{ n.name }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <!-- chat -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--txf);margin-bottom:18px;letter-spacing:.1em">CO-PILOT THREAD</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="align-self:flex-end;max-width:84%;background:rgba(47,109,246,.16);border:1px solid rgba(47,109,246,.28);color:#dce8ff;padding:11px 14px;border-radius:14px 14px 4px 14px;font-size:14px">Hi — I'm Amara, your co-pilot. I'll help you find somewhere safe tonight.</div>
+            <div style="align-self:flex-start;max-width:84%;background:var(--surf3);border:1px solid var(--line);color:var(--txd);padding:11px 14px;border-radius:14px 14px 14px 4px;font-size:14px;font-style:italic">Sanctuary SF is holding a spot — they're expecting you.</div>
+            <div style="align-self:flex-end;max-width:84%;background:rgba(47,109,246,.16);border:1px solid rgba(47,109,246,.28);color:#dce8ff;padding:11px 14px;border-radius:14px 14px 4px 14px;font-size:14px">You're all set for tonight. I'll check in tomorrow.</div>
+          </div>
+        </div>
+        <!-- suggested place card -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px;grid-column:1 / -1">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-weight:600;font-size:17px">Suggested places</div>
+            <span style="padding:5px 10px;border-radius:999px;background:rgba(47,109,246,.12);border:1px solid rgba(47,109,246,.3);color:#8fb2ff;font-family:'Space Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase">Recommended</span>
+          </div>
+          <p style="margin:0 0 16px;font-size:14px;color:var(--txd);max-width:70ch"><span style="color:var(--tx);font-weight:600">Why:</span> Next Door Shelter is closest (150 ft) with 4 spots open now. Reservation-based. They mentioned a pet — I'd confirm the site is pet-friendly first.</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(47,109,246,.05);border:1px solid rgba(47,109,246,.4);border-radius:12px">
+              <div style="flex:1"><div style="font-weight:600;font-size:15px">Next Door Shelter</div><div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--txf);margin-top:2px">150 ft · 4 open</div></div>
+              <button style="background:rgba(76,195,138,.14);color:#7ad6a6;border:1px solid rgba(76,195,138,.32);border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Confirm this place</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--surf2);border:1px solid var(--line);border-radius:12px">
+              <div style="flex:1"><div style="font-weight:600;font-size:15px">MSC South Shelter</div><div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--txf);margin-top:2px">0.7 mi · 12 open</div></div>
+              <button style="background:var(--surf3);color:var(--tx);border:1px solid var(--line2);border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Confirm this place</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 06 ACCENT DIRECTIONS ============ -->
+    <div style="padding:64px 0 0">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase">07 — Direction</span>
+      <h2 style="font-size:35px;font-weight:400;letter-spacing:-.008em;font-family:var(--serif);margin:8px 0 6px">Accent directions</h2>
+      <p style="color:var(--txd);margin:0 0 28px;max-width:64ch">Three professional accents, each shown on the components that carry it. Cobalt is the safe default; deep teal and confident green pair naturally — so each is shown beside the other as a supporting tone. Capacity green stays reserved for “open”, never the brand. Buttons are kept narrow, short-labelled, and quiet.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+
+        <!-- COBALT -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:600;font-size:16px">Cobalt</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8fb2ff;background:rgba(47,109,246,.12);border:1px solid rgba(47,109,246,.3);border-radius:999px;padding:3px 8px">Current</span></div>
+          <div style="display:flex;gap:8px">
+            <div style="flex:1"><div style="height:40px;border-radius:9px;background:#2f6df6;border:1px solid var(--line2)"></div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txf);text-align:center;margin-top:5px">2f6df6</div></div>
+            <div style="flex:1"><div style="height:40px;border-radius:9px;background:#5a8bff;border:1px solid var(--line2)"></div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txf);text-align:center;margin-top:5px">5a8bff</div></div>
+            <div style="flex:1"><div style="height:40px;border-radius:9px;background:#1f50c8;border:1px solid var(--line2)"></div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txf);text-align:center;margin-top:5px">1f50c8</div></div>
+          </div>
+          <svg viewBox="0 0 240 38" preserveAspectRatio="none" style="width:100%;height:32px"><path d="M 8 28 L 80 18 L 150 22 L 232 9" fill="none" stroke="#5a8bff" stroke-width="2.5" stroke-linecap="round"></path><circle cx="8" cy="28" r="4" fill="#5a8bff"></circle><circle cx="150" cy="22" r="4" fill="#5a8bff"></circle><circle cx="232" cy="9" r="4" fill="none" stroke="#2f6df6" stroke-width="2"></circle></svg>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button style="background:#2f6df6;color:#fff;border:none;border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 6px rgba(0,0,0,.35)">Continue</button>
+            <button style="background:var(--surf3);color:var(--tx);border:1px solid var(--line2);border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Cancel</button>
+            <button style="display:flex;align-items:center;gap:6px;background:rgba(76,195,138,.14);color:#7ad6a6;border:1px solid rgba(76,195,138,.32);border-radius:9px;padding:8px 13px;font:inherit;font-weight:600;font-size:13px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:16px">check</span>Confirm</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:2px">
+            <span style="padding:4px 9px;border-radius:999px;background:rgba(47,109,246,.12);border:1px solid rgba(47,109,246,.3);color:#8fb2ff;font-family:'Space Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Recommended</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(76,195,138,.12);border:1px solid rgba(76,195,138,.3);color:#79d4a6;font-size:12px;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#4cc38a"></span>4 open</span>
+          </div>
+        </div>
+
+        <!-- DEEP TEAL -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:600;font-size:16px">Deep teal</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--txf);background:var(--surf3);border:1px solid var(--line);border-radius:999px;padding:3px 8px">+ green</span></div>
+          <div style="display:flex;gap:8px">
+            <div style="flex:1"><div style="height:40px;border-radius:9px;background:#0e9594;border:1px solid var(--line2)"></div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txf);text-align:center;margin-top:5px">0e9594</div></div>
+            <div style="flex:1"><div style="height:40px;border-radius:9px;background:#2cb8b4;border:1px solid var(--line2)"></div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txf);text-align:center;margin-top:5px">2cb8b4</div></div>
+            <div style="flex:1"><div style="height:40px;border-radius:9px;background:#0b7a72;border:1px solid var(--line2)"></div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txf);text-align:center;margin-top:5px">0b7a72</div></div>
+          </div>
+          <svg viewBox="0 0 240 38" preserveAspectRatio="none" style="width:100%;height:32px"><path d="M 8 28 L 80 18 L 150 22 L 232 9" fill="none" stroke="#2cb8b4" stroke-width="2.5" stroke-linecap="round"></path><circle cx="8" cy="28" r="4" fill="#2cb8b4"></circle><circle cx="150" cy="22" r="4" fill="#2cb8b4"></circle><circle cx="232" cy="9" r="4" fill="none" stroke="#0e9594" stroke-width="2"></circle></svg>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button style="background:#0e9594;color:#fff;border:none;border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 6px rgba(0,0,0,.35)">Continue</button>
+            <button style="background:var(--surf3);color:var(--tx);border:1px solid var(--line2);border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Cancel</button>
+            <button style="display:flex;align-items:center;gap:6px;background:rgba(76,195,138,.14);color:#7ad6a6;border:1px solid rgba(76,195,138,.32);border-radius:9px;padding:8px 13px;font:inherit;font-weight:600;font-size:13px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:16px">check</span>Confirm</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:2px">
+            <span style="padding:4px 9px;border-radius:999px;background:rgba(14,149,148,.14);border:1px solid rgba(14,149,148,.32);color:#5fd6d2;font-family:'Space Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Recommended</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(76,195,138,.12);border:1px solid rgba(76,195,138,.3);color:#79d4a6;font-size:12px;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#4cc38a"></span>4 open</span>
+          </div>
+        </div>
+
+        <!-- CONFIDENT GREEN -->
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:600;font-size:16px">Confident green</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--txf);background:var(--surf3);border:1px solid var(--line);border-radius:999px;padding:3px 8px">+ teal</span></div>
+          <div style="display:flex;gap:8px">
+            <div style="flex:1"><div style="height:40px;border-radius:9px;background:#1f9d5b;border:1px solid var(--line2)"></div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txf);text-align:center;margin-top:5px">1f9d5b</div></div>
+            <div style="flex:1"><div style="height:40px;border-radius:9px;background:#34b86f;border:1px solid var(--line2)"></div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txf);text-align:center;margin-top:5px">34b86f</div></div>
+            <div style="flex:1"><div style="height:40px;border-radius:9px;background:#157a45;border:1px solid var(--line2)"></div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txf);text-align:center;margin-top:5px">157a45</div></div>
+          </div>
+          <svg viewBox="0 0 240 38" preserveAspectRatio="none" style="width:100%;height:32px"><path d="M 8 28 L 80 18 L 150 22 L 232 9" fill="none" stroke="#34b86f" stroke-width="2.5" stroke-linecap="round"></path><circle cx="8" cy="28" r="4" fill="#34b86f"></circle><circle cx="150" cy="22" r="4" fill="#34b86f"></circle><circle cx="232" cy="9" r="4" fill="none" stroke="#1f9d5b" stroke-width="2"></circle></svg>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button style="background:#1f9d5b;color:#fff;border:none;border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 6px rgba(0,0,0,.35)">Continue</button>
+            <button style="background:var(--surf3);color:var(--tx);border:1px solid var(--line2);border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Cancel</button>
+            <button style="display:flex;align-items:center;gap:6px;background:rgba(14,149,148,.16);color:#5fd6d2;border:1px solid rgba(14,149,148,.34);border-radius:9px;padding:8px 13px;font:inherit;font-weight:600;font-size:13px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:16px">check</span>Confirm</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:2px">
+            <span style="padding:4px 9px;border-radius:999px;background:rgba(31,157,91,.14);border:1px solid rgba(31,157,91,.32);color:#5fd99a;font-family:'Space Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Recommended</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(14,149,148,.14);border:1px solid rgba(14,149,148,.32);color:#5fd6d2;font-size:12px;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#2cb8b4"></span>4 open</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ 08 ACCENT PAIRINGS ============ -->
+    <div style="padding:64px 0 0">
+      <span style="font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase">08 — Direction</span>
+      <h2 style="font-size:35px;font-weight:400;letter-spacing:-.008em;font-family:var(--serif);margin:8px 0 6px">Accent pairings</h2>
+      <p style="color:var(--txd);margin:0 0 22px;max-width:64ch">Cobalt leads. <strong style="color:#5fd6d2">Deep teal</strong> is the signature companion — it carries everything <em>live</em>: routes, beacons, real-time data. Green is held back for one job only: success. Three roles, never competing for attention.</p>
+
+      <!-- roles legend -->
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+        <span style="display:flex;align-items:center;gap:9px;padding:9px 15px;border-radius:10px;white-space:nowrap;background:var(--surf);border:1px solid var(--line)"><span style="width:14px;height:14px;border-radius:4px;background:#2f6df6"></span><span style="font-size:13px;color:var(--tx);font-weight:600">Cobalt</span><span style="font-size:13px;color:var(--txf)">— primary action</span></span>
+        <span style="display:flex;align-items:center;gap:9px;padding:9px 15px;border-radius:10px;white-space:nowrap;background:var(--surf);border:1px solid rgba(14,149,148,.35)"><span style="width:14px;height:14px;border-radius:4px;background:#0e9594"></span><span style="font-size:13px;color:var(--tx);font-weight:600">Deep teal</span><span style="font-size:13px;color:var(--txf)">— live & routes</span></span>
+        <span style="display:flex;align-items:center;gap:9px;padding:9px 15px;border-radius:10px;white-space:nowrap;background:var(--surf);border:1px solid var(--line)"><span style="width:14px;height:14px;border-radius:4px;background:#4cc38a"></span><span style="font-size:13px;color:var(--tx);font-weight:600">Green</span><span style="font-size:13px;color:var(--txf)">— success only</span></span>
+      </div>
+
+      <!-- FEATURED: Cobalt × Deep teal -->
+      <div style="background:var(--surf);border:1px solid rgba(14,149,148,.3);border-radius:18px;padding:26px;margin-bottom:16px;display:grid;grid-template-columns:0.85fr 1fr;gap:28px;align-items:center">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <span style="align-self:flex-start;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5fd6d2;background:rgba(14,149,148,.14);border:1px solid rgba(14,149,148,.34);border-radius:999px;padding:4px 10px">★ Signature pairing</span>
+          <div style="font-family:var(--serif);font-size:30px;letter-spacing:-.01em;line-height:1.1">Cobalt <span style="color:var(--txf)">×</span> Deep teal</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:46px;height:30px;border-radius:8px;background:#2f6df6"></div><span style="font-family:var(--mono);font-size:12px;color:var(--txd)">#2f6df6</span><span style="font-size:12px;color:var(--txf)">action</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:46px;height:30px;border-radius:8px;background:#0e9594"></div><span style="font-family:var(--mono);font-size:12px;color:var(--txd)">#0e9594</span><span style="font-size:12px;color:var(--txf)">live data</span></div>
+          </div>
+          <p style="margin:0;font-size:14px;color:var(--txd);line-height:1.55">Cool blue and cool teal sit a clean hue apart — high distinction, zero clash. The eye reads “act here” (cobalt) vs “this is moving” (teal) instantly.</p>
+        </div>
+        <!-- mini UI demo -->
+        <div style="background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:20px">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px"><span style="width:7px;height:7px;border-radius:50%;background:#2cb8b4;box-shadow:0 0 8px #0e9594;animation:wpGlow 2s infinite"></span><span style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#5fd6d2">Live route</span></div>
+          <div style="font-family:var(--serif);font-size:24px;line-height:1.15;margin-bottom:6px">A path home is forming</div>
+          <p style="margin:0 0 16px;font-size:14px;color:var(--txd);line-height:1.5">Two stops reached. Sanctuary SF is holding a bed for tonight.</p>
+          <svg viewBox="0 0 320 30" preserveAspectRatio="none" style="width:100%;height:26px;margin-bottom:16px"><path d="M 6 22 L 90 14 L 180 18 L 314 7" fill="none" stroke="#2cb8b4" stroke-width="2.5" stroke-linecap="round"></path><circle cx="6" cy="22" r="4" fill="#2cb8b4"></circle><circle cx="180" cy="18" r="4" fill="#2cb8b4"></circle><circle cx="314" cy="7" r="4.5" fill="none" stroke="#0e9594" stroke-width="2"></circle></svg>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button style="background:#2f6df6;color:#fff;border:none;border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 6px rgba(0,0,0,.35)">Continue</button>
+            <button style="background:rgba(14,149,148,.12);color:#5fd6d2;border:1px solid rgba(14,149,148,.34);border-radius:9px;padding:9px 15px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Follow route</button>
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:rgba(76,195,138,.12);border:1px solid rgba(76,195,138,.3);color:#79d4a6;font-size:12px;font-weight:600;margin-left:auto"><span style="font-family:'Material Symbols Rounded';font-size:15px">check</span>Bed held</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- two supporting pairings -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px">
+          <div style="font-family:var(--serif);font-size:21px">Cobalt <span style="color:var(--txf)">×</span> Green</div>
+          <div style="display:flex;height:48px;border-radius:10px;overflow:hidden;border:1px solid var(--line2)"><div style="flex:1;background:#2f6df6"></div><div style="flex:1;background:#4cc38a"></div></div>
+          <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--txf)"><span>#2f6df6</span><span>#4cc38a</span></div>
+          <p style="margin:0;font-size:13.5px;color:var(--txd);line-height:1.5">The everyday default. Cobalt asks, green confirms — a quiet, trustworthy loop with no ambiguity.</p>
+        </div>
+        <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px">
+          <div style="font-family:var(--serif);font-size:21px">Deep teal <span style="color:var(--txf)">×</span> Green</div>
+          <div style="display:flex;height:48px;border-radius:10px;overflow:hidden;border:1px solid var(--line2)"><div style="flex:1;background:#0e9594"></div><div style="flex:1;background:#4cc38a"></div></div>
+          <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--txf)"><span>#0e9594</span><span>#4cc38a</span></div>
+          <p style="margin:0;font-size:13.5px;color:var(--txd);line-height:1.5">For data-forward surfaces — the coordinator side. Both cool greens, a step apart in hue, so heat and success never blur together.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 09 LIVE SCREENS ============ -->
+    <div style="padding:72px 0 0">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase">09 — In context</span>
+      <h2 style="font-size:35px;font-weight:400;letter-spacing:-.008em;font-family:var(--serif);margin:8px 0 6px">The system, live</h2>
+      <p style="color:var(--txd);margin:0 0 24px;max-width:62ch">The same map underneath every role. Switch roles and language up top; on the crisis side, tap <em>I need help</em> to reveal the need tiles. The capacity labels now sit as compact chips on their pins — no more full-width bars.</p>
+
+      <div style="position:relative;width:100%;aspect-ratio:1120 / 720;border-radius:20px;overflow:hidden;border:1px solid var(--line2);box-shadow:0 30px 80px rgba(0,0,0,.5)">
+        <!-- MAP BASE -->
+        <div style="position:absolute;inset:0;background:#0a0b0d"></div>
+        <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:62px 62px;transform:rotate(-13deg) scale(1.4);transform-origin:center"></div>
+        <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:18px 18px;transform:rotate(-13deg) scale(1.4);transform-origin:center;opacity:.5"></div>
+        <!-- water -->
+        <div style="position:absolute;right:-6%;top:-10%;width:46%;height:60%;background:radial-gradient(circle at 60% 40%,rgba(40,52,86,.5),transparent 70%);transform:rotate(20deg)"></div>
+        <div style="position:absolute;left:-10%;bottom:-12%;width:40%;height:50%;background:radial-gradient(circle,rgba(36,46,72,.4),transparent 70%)"></div>
+        <div style="position:absolute;inset:0;background:radial-gradient(120% 120% at 50% 30%,transparent 40%,rgba(0,0,0,.55))"></div>
+        <div style="position:absolute;top:18%;left:6%;font-family:'Hanken Grotesk',sans-serif;font-size:28px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.07)">SAN FRANCISCO</div>
+        <div style="position:absolute;top:10%;right:8%;font-family:'Hanken Grotesk',sans-serif;font-size:18px;font-weight:600;letter-spacing:.16em;color:rgba(255,255,255,.06)">OAKLAND</div>
+
+        <!-- ROUTES -->
+        <svg viewBox="0 0 1120 720" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+          <path d="M 250 540 L 360 470 L 470 430 L 560 360" fill="none" stroke="#2f6df6" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0.18" style="filter:blur(7px)"></path>
+          <path d="M 250 540 L 360 470 L 470 430 L 560 360" fill="none" stroke="#8fb2ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:wpGlow 3s ease-in-out infinite"></path>
+          <path d="M 560 360 L 640 320 L 720 300" fill="none" stroke="#2f6df6" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="2 9" opacity="0.55" style="animation:wpDash 1.2s linear infinite"></path>
+          <circle cx="250" cy="540" r="5" fill="#8fb2ff"></circle>
+          <circle cx="470" cy="430" r="5" fill="#8fb2ff"></circle>
+          <circle cx="560" cy="360" r="6" fill="#fff" stroke="#2f6df6" stroke-width="3"></circle>
+          <circle cx="720" cy="300" r="5" fill="none" stroke="#2f6df6" stroke-width="2.5" opacity="0.6"></circle>
+        </svg>
+
+        <!-- PINS -->
+        <div style="position:absolute;left:20%;top:71%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px">
+          <div style="width:34px;height:34px;border-radius:50%;background:rgba(18,19,22,.9);border:2px solid #4cc38a;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(76,195,138,.4);flex:none"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:#79d4a6">night_shelter</span></div>
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;background:rgba(10,11,13,.85);border:1px solid rgba(76,195,138,.3);color:#79d4a6;font-size:12px;font-weight:600;backdrop-filter:blur(6px)"><span style="font-family:'Space Mono',monospace;font-size:11px">4</span> open</span>
+        </div>
+        <div style="position:absolute;left:42%;top:60%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px">
+          <div style="width:34px;height:34px;border-radius:50%;background:rgba(18,19,22,.9);border:2px solid #d8b65c;display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:#e0c878">restaurant</span></div>
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;background:rgba(10,11,13,.85);border:1px solid rgba(216,182,92,.3);color:#e0c878;font-size:12px;font-weight:600"><span style="font-family:'Space Mono',monospace;font-size:11px">2</span> left</span>
+        </div>
+        <div style="position:absolute;left:62%;top:49%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px">
+          <div style="width:34px;height:34px;border-radius:50%;background:rgba(18,19,22,.9);border:2px solid #e36a7d;display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:#ef8896">shower</span></div>
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;background:rgba(10,11,13,.85);border:1px solid rgba(227,106,125,.3);color:#ef8896;font-size:12px;font-weight:600">Full</span>
+        </div>
+        <div style="position:absolute;left:33%;top:38%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px">
+          <div style="width:30px;height:30px;border-radius:50%;background:rgba(18,19,22,.9);border:2px solid #4cc38a;display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:#79d4a6">local_hospital</span></div>
+        </div>
+        <!-- beacon (fuzzed need) -->
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px">
+          <div style="position:absolute;inset:0;border-radius:50%;background:rgba(47,109,246,.35);animation:wpPulse 2.4s ease-out infinite"></div>
+          <div style="position:absolute;inset:5px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc)"></div>
+        </div>
+
+        <!-- ROLE SWITCHER -->
+        <div style="position:absolute;top:18px;right:18px;display:inline-flex;gap:2px;padding:3px;background:rgba(18,19,22,.72);border:1px solid var(--line);border-radius:11px;backdrop-filter:blur(18px);z-index:20">
+          <button onClick="{{ setHelp }}" style="padding:8px 15px;border:none;border-radius:8px;background:{{ helpBg }};color:{{ helpTx }};font:inherit;font-weight:600;font-size:13px;cursor:pointer">I need help</button>
+          <button onClick="{{ setCopilot }}" style="padding:8px 15px;border:none;border-radius:8px;background:{{ copBg }};color:{{ copTx }};font:inherit;font-weight:600;font-size:13px;cursor:pointer">Co-pilot</button>
+          <button onClick="{{ setCoord }}" style="padding:8px 15px;border:none;border-radius:8px;background:{{ coordBg }};color:{{ coordTx }};font:inherit;font-weight:600;font-size:13px;cursor:pointer">Coordinator</button>
+        </div>
+        <!-- zoom -->
+        <div style="position:absolute;bottom:18px;right:18px;display:flex;flex-direction:column;background:rgba(18,19,22,.72);border:1px solid var(--line);border-radius:10px;backdrop-filter:blur(18px);overflow:hidden;z-index:20">
+          <button style="width:36px;height:36px;border:none;border-bottom:1px solid var(--line);background:none;color:var(--txd);font-size:20px;cursor:pointer">+</button>
+          <button style="width:36px;height:36px;border:none;background:none;color:var(--txd);font-size:20px;cursor:pointer">−</button>
+        </div>
+
+        <!-- ===== HELP PANEL (bottom sheet) ===== -->
+        <sc-if value="{{ isHelp }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:min(560px,calc(100% - 40px));background:rgba(18,19,22,.82);border:1px solid var(--line2);border-radius:18px;backdrop-filter:blur(22px);box-shadow:0 20px 60px rgba(0,0,0,.5);padding:22px;z-index:15">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+              <div style="display:flex;align-items:center;gap:9px"><div style="width:26px;height:26px;border-radius:7px;background:#2f6df6;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:16px;color:#fff">explore</span></div><span style="font-weight:400;font-size:19px;font-family:var(--serif)">Waypoint</span></div>
+              <div style="display:inline-flex;gap:2px;padding:3px;background:var(--surf2);border:1px solid var(--line);border-radius:999px">
+                <button onClick="{{ setEn }}" style="display:flex;align-items:center;gap:5px;padding:6px 12px;border:none;border-radius:999px;background:{{ enBg }};color:{{ enTx }};font:inherit;font-weight:600;font-size:12px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:15px">language</span>EN</button>
+                <button onClick="{{ setEs }}" style="padding:6px 12px;border:none;border-radius:999px;background:{{ esBg }};color:{{ esTx }};font:inherit;font-weight:600;font-size:12px;cursor:pointer">ES</button>
+              </div>
+            </div>
+            <button onClick="{{ toggleNeed }}" style="display:flex;align-items:center;justify-content:center;gap:11px;width:100%;background:#2f6df6;color:#fff;border:none;border-radius:14px;padding:18px;font:inherit;font-weight:700;font-size:19px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 8px 26px rgba(47,109,246,.32)"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:23px">waving_hand</span>{{ helpLabel }}</button>
+            <sc-if value="{{ needOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:16px;animation:wpUp .3s ease both">
+                <div style="font-size:14px;font-weight:600;color:var(--txd);margin-bottom:10px">{{ needPrompt }}</div>
+                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+                  <sc-for list="{{ needTiles }}" as="n" hint-placeholder-count="5">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 4px;background:var(--surf2);border:1px solid var(--line);border-radius:13px;cursor:pointer" style-hover="border-color:var(--acc);background:var(--surf3)">
+                      <span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 0,'wght' 300;font-size:26px;color:var(--tx)">{{ n.icon }}</span>
+                      <span style="font-size:12px;font-weight:600;color:var(--txd);text-align:center">{{ n.name }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+            <p style="margin:14px 0 0;font-size:14px;color:var(--txf);text-align:center">{{ tagline }}</p>
+          </div>
+        </sc-if>
+
+        <!-- ===== CO-PILOT PANEL ===== -->
+        <sc-if value="{{ isCopilot }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:70px;right:18px;bottom:18px;width:380px;max-width:calc(100% - 36px);background:rgba(15,16,19,.85);border:1px solid var(--line2);border-radius:18px;backdrop-filter:blur(22px);box-shadow:0 20px 60px rgba(0,0,0,.5);padding:18px;overflow-y:auto;z-index:15">
+            <div style="display:inline-flex;gap:2px;padding:3px;background:var(--surf2);border:1px solid var(--line);border-radius:11px;width:100%;margin-bottom:16px">
+              <button onClick="{{ setInbound }}" style="flex:1;padding:9px;border:none;border-radius:8px;background:{{ inBg }};color:{{ inTx }};font:inherit;font-weight:600;font-size:14px;cursor:pointer">Inbound</button>
+              <button onClick="{{ setJourneys }}" style="flex:1;padding:9px;border:none;border-radius:8px;background:{{ jrBg }};color:{{ jrTx }};font:inherit;font-weight:600;font-size:14px;cursor:pointer">My journeys</button>
+            </div>
+
+            <sc-if value="{{ isInbound }}" hint-placeholder-val="{{ true }}">
+              <div style="animation:wpUp .25s ease both">
+                <div style="background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-weight:600;font-size:15px">Suggested places</span><span style="padding:4px 9px;border-radius:999px;background:rgba(47,109,246,.12);border:1px solid rgba(47,109,246,.3);color:#8fb2ff;font-family:'Space Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Recommended</span></div>
+                  <p style="margin:0 0 14px;font-size:13px;color:var(--txd);line-height:1.55"><span style="color:var(--tx);font-weight:600">Why:</span> Next Door is closest (150 ft), 4 open now. Reservation-based. They mentioned a pet — confirm pet-friendly.</p>
+                  <div style="display:flex;flex-direction:column;gap:9px">
+                    <sc-for list="{{ places }}" as="p" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:10px;padding:12px 13px;border-radius:11px;background:{{ p.ringBg }};border:{{ p.ringBd }}">
+                        <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px">{{ p.name }}</div><div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txf);margin-top:2px">{{ p.meta }} · {{ p.cap }}</div></div>
+                        <button onClick="{{ p.onConfirm }}" style="flex:none;background:rgba(76,195,138,.14);color:#7ad6a6;border:1px solid rgba(76,195,138,.32);border-radius:9px;padding:8px 12px;font:inherit;font-weight:600;font-size:12px;cursor:pointer">{{ confirmLabel }}</button>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ showConfirmed }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;gap:7px;margin-top:12px;font-size:13px;color:#7ad6a6;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:16px">check_circle</span>{{ confirmedMsg }}</div>
+                  </sc-if>
+                </div>
+                <div style="background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:16px">
+                  <div style="font-weight:600;font-size:15px;margin-bottom:12px">Private thread</div>
+                  <div style="display:flex;flex-direction:column;gap:9px">
+                    <div style="align-self:flex-end;max-width:88%;background:rgba(47,109,246,.16);border:1px solid rgba(47,109,246,.28);color:#dce8ff;padding:10px 13px;border-radius:13px 13px 4px 13px;font-size:13px;line-height:1.5">Hi — I'm Amara, your co-pilot. I'll help you find somewhere safe tonight.</div>
+                    <div style="align-self:flex-start;max-width:88%;background:var(--surf3);border:1px solid var(--line);color:var(--txd);padding:10px 13px;border-radius:13px 13px 13px 4px;font-size:13px;font-style:italic;line-height:1.5">Sanctuary SF is holding a spot — they're expecting you.</div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isJourneys }}" hint-placeholder-val="{{ false }}">
+              <div style="animation:wpUp .25s ease both">
+                <div style="font-size:13px;color:var(--txf);font-weight:600;margin-bottom:12px;letter-spacing:.02em">WALKING ALONGSIDE</div>
+                <div style="background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div><div style="font-weight:600;font-size:15px">Path home</div><div style="font-size:12px;color:#7ad6a6;margin-top:1px">Journey shared with you</div></div><button style="background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--txd);font:inherit;font-size:12px;font-weight:600;cursor:pointer">Hide</button></div>
+                  <div style="display:flex;flex-direction:column;gap:13px;margin-bottom:16px;position:relative">
+                    <div style="display:flex;align-items:center;gap:11px"><span style="width:11px;height:11px;border-radius:50%;background:#4cc38a;flex:none"></span><span style="font-size:14px;color:var(--txf);text-decoration:line-through">Reached out</span></div>
+                    <div style="display:flex;align-items:center;gap:11px"><span style="width:11px;height:11px;border-radius:50%;background:#4cc38a;flex:none"></span><span style="font-size:14px;color:var(--txf);text-decoration:line-through">Safe tonight — Next Door Shelter</span></div>
+                    <div style="display:flex;align-items:center;gap:11px"><span style="width:13px;height:13px;border-radius:50%;background:var(--acc);border:3px solid rgba(47,109,246,.3);flex:none;box-shadow:0 0 10px rgba(47,109,246,.5)"></span><span style="font-size:14px;color:var(--tx);font-weight:600">Replace ID at DMV</span></div>
+                    <div style="display:flex;align-items:center;gap:11px"><span style="width:11px;height:11px;border-radius:50%;background:transparent;border:2px solid var(--txf);flex:none"></span><span style="font-size:14px;color:var(--txd)">CalFresh / benefits</span></div>
+                  </div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap"><button style="background:rgba(76,195,138,.14);color:#7ad6a6;border:1px solid rgba(76,195,138,.32);border-radius:9px;padding:8px 13px;font:inherit;font-weight:600;font-size:12px;cursor:pointer">Mark done</button><button style="background:var(--surf3);color:var(--tx);border:1px solid var(--line2);border-radius:9px;padding:8px 13px;font:inherit;font-weight:600;font-size:12px;cursor:pointer">Add step</button><button style="background:transparent;color:var(--txd);border:1px solid var(--line);border-radius:9px;padding:8px 13px;font:inherit;font-weight:600;font-size:12px;cursor:pointer">Open</button></div>
+                </div>
+                <div style="background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:16px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div><div style="font-weight:600;font-size:15px">Path home</div><div style="font-size:12px;color:#7ad6a6;margin-top:1px">Journey shared with you</div></div></div>
+                  <div style="display:flex;flex-direction:column;gap:13px">
+                    <div style="display:flex;align-items:center;gap:11px"><span style="width:11px;height:11px;border-radius:50%;background:#4cc38a;flex:none"></span><span style="font-size:14px;color:var(--txf);text-decoration:line-through">Got CalFresh</span></div>
+                    <div style="display:flex;align-items:center;gap:11px"><span style="width:13px;height:13px;border-radius:50%;background:var(--acc);border:3px solid rgba(47,109,246,.3);flex:none;box-shadow:0 0 10px rgba(47,109,246,.5)"></span><span style="font-size:14px;color:var(--tx);font-weight:600">Housing assessment scheduled</span></div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ===== COORDINATOR PANEL ===== -->
+        <sc-if value="{{ isCoord }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:70px;right:18px;bottom:18px;width:380px;max-width:calc(100% - 36px);background:rgba(15,16,19,.85);border:1px solid var(--line2);border-radius:18px;backdrop-filter:blur(22px);box-shadow:0 20px 60px rgba(0,0,0,.5);padding:20px;overflow-y:auto;z-index:15">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><span style="font-weight:700;font-size:17px">Region view</span><span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(76,195,138,.12);border:1px solid rgba(76,195,138,.3);color:#7ad6a6;font-family:'Space Mono',monospace;font-size:11px;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#4cc38a;animation:wpGlow 2s infinite"></span>Live</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+              <div style="background:var(--surf);border:1px solid var(--line);border-radius:13px;padding:14px"><div style="font-family:'Space Mono',monospace;font-size:26px;font-weight:600;color:var(--tx)">312</div><div style="font-size:12px;color:var(--txf);margin-top:2px">open beds tonight</div></div>
+              <div style="background:var(--surf);border:1px solid var(--line);border-radius:13px;padding:14px"><div style="font-family:'Space Mono',monospace;font-size:26px;font-weight:600;color:var(--acc2)">47</div><div style="font-size:12px;color:var(--txf);margin-top:2px">active journeys</div></div>
+            </div>
+            <div style="background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px">
+              <div style="font-weight:600;font-size:14px;margin-bottom:12px">Need concentration</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;color:var(--txd);width:96px">Mission</span><div style="flex:1;height:8px;border-radius:4px;background:var(--surf3);overflow:hidden"><div style="width:82%;height:100%;background:#2f6df6"></div></div></div>
+                <div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;color:var(--txd);width:96px">Tenderloin</span><div style="flex:1;height:8px;border-radius:4px;background:var(--surf3);overflow:hidden"><div style="width:95%;height:100%;background:#3f7bff"></div></div></div>
+                <div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;color:var(--txd);width:96px">SoMa</span><div style="flex:1;height:8px;border-radius:4px;background:var(--surf3);overflow:hidden"><div style="width:54%;height:100%;background:#2860e0"></div></div></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:9px;padding:13px 14px;background:rgba(47,109,246,.07);border:1px solid rgba(47,109,246,.22);border-radius:12px;margin-bottom:14px"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--acc2)">shield_lock</span><span style="font-size:12.5px;color:var(--txd);line-height:1.5">Cells with fewer than <span style="font-family:'Space Mono',monospace;color:var(--tx)">k=5</span> signals are never shown. No precise location, ever.</span></div>
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:13px;color:var(--txd)">Time of day</span><span style="font-family:'Space Mono',monospace;font-size:13px;color:var(--tx)">9:40 PM</span></div>
+              <div style="position:relative;height:6px;border-radius:3px;background:var(--surf3)"><div style="position:absolute;left:0;top:0;height:100%;width:78%;border-radius:3px;background:#2f6df6"></div><div style="position:absolute;left:78%;top:50%;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--acc);transform:translate(-50%,-50%);box-shadow:0 0 10px rgba(47,109,246,.6)"></div></div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+      <p style="color:var(--txf);font-size:13px;margin:16px 2px 0">Mockup map for the system. In product this is a MapLibre GL warm-dark — sorry, <em>cool</em>-dark — basemap fed by Supabase Realtime; routes, pins, beacons and heat are live GeoJSON layers.</p>
+    </div>
+
+  </div>
+
+  <div style="max-width:1180px;margin:48px auto 0;padding:0 56px"><div style="border-top:1px solid var(--line);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px"><span style="font-size:13px;color:var(--txf)">Waypoint — Housing Dignity</span><span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--txf)">DM Serif Display · Hanken Grotesk · Space Mono</span></div></div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { role: 'help', needOpen: false, copilotTab: 'inbound', lang: 'en', confirmed: null };
+  renderVals() {
+    const { role, needOpen, copilotTab, lang, confirmed } = this.state;
+    const t = (en, es) => (lang === 'es' ? es : en);
+
+    const places = [
+      { id: 'nextdoor', name: 'Next Door Shelter', meta: t('150 ft away', 'a 150 ft'), cap: t('4 open', '4 disp.'), recommended: true },
+      { id: 'mscsouth', name: 'MSC South Shelter', meta: t('0.7 mi away', 'a 0.7 mi'), cap: t('12 open', '12 disp.'), recommended: false },
+      { id: 'sanctuary', name: 'Sanctuary SF', meta: t('0.4 mi away', 'a 0.4 mi'), cap: t('Full — call', 'Lleno'), recommended: false },
+    ].map(p => ({
+      ...p,
+      ringBg: p.recommended ? 'rgba(47,109,246,.06)' : 'var(--surf2)',
+      ringBd: p.recommended ? '1px solid rgba(47,109,246,.4)' : '1px solid var(--line)',
+      onConfirm: () => this.setState({ confirmed: p.id }),
+    }));
+
+    const needTiles = [
+      { icon: 'bed', name: t('Sleep', 'Dormir') },
+      { icon: 'restaurant', name: t('Food', 'Comida') },
+      { icon: 'shower', name: t('Shower', 'Ducha') },
+      { icon: 'medical_services', name: t('Medical', 'Médico') },
+      { icon: 'forum', name: t('Talk', 'Hablar') },
+    ];
+
+    const seg = (on) => (on ? 'var(--surf4)' : 'transparent');
+    const segTx = (on) => (on ? 'var(--tx)' : 'var(--txd)');
+
+    return {
+      // role / tab / lang flags
+      isHelp: role === 'help', isCopilot: role === 'copilot', isCoord: role === 'coord',
+      isInbound: copilotTab === 'inbound', isJourneys: copilotTab === 'journeys',
+      needOpen, showConfirmed: confirmed !== null,
+      // localized strings
+      helpLabel: t('I need help', 'Necesito ayuda'),
+      tagline: t("You're not alone. Let's find somewhere safe tonight.", "No estás solo/a. Encontremos un lugar seguro esta noche."),
+      needPrompt: t('What do you need first?', '¿Qué necesitas primero?'),
+      confirmLabel: t('Confirm', 'Confirmar'),
+      confirmedMsg: t('A spot is being held — and the count just dropped.', 'Se está reservando un lugar — el conteo bajó.'),
+      // segmented backgrounds
+      helpBg: seg(role === 'help'), helpTx: segTx(role === 'help'),
+      copBg: seg(role === 'copilot'), copTx: segTx(role === 'copilot'),
+      coordBg: seg(role === 'coord'), coordTx: segTx(role === 'coord'),
+      inBg: seg(copilotTab === 'inbound'), inTx: segTx(copilotTab === 'inbound'),
+      jrBg: seg(copilotTab === 'journeys'), jrTx: segTx(copilotTab === 'journeys'),
+      enBg: seg(lang === 'en'), enTx: segTx(lang === 'en'),
+      esBg: seg(lang === 'es'), esTx: segTx(lang === 'es'),
+      // handlers
+      setHelp: () => this.setState({ role: 'help', needOpen: false }),
+      setCopilot: () => this.setState({ role: 'copilot' }),
+      setCoord: () => this.setState({ role: 'coord' }),
+      toggleNeed: () => this.setState(s => ({ needOpen: !s.needOpen })),
+      setInbound: () => this.setState({ copilotTab: 'inbound' }),
+      setJourneys: () => this.setState({ copilotTab: 'journeys' }),
+      setEn: () => this.setState({ lang: 'en' }),
+      setEs: () => this.setState({ lang: 'es' }),
+      places, needTiles,
+      // doc data
+      surfaces: [
+        { name: 'Canvas', hex: '#08090a', note: 'app background, the map' },
+        { name: 'Surface', hex: '#121316', note: 'panels & sheets' },
+        { name: 'Raised', hex: '#1e1f24', note: 'cards on panels' },
+        { name: 'Hover', hex: '#26272d', note: 'interactive states' },
+      ],
+      texts: [
+        { name: 'Primary', hex: '#f7f8f8', note: 'headings, key copy' },
+        { name: 'Secondary', hex: '#9395a1', note: 'supporting text' },
+        { name: 'Muted', hex: '#6a6b76', note: 'meta, captions' },
+      ],
+      brand: [
+        { name: 'Accent', hex: '#2f6df6', note: 'primary action, routes' },
+        { name: 'Accent light', hex: '#5a8bff', note: 'hover, glow' },
+        { name: 'Accent deep', hex: '#1f50c8', note: 'pressed' },
+      ],
+      states: [
+        { name: 'Open', hex: '#4cc38a', note: 'space available', icon: 'check', tint: 'rgba(76,195,138,.12)', bd: 'rgba(76,195,138,.3)' },
+        { name: 'Filling', hex: '#d8b65c', note: 'limited — hurry gently', icon: 'pending', tint: 'rgba(216,182,92,.12)', bd: 'rgba(216,182,92,.3)' },
+        { name: 'Full', hex: '#e36a7d', note: 'no space — call first', icon: 'call', tint: 'rgba(227,106,125,.12)', bd: 'rgba(227,106,125,.3)' },
+      ],
+      typeScale: [
+        { label: 'Display', spec: 'DM Serif Display · 52', size: '52px', weight: 400, sample: 'Somewhere safe tonight', fontFam: 'var(--serif)' },
+        { label: 'Title', spec: 'DM Serif Display · 34', size: '34px', weight: 400, sample: 'Suggested places nearby', fontFam: 'var(--serif)' },
+        { label: 'Heading', spec: 'Hanken Grotesk 700 · 20', size: '20px', weight: 700, sample: 'Next Door Shelter', fontFam: 'var(--ui)' },
+        { label: 'Body', spec: 'Hanken Grotesk 400 · 16', size: '16px', weight: 400, sample: "You're not alone. We'll walk with you, step by step.", fontFam: 'var(--ui)' },
+        { label: 'Label', spec: 'Hanken Grotesk 600 · 14', size: '14px', weight: 600, sample: 'Confirm this place', fontFam: 'var(--ui)' },
+        { label: 'Mono · data', spec: 'Space Mono 400 · 14', size: '14px', weight: 400, sample: '4 open · 0.4 mi · k≥5', fontFam: 'var(--mono)' },
+      ],
+      needTilesDoc: needTiles,
+    };
+  }
+}
+</script>
+</body>
+</html>

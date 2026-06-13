@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0}</style>
+</helmet>
+<div style="--bg:#08090a;--surf:#121316;--surf2:#17181c;--surf3:#1e1f24;--surf4:#26272d;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.13);--tx:#f7f8f8;--txd:#9395a1;--txf:#6a6b76;--acc:#2f6df6;--acc2:#5a8bff;--open:#4cc38a;--serif:'DM Serif Display',Georgia,serif;--ui:'Hanken Grotesk',system-ui,sans-serif;--mono:'Space Mono',ui-monospace,monospace;background:var(--bg);color:var(--tx);font-family:var(--ui);padding:36px;min-height:100vh;-webkit-font-smoothing:antialiased;max-width:760px">
+
+  <div style="margin-bottom:32px">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--acc);text-transform:uppercase;margin-bottom:6px">Waypoint · Component</div>
+    <div style="font-family:var(--serif);font-size:44px;letter-spacing:-.01em;line-height:1.05;margin-bottom:8px">Place card</div>
+    <p style="font-size:15px;color:var(--txd);max-width:54ch;margin:0">Always leads with a plain-language <em>why</em>. The first confirmed place glows green. A human co-pilot confirms — the system only recommends. Click Confirm to see the success state.</p>
+  </div>
+
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-weight:600;font-size:17px">Suggested places</div>
+      <span style="padding:4px 10px;border-radius:999px;background:rgba(47,109,246,.12);border:1px solid rgba(47,109,246,.3);color:#8fb2ff;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase">Recommended</span>
+    </div>
+    <p style="margin:0 0 16px;font-size:14px;color:var(--txd);line-height:1.6"><span style="color:var(--tx);font-weight:600">Why:</span> Next Door Shelter is closest (150 ft) with 4 spots open now. Reservation-based. They mentioned a pet — confirm the site is pet-friendly first.</p>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ places }}" as="p" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;background:{{p.cardBg}};border:{{p.cardBd}}">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:15px">{{ p.name }}</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--txf);margin-top:3px">{{ p.meta }}</div>
+          </div>
+          <sc-if value="{{ p.confirmed }}" hint-placeholder-val="{{ false }}">
+            <span style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:#79d4a6"><span style="font-family:'Material Symbols Rounded';font-size:17px">check_circle</span>Held</span>
+          </sc-if>
+          <sc-if value="{{ p.notConfirmed }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ p.onConfirm }}" style="flex:none;background:rgba(76,195,138,.14);color:#7ad6a6;border:1px solid rgba(76,195,138,.32);border-radius:9px;padding:8px 13px;font:inherit;font-weight:600;font-size:12px;cursor:pointer">Confirm</button>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ anyConfirmed }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:8px;margin-top:14px;font-size:14px;color:#79d4a6;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:18px">check_circle</span>A spot is being held — and the count just dropped.</div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:480}}">
+class Component extends DCLogic {
+  state = { confirmed: null };
+  renderVals() {
+    const { confirmed } = this.state;
+    const places = [
+      { id:'nextdoor', name:'Next Door Shelter', meta:'150 ft away · 4 open', recommended:true  },
+      { id:'mscsouth', name:'MSC South Shelter',  meta:'0.7 mi away · 12 open', recommended:false },
+      { id:'sanctuary',name:'Sanctuary SF',       meta:'0.4 mi away · Full — call first', recommended:false },
+    ].map(p => ({
+      ...p,
+      confirmed:    confirmed === p.id,
+      notConfirmed: confirmed !== p.id,
+      cardBg: p.recommended ? 'rgba(47,109,246,.05)' : 'var(--surf2)',
+      cardBd: p.recommended ? '1px solid rgba(47,109,246,.35)' : '1px solid var(--line)',
+      onConfirm: () => this.setState({ confirmed: p.id }),
+    }));
+    return { places, anyConfirmed: confirmed !== null };
+  }
+}
+</script>
+</body>
+</html>

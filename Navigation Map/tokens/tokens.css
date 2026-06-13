@@ -1,0 +1,103 @@
+/**
+ * Waypoint Design System — Token Reference
+ * Import once at the root of your app.
+ *
+ * Fonts (add to your HTML <head>):
+ *   DM Serif Display — display/headlines
+ *   Hanken Grotesk  — UI / body
+ *   Space Mono      — data, labels, counts
+ *   https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1
+ *     &family=Hanken+Grotesk:wght@400;500;600;700;800
+ *     &family=Space+Mono:wght@400;700&display=swap
+ */
+
+:root {
+  /* ── Surfaces ────────────────────────────────────── */
+  --wp-bg:    #08090a;   /* app background / map base    */
+  --wp-bg2:   #0c0d0f;   /* deepest chrome               */
+  --wp-surf:  #121316;   /* panels & sheets              */
+  --wp-surf2: #17181c;   /* cards on panels              */
+  --wp-surf3: #1e1f24;   /* raised elements / hover bg   */
+  --wp-surf4: #26272d;   /* segmented active bg          */
+
+  /* ── Borders ─────────────────────────────────────── */
+  --wp-line:  rgba(255, 255, 255, 0.08);  /* default border   */
+  --wp-line2: rgba(255, 255, 255, 0.13);  /* stronger border  */
+
+  /* ── Text ────────────────────────────────────────── */
+  --wp-tx:  #f7f8f8;   /* primary                       */
+  --wp-txd: #9395a1;   /* secondary / supporting        */
+  --wp-txf: #6a6b76;   /* muted / meta / captions       */
+
+  /* ── Accent — Cobalt (primary action) ───────────── */
+  --wp-acc:  #2f6df6;  /* default                       */
+  --wp-acc2: #5a8bff;  /* hover / glow                  */
+  --wp-accd: #1f50c8;  /* pressed                       */
+
+  /* ── Companion — Deep teal (live & routes) ──────── */
+  --wp-teal:  #0e9594; /* default                       */
+  --wp-teal2: #2cb8b4; /* light / route stroke          */
+  --wp-teald: #0b7a72; /* pressed / deep                */
+
+  /* ── Capacity states (ALWAYS pair color + label) ── */
+  --wp-open: #4cc38a;  /* space available — ● circle    */
+  --wp-low:  #d8b65c;  /* limited — ◆ diamond           */
+  --wp-full: #e36a7d;  /* none — ▲ or call icon         */
+
+  /* ── Typography ──────────────────────────────────── */
+  --wp-serif: 'DM Serif Display', Georgia, serif;
+  --wp-ui:    'Hanken Grotesk', system-ui, sans-serif;
+  --wp-mono:  'Space Mono', ui-monospace, monospace;
+
+  /* ── Spacing scale ───────────────────────────────── */
+  --wp-s1: 4px;
+  --wp-s2: 8px;
+  --wp-s3: 12px;
+  --wp-s4: 16px;
+  --wp-s5: 24px;
+  --wp-s6: 32px;
+  --wp-s7: 48px;
+  --wp-s8: 64px;
+
+  /* ── Radii ───────────────────────────────────────── */
+  --wp-r-sm:   8px;
+  --wp-r-md:   12px;
+  --wp-r-lg:   16px;
+  --wp-r-xl:   20px;
+  --wp-r-pill: 999px;
+
+  /* ── Shadows ─────────────────────────────────────── */
+  --wp-shadow-sm:   0 2px 6px rgba(0, 0, 0, 0.35);
+  --wp-shadow-md:   0 4px 16px rgba(0, 0, 0, 0.4);
+  --wp-shadow-lg:   0 20px 60px rgba(0, 0, 0, 0.5);
+  --wp-shadow-acc:  0 8px 26px rgba(47, 109, 246, 0.28);
+  --wp-shadow-teal: 0 4px 16px rgba(14, 149, 148, 0.35);
+  --wp-inset-hi:    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+  /* ── Animation ───────────────────────────────────── */
+  --wp-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --wp-dur:  200ms;
+}
+
+/* ── Tailwind config mirror (copy into tailwind.config.js) ──
+   colors: {
+     'wp-acc':   '#2f6df6',
+     'wp-teal':  '#0e9594',
+     'wp-open':  '#4cc38a',
+     'wp-low':   '#d8b65c',
+     'wp-full':  '#e36a7d',
+     'wp-bg':    '#08090a',
+     'wp-surf':  '#121316',
+     'wp-surf2': '#17181c',
+     'wp-surf3': '#1e1f24',
+     'wp-surf4': '#26272d',
+     'wp-tx':    '#f7f8f8',
+     'wp-txd':   '#9395a1',
+     'wp-txf':   '#6a6b76',
+   },
+   fontFamily: {
+     serif: ['DM Serif Display', 'Georgia', 'serif'],
+     ui:    ['Hanken Grotesk', 'system-ui', 'sans-serif'],
+     mono:  ['Space Mono', 'ui-monospace', 'monospace'],
+   },
+*/

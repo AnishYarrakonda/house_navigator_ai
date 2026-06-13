@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0}</style>
+</helmet>
+<div style="--bg:#08090a;--surf:#121316;--surf2:#17181c;--surf3:#1e1f24;--surf4:#26272d;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.13);--tx:#f7f8f8;--txd:#9395a1;--txf:#6a6b76;--acc:#2f6df6;--acc2:#5a8bff;--serif:'DM Serif Display',Georgia,serif;--ui:'Hanken Grotesk',system-ui,sans-serif;--mono:'Space Mono',ui-monospace,monospace;background:var(--bg);color:var(--tx);font-family:var(--ui);padding:36px;min-height:100vh;-webkit-font-smoothing:antialiased;max-width:760px">
+
+  <div style="margin-bottom:32px">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--acc);text-transform:uppercase;margin-bottom:6px">Waypoint · Component</div>
+    <div style="font-family:var(--serif);font-size:44px;letter-spacing:-.01em;line-height:1.05;margin-bottom:8px">Need tile</div>
+    <p style="font-size:15px;color:var(--txd);max-width:54ch;margin:0">Icon-first, large tap targets (min 44px). Shown after the crisis CTA — one tap, no typing. Label localizes to EN/ES. Tap to select.</p>
+  </div>
+
+  <!-- interactive grid -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Crisis need · tap to select</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+      <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="5">
+        <div onClick="{{ t.onClick }}" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 8px;background:{{t.bg}};border:1px solid {{t.bd}};border-radius:14px;min-height:96px;justify-content:center;cursor:pointer">
+          <span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 0,'wght' 300;font-size:30px;color:{{t.txc}}">{{ t.icon }}</span>
+          <span style="font-size:12px;font-weight:600;color:{{t.txc}};text-align:center">{{ t.name }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ hasSelected }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:14px;color:#8fb2ff;animation:fadeIn .2s ease"><span style="font-family:'Material Symbols Rounded';font-size:18px">check_circle</span>Selected: <strong style="color:var(--tx)">{{ selectedName }}</strong></div>
+    </sc-if>
+  </div>
+
+  <!-- EN/ES toggle -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Bilingual · EN / ES</div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px">
+      <button onClick="{{ setEn }}" style="padding:7px 14px;border:none;border-radius:999px;background:{{enBg}};color:{{enTx}};font:inherit;font-weight:600;font-size:13px;cursor:pointer">EN</button>
+      <button onClick="{{ setEs }}" style="padding:7px 14px;border:none;border-radius:999px;background:{{esBg}};color:{{esTx}};font:inherit;font-weight:600;font-size:13px;cursor:pointer">ES</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+      <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="5">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 8px;background:var(--surf2);border:1px solid var(--line);border-radius:14px;justify-content:center">
+          <span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 0,'wght' 300;font-size:28px;color:var(--txd)">{{ t.icon }}</span>
+          <span style="font-size:12px;font-weight:600;color:var(--txd);text-align:center">{{ t.name }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- tokens -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:14px">Token reference</div>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--txd);line-height:2">
+      --wp-surf2        default background<br>
+      --wp-surf3        hover background<br>
+      --wp-acc / --wp-acc2  selected border / text<br>
+      min 44×44px touch target · icon 28–30px<br>
+      font-weight 600 · border-radius 14px
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:620}}">
+class Component extends DCLogic {
+  state = { selected: null, lang: 'en' };
+  renderVals() {
+    const { selected, lang } = this.state;
+    const t = (en, es) => lang === 'es' ? es : en;
+    const seg = on => on ? 'var(--surf4)' : 'transparent';
+    const tx  = on => on ? 'var(--tx)'    : 'var(--txd)';
+    const tiles = [
+      { id:'sleep',  icon:'bed',              name:t('Sleep','Dormir')   },
+      { id:'food',   icon:'restaurant',       name:t('Food','Comida')    },
+      { id:'shower', icon:'shower',           name:t('Shower','Ducha')   },
+      { id:'med',    icon:'medical_services', name:t('Medical','Médico') },
+      { id:'talk',   icon:'forum',            name:t('Talk','Hablar')    },
+    ].map(tile => ({
+      ...tile,
+      bg:    selected === tile.id ? 'rgba(47,109,246,.12)' : 'var(--surf2)',
+      bd:    selected === tile.id ? 'rgba(47,109,246,.4)'  : 'var(--line)',
+      txc:   selected === tile.id ? 'var(--acc2)'          : 'var(--txd)',
+      onClick: () => this.setState({ selected: selected === tile.id ? null : tile.id }),
+    }));
+    const sel = tiles.find(t => t.id === selected);
+    return {
+      tiles,
+      hasSelected:  !!selected,
+      selectedName: sel ? sel.name : '',
+      enBg: seg(lang==='en'), enTx: tx(lang==='en'),
+      esBg: seg(lang==='es'), esTx: tx(lang==='es'),
+      setEn: () => this.setState({ lang: 'en' }),
+      setEs: () => this.setState({ lang: 'es' }),
+    };
+  }
+}
+</script>
+</body>
+</html>

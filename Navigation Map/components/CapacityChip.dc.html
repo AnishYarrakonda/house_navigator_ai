@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0}</style>
+</helmet>
+<div style="--bg:#08090a;--surf:#121316;--surf2:#17181c;--surf3:#1e1f24;--surf4:#26272d;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.13);--tx:#f7f8f8;--txd:#9395a1;--txf:#6a6b76;--acc:#2f6df6;--acc2:#5a8bff;--teal:#0e9594;--teal2:#2cb8b4;--open:#4cc38a;--low:#d8b65c;--full:#e36a7d;--serif:'DM Serif Display',Georgia,serif;--ui:'Hanken Grotesk',system-ui,sans-serif;--mono:'Space Mono',ui-monospace,monospace;background:var(--bg);color:var(--tx);font-family:var(--ui);padding:36px;min-height:100vh;-webkit-font-smoothing:antialiased;max-width:820px">
+
+  <div style="margin-bottom:32px">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--acc);text-transform:uppercase;margin-bottom:6px">Waypoint · Component</div>
+    <div style="font-family:var(--serif);font-size:44px;letter-spacing:-.01em;line-height:1.05;margin-bottom:8px">Capacity chip</div>
+    <p style="font-size:15px;color:var(--txd);max-width:56ch;margin:0">Always pair color with a shape marker <em>and</em> a text label — never rely on color alone. Used on map pins, place-list rows, and anywhere resource availability is shown.</p>
+  </div>
+
+  <!-- chips -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:18px">States</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:20px">
+      <span style="display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:rgba(76,195,138,.12);border:1px solid rgba(76,195,138,.32);color:#79d4a6;font-size:13px;font-weight:600"><span style="width:8px;height:8px;border-radius:50%;background:#4cc38a;flex:none"></span><span style="font-family:var(--mono);font-size:12px">4</span>open</span>
+      <span style="display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:rgba(216,182,92,.12);border:1px solid rgba(216,182,92,.32);color:#e0c878;font-size:13px;font-weight:600"><span style="width:8px;height:8px;background:#d8b65c;transform:rotate(45deg);flex:none"></span><span style="font-family:var(--mono);font-size:12px">2</span>left</span>
+      <span style="display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:rgba(227,106,125,.12);border:1px solid rgba(227,106,125,.32);color:#ef8896;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:14px">call</span>Full — call first</span>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:14px">Special · recommended</div>
+    <span style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;background:rgba(47,109,246,.12);border:1px solid rgba(47,109,246,.3);color:#8fb2ff;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase">Recommended</span>
+  </div>
+
+  <!-- map pins -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:18px">Map pin variants</div>
+    <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:7px"><div style="width:38px;height:38px;border-radius:50%;background:var(--surf3);border:2px solid #4cc38a;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(76,195,138,.4)"><span style="font-family:'Material Symbols Rounded';font-size:19px;color:#79d4a6">night_shelter</span></div><span style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(10,11,13,.9);border:1px solid rgba(76,195,138,.32);color:#79d4a6;font-size:12px;font-weight:600"><span style="font-family:var(--mono);font-size:11px">4</span> open</span></div>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--txf)">shelter · open</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:7px"><div style="width:38px;height:38px;border-radius:50%;background:var(--surf3);border:2px solid #d8b65c;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:19px;color:#e0c878">restaurant</span></div><span style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(10,11,13,.9);border:1px solid rgba(216,182,92,.32);color:#e0c878;font-size:12px;font-weight:600"><span style="font-family:var(--mono);font-size:11px">2</span> left</span></div>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--txf)">food · filling</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:7px"><div style="width:38px;height:38px;border-radius:50%;background:var(--surf3);border:2px solid #e36a7d;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:19px;color:#ef8896">shower</span></div><span style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(10,11,13,.9);border:1px solid rgba(227,106,125,.32);color:#ef8896;font-size:12px;font-weight:600">Full</span></div>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--txf)">hygiene · full</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--surf3);border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(47,109,246,.5)"><span style="font-family:'Material Symbols Rounded';font-size:19px;color:var(--acc2)">person_pin_circle</span></div>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--txf)">you / beacon</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- live preview -->
+  <div style="background:var(--surf);border:1px solid rgba(47,109,246,.25);border-radius:16px;padding:24px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--acc);text-transform:uppercase;margin-bottom:16px">Live preview · adjust props →</div>
+    <span style="display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:{{chipBg}};border:1px solid {{chipBd}};color:{{chipTx}};font-size:13px;font-weight:600"><span style="width:8px;height:8px;border-radius:50%;background:{{chipDot}};flex:none"></span><span style="font-family:var(--mono);font-size:12px">{{chipText}}</span></span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;:820,&quot;height&quot;:520},
+  &quot;status&quot;: {&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;open&quot;,&quot;options&quot;:[&quot;open&quot;,&quot;filling&quot;,&quot;full&quot;],&quot;tsType&quot;:&quot;'open'|'filling'|'full'&quot;},
+  &quot;count&quot;:  {&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;min&quot;:0,&quot;max&quot;:999},
+  &quot;label&quot;:  {&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;}
+}">
+class Component extends DCLogic {
+  renderVals() {
+    const status = this.props.status ?? 'open';
+    const count  = this.props.count  ?? 4;
+    const lbl    = this.props.label  ?? '';
+    const map = {
+      open:    { bg:'rgba(76,195,138,.12)',  bd:'rgba(76,195,138,.32)',  tx:'#79d4a6', dot:'#4cc38a',  text: lbl || `${count} open` },
+      filling: { bg:'rgba(216,182,92,.12)',  bd:'rgba(216,182,92,.32)',  tx:'#e0c878', dot:'#d8b65c',  text: lbl || `${count} left` },
+      full:    { bg:'rgba(227,106,125,.12)', bd:'rgba(227,106,125,.32)', tx:'#ef8896', dot:'#e36a7d',  text: lbl || 'Full — call' },
+    };
+    const s = map[status] || map.open;
+    return { chipBg:s.bg, chipBd:s.bd, chipTx:s.tx, chipDot:s.dot, chipText:s.text };
+  }
+}
+</script>
+</body>
+</html>

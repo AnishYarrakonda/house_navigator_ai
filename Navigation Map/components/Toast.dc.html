@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0&display=block" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0}@keyframes wpSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}</style>
+</helmet>
+<div style="--bg:#08090a;--surf:#121316;--surf2:#17181c;--surf3:#1e1f24;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.13);--tx:#f7f8f8;--txd:#9395a1;--txf:#6a6b76;--acc:#2f6df6;--acc2:#5a8bff;--teal:#0e9594;--teal2:#2cb8b4;--open:#4cc38a;--low:#d8b65c;--full:#e36a7d;--serif:'DM Serif Display',Georgia,serif;--ui:'Hanken Grotesk',system-ui,sans-serif;--mono:'Space Mono',ui-monospace,monospace;background:var(--bg);color:var(--tx);font-family:var(--ui);padding:36px;min-height:100vh;-webkit-font-smoothing:antialiased;max-width:760px">
+
+  <div style="margin-bottom:32px">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--acc);text-transform:uppercase;margin-bottom:6px">Waypoint · Component</div>
+    <div style="font-family:var(--serif);font-size:44px;letter-spacing:-.01em;line-height:1.05;margin-bottom:8px">Toast</div>
+    <p style="font-size:15px;color:var(--txd);max-width:54ch;margin:0">Non-blocking feedback — never punishing, never a red alarm. Slides up from bottom. Dismissed automatically after 4s or on tap. Click the buttons below to trigger each variant.</p>
+  </div>
+
+  <!-- live demo -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">Live demo</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px">
+      <button onClick="{{ showSuccess }}" style="background:rgba(76,195,138,.14);color:#7ad6a6;border:1px solid rgba(76,195,138,.32);border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Success</button>
+      <button onClick="{{ showInfo }}" style="background:rgba(47,109,246,.14);color:#8fb2ff;border:1px solid rgba(47,109,246,.3);border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Info</button>
+      <button onClick="{{ showTeal }}" style="background:rgba(14,149,148,.14);color:#5fd6d2;border:1px solid rgba(14,149,148,.34);border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Live update</button>
+      <button onClick="{{ showWarn }}" style="background:rgba(216,182,92,.12);color:#e0c878;border:1px solid rgba(216,182,92,.3);border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer">Notice</button>
+    </div>
+    <sc-if value="{{ visible }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ dismiss }}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:13px;background:{{toastBg}};border:1px solid {{toastBd}};cursor:pointer;animation:wpSlide .25s ease both">
+        <span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:20px;color:{{toastTx}}">{{toastIcon}}</span>
+        <span style="flex:1;font-size:14px;color:{{toastTx}};font-weight:500">{{toastMsg}}</span>
+        <span style="font-family:'Material Symbols Rounded';font-size:18px;color:{{toastTx}};opacity:.6">close</span>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- static variants -->
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:14px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:16px">All variants</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:13px;background:rgba(76,195,138,.1);border:1px solid rgba(76,195,138,.28)"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:19px;color:#79d4a6">check_circle</span><span style="font-size:14px;color:#79d4a6;font-weight:500">A spot is being held — the count just dropped.</span></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:13px;background:rgba(47,109,246,.1);border:1px solid rgba(47,109,246,.28)"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:19px;color:#8fb2ff">info</span><span style="font-size:14px;color:#8fb2ff;font-weight:500">Your co-pilot Amara is online and ready.</span></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:13px;background:rgba(14,149,148,.1);border:1px solid rgba(14,149,148,.28)"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:19px;color:#5fd6d2">sensors</span><span style="font-size:14px;color:#5fd6d2;font-weight:500">Route updated — 2 new beds opened at Next Door.</span></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:13px;background:rgba(216,182,92,.1);border:1px solid rgba(216,182,92,.28)"><span style="font-family:'Material Symbols Rounded';font-variation-settings:'FILL' 1;font-size:19px;color:#e0c878">schedule</span><span style="font-size:14px;color:#e0c878;font-weight:500">Sanctuary SF closes at 10 PM — 40 min from now.</span></div>
+    </div>
+  </div>
+
+  <div style="background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:22px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txf);text-transform:uppercase;margin-bottom:14px">Token reference</div>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--txd);line-height:2">
+      border-radius 13px · padding 13–14px 16px<br>
+      success  bg rgba(76,195,138,.1)  bd .28  tx #79d4a6<br>
+      info     bg rgba(47,109,246,.1)  bd .28  tx #8fb2ff<br>
+      live     bg rgba(14,149,148,.1)  bd .28  tx #5fd6d2<br>
+      notice   bg rgba(216,182,92,.1)  bd .28  tx #e0c878
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:580}}">
+class Component extends DCLogic {
+  state = { visible: false, type: 'success' };
+  _timer = null;
+  _show(type) {
+    clearTimeout(this._timer);
+    this.setState({ visible: true, type });
+    this._timer = setTimeout(() => this.setState({ visible: false }), 4000);
+  }
+  componentWillUnmount() { clearTimeout(this._timer); }
+  renderVals() {
+    const { visible, type } = this.state;
+    const variants = {
+      success: { bg:'rgba(76,195,138,.12)',  bd:'rgba(76,195,138,.32)',  tx:'#79d4a6', icon:'check_circle', msg:"A spot is being held — the count just dropped." },
+      info:    { bg:'rgba(47,109,246,.12)',  bd:'rgba(47,109,246,.3)',   tx:'#8fb2ff', icon:'info',          msg:"Your co-pilot Amara is online and ready." },
+      teal:    { bg:'rgba(14,149,148,.12)',  bd:'rgba(14,149,148,.32)',  tx:'#5fd6d2', icon:'sensors',       msg:"Route updated — 2 new beds opened at Next Door." },
+      warn:    { bg:'rgba(216,182,92,.12)',  bd:'rgba(216,182,92,.3)',   tx:'#e0c878', icon:'schedule',      msg:"Sanctuary SF closes at 10 PM — 40 min from now." },
+    };
+    const v = variants[type] || variants.success;
+    return {
+      visible, toastBg:v.bg, toastBd:v.bd, toastTx:v.tx, toastIcon:v.icon, toastMsg:v.msg,
+      showSuccess: () => this._show('success'),
+      showInfo:    () => this._show('info'),
+      showTeal:    () => this._show('teal'),
+      showWarn:    () => this._show('warn'),
+      dismiss:     () => { clearTimeout(this._timer); this.setState({ visible: false }); },
+    };
+  }
+}
+</script>
+</body>
+</html>
