@@ -24,7 +24,21 @@ See `.claude/rules/ai-agents.md`.
 - Scheduled agents run on cron / Supabase Edge Functions; event agents on a
   Postgres trigger → function. Keep the orchestrator thin.
 
-## Status
+## Endpoints (Lane 4)
 
-Stub only. Lane 4 adds the agent endpoints, the thin supervisor, and the
-DataSF / NWS fetchers here.
+| Route | Agent | Autonomy | Input |
+|---|---|---|---|
+| `POST /api/triage` | Triage | recommends (HITL) | `{ needId }` or `{ person, need, resources }` → ranked options + rationale + confidence; persisted on the need (`triage_*`). Low confidence → `status: "queued"`. |
+| `POST /api/navigator` | Navigator | recommends (HITL) | `{ journeyId }` or `{ alias, waypoints }` → proposed next waypoint(s) + a trauma-informed "what to expect" card. Does not write to the journey. |
+| `GET\|POST /api/foresight` | Foresight | autonomous | aggregate signals (311 / HSH waitlist / NWS / anon heatmap) → posts a `foresight_alert` when signals align. |
+| `GET\|POST /api/resource` | Resource | autonomous | run-once seed: fetch + normalize DataSF (Pit Stops, bathrooms) → `resource_node` rows (capacity_open SIMULATED). |
+| `POST /api/supervisor` | thin router | — | `{ type: "need.open"\|"need.close", needId\|journeyId }` → routes to Triage / Navigator; logs the Triage→Navigator handoff. |
+
+Shared helpers live in `_lib/` (Anthropic client, tool-use runner, Supabase
+admin client, HTTP helpers, DataSF/NWS signal fetchers). All four reasoning
+agents return their result via a forced "submit" tool, so output is structured
+and persistable (the explainability audit trail).
+
+Handlers use the Web-standard `(Request) => Response` signature (Vercel Node
+runtime / most serverless platforms — no framework dependency). Typecheck the
+`/api` code in isolation with `npx tsc --noEmit -p api/tsconfig.json`.

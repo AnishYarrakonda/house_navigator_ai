@@ -1,0 +1,23 @@
+{
+  // Standalone typecheck for the server-side runtime agents. NOT wired into the
+  // root `npm run typecheck` (which checks the app + vite config) — this is so
+  // Lane 4 can verify the /api code in isolation without touching the shared
+  // tsconfig.json the other lanes depend on:  npx tsc --noEmit -p api/tsconfig.json
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": []
+  },
+  "include": ["."]
+}
