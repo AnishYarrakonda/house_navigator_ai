@@ -1,0 +1,31 @@
+{
+  "app": {
+    "title": "Waypoint",
+    "tagline": "El camino a casa, hecho visible."
+  },
+  "roles": {
+    "crisis": "Necesito ayuda",
+    "volunteer": "Copiloto",
+    "coordinator": "Coordinador"
+  },
+  "crisis": {
+    "needHelp": "Necesito ayuda",
+    "panelStub": "Lado de crisis — Lane 2 construye aquí."
+  },
+  "volunteer": {
+    "panelStub": "Lado del copiloto — Lane 3 construye aquí."
+  },
+  "coordinator": {
+    "panelStub": "Vista del coordinador — Lane 3 construye aquí."
+  },
+  "map": {
+    "stub": "Mapa — Lane 1 construye aquí."
+  },
+  "needs": {
+    "bed": "Un lugar seguro esta noche",
+    "food": "Comida",
+    "hygiene": "Ducha",
+    "medical": "Atención médica",
+    "talk": "Alguien con quien hablar"
+  }
+}

@@ -1,0 +1,13 @@
+-- Waypoint Postgres schema — the §5 shared blackboard.
+-- STUB: Lane 4 (supabase-architect) fills this in: the person / need /
+-- resource_node / journey / waypoint / volunteer / message tables, RLS policies
+-- (default deny), and Realtime publication for need / resource_node / journey /
+-- waypoint / message.
+--
+-- Hard constraints to honor here (see .claude/rules/privacy.md):
+--   * NO column for a person's real coordinates — only need.fuzzed_geocell.
+--   * need.expires_at enforced server-side (beacons auto-expire).
+--   * consent_share_journey defaults false.
+--   * person uses a device_session_token, not email/password.
+--
+-- Apply with: npx supabase db reset  (re-runs this + seed.sql)
