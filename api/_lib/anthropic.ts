@@ -9,8 +9,13 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 
-/** Default model for reasoning-heavy agents (Triage, Navigator). */
-export const DEFAULT_MODEL = "claude-opus-4-8";
+/**
+ * Default model for the runtime agents. Currently Haiku for cheap testing.
+ * Override per-environment with WAYPOINT_MODEL (e.g. "claude-opus-4-8") so you
+ * can flip to the most capable model for a real demo without a code change.
+ */
+export const DEFAULT_MODEL =
+  process.env.WAYPOINT_MODEL ?? "claude-haiku-4-5-20251001";
 
 /**
  * Lazily construct the client so importing this module doesn't throw when the

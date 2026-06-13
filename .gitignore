@@ -33,3 +33,6 @@ dist-ssr
 # Supabase local
 supabase/.branches
 supabase/.temp
+
+# Vercel
+.vercel
