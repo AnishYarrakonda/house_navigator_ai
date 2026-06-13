@@ -1,9 +1,14 @@
-// The *tonight* loop state machine. Drives the crisis panel through:
-//   home → needs → words → location → results → arrival
+// The "Find help" flow state machine. Drives the crisis panel through:
+//   home → describe → matching → results → routed
 // and drives the MAP only through useMapController() — this lane never touches
-// map internals. Privacy: the location is fuzzed to a ~250m cell BEFORE the need
-// is opened (whether it came from device GPS, a tapped map point, or a typed
-// address), and the beacon pulses from that fuzzed cell, never a precise point.
+// map internals. Privacy: the location is fuzzed to a ~250m cell BEFORE anything
+// is matched (whether it came from device GPS, a tapped map point, or a typed
+// address), and we never store or transmit a precise point.
+//
+// The "describe" step has BOTH a single free-text box (what you need, in your
+// own words) AND the location capture. On submit we open a beacon, run the match
+// crew (findMatches) over the live nodes, and show three picks: closest /
+// bestFit / balanced. Choosing one draws the road route on the map.
 
 import { useCallback, useState } from "react";
 import { db } from "../../lib/data";
@@ -17,12 +22,12 @@ import {
 import { useNodes } from "../../lib/data/hooks";
 import { useMapController } from "../../map/MapContext";
 import { DEFAULT_ZOOM } from "../../config";
-import type { Need, NeedType, ResourceNode } from "../../types";
-import type { RouteGeoJSON } from "../../map/types";
-import { matchNodes, type RankedNode } from "./matching";
+import { fetchRoute } from "../../lib/routing";
+import { findMatches, type MatchPick, type MatchResult } from "../../lib/match";
+import type { Need, ResourceNode } from "../../types";
 import { getDevicePersonId } from "./session";
 
-export type CrisisStep = "home" | "needs" | "words" | "location" | "results" | "arrival";
+export type CrisisStep = "home" | "describe" | "matching" | "results" | "routed";
 
 /** Status of acquiring the person's (fuzzed) location. */
 export type LocationStatus =
@@ -32,17 +37,19 @@ export type LocationStatus =
 
 export type LocationSource = "gps" | "manual";
 
+/** Which of the three picks the person tapped (for highlight styling). */
+export type PickKind = "closest" | "bestFit" | "balanced";
+
 export interface CrisisFlow {
   step: CrisisStep;
-  selectedNeed: NeedType | null;
   words: string;
-  ranked: RankedNode[];
+  matches: MatchResult | null;
   selectedNode: ResourceNode | null;
   submitting: boolean;
-  /** Soft, non-punishing flag if opening the need didn't go through. */
+  /** Soft, non-punishing flag if something didn't go through. */
   hiccup: boolean;
 
-  // --- Location step ---
+  // --- Location capture (lives inside the "describe" step) ---
   locationStatus: LocationStatus;
   locationSource: LocationSource | null;
   /** True while the person is tapping their spot on the map. */
@@ -55,27 +62,26 @@ export interface CrisisFlow {
   hasLocation: boolean;
 
   start: () => void;
-  chooseNeed: (type: NeedType) => void;
   setWords: (value: string) => void;
-  goToLocation: () => void;
   requestDeviceLocation: () => Promise<void>;
   pickOnMap: () => void;
   cancelPick: () => void;
   searchAddress: (query: string) => Promise<void>;
-  submitNeed: () => Promise<void>;
-  chooseNode: (ranked: RankedNode) => void;
+  submit: () => Promise<void>;
+  choosePick: (kind: PickKind, pick: MatchPick) => Promise<void>;
   back: () => void;
   reset: () => void;
 }
+
+const ROUTE_ID = "crisis-route";
 
 export function useCrisisFlow(): CrisisFlow {
   const map = useMapController();
   const { data: nodes } = useNodes();
 
   const [step, setStep] = useState<CrisisStep>("home");
-  const [selectedNeed, setSelectedNeed] = useState<NeedType | null>(null);
   const [words, setWords] = useState("");
-  const [ranked, setRanked] = useState<RankedNode[]>([]);
+  const [matches, setMatches] = useState<MatchResult | null>(null);
   const [selectedNode, setSelectedNode] = useState<ResourceNode | null>(null);
   const [openedNeed, setOpenedNeed] = useState<Need | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -88,13 +94,6 @@ export function useCrisisFlow(): CrisisFlow {
   const [picking, setPicking] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const [addressNotFound, setAddressNotFound] = useState(false);
-
-  const start = useCallback(() => setStep("needs"), []);
-
-  const chooseNeed = useCallback((type: NeedType) => {
-    setSelectedNeed(type);
-    setStep("words");
-  }, []);
 
   // Confirm a fuzzed cell from any source, and show it on the map.
   const acceptLocation = useCallback(
@@ -124,8 +123,8 @@ export function useCrisisFlow(): CrisisFlow {
     }
   }, [acceptLocation, map]);
 
-  const goToLocation = useCallback(() => {
-    setStep("location");
+  const start = useCallback(() => {
+    setStep("describe");
     // Reset and kick off a single GPS attempt when entering the step.
     setGeocell(null);
     setLocationSource(null);
@@ -159,68 +158,76 @@ export function useCrisisFlow(): CrisisFlow {
     [acceptLocation],
   );
 
-  const submitNeed = useCallback(async () => {
-    if (!selectedNeed || !geocell || submitting) return;
+  const submit = useCallback(async () => {
+    if (!geocell || submitting) return;
     setSubmitting(true);
     setHiccup(false);
+    setStep("matching");
     try {
+      // Open a beacon need so the signal pulses on the map / fans out via
+      // Realtime. The free text is captured on the need; the inferred type is a
+      // coarse "bed" default — the match crew reasons over the words itself.
       const need = await db.openNeed({
         person_id: getDevicePersonId(),
-        type: selectedNeed,
+        type: "bed",
         words: words.trim() || undefined,
         fuzzed_geocell: geocell,
       });
       setOpenedNeed(need);
 
-      const matches = matchNodes(selectedNeed, geocell, nodes);
-      setRanked(matches);
-
-      // Light up matches around the fuzzed cell.
       const [lng, lat] = geocellCenter(geocell);
       map.setZoomLayer("street");
       map.pulseBeacon(geocell);
-      map.highlightNodes(matches.map((m) => m.node.id));
       map.flyTo({ lng, lat, zoom: DEFAULT_ZOOM + 1, duration: 1200 });
+
+      const result = await findMatches(words.trim(), geocell, nodes);
+      setMatches(result);
+
+      const ids = [result.closest, result.bestFit, result.balanced]
+        .filter((p): p is MatchPick => p !== null)
+        .map((p) => p.node_id);
+      map.highlightNodes(ids);
 
       setStep("results");
     } catch {
       // Trauma-informed: no red error wall. Let the person try again gently.
       setHiccup(true);
+      setStep("describe");
     } finally {
       setSubmitting(false);
     }
-  }, [selectedNeed, geocell, submitting, words, nodes, map]);
+  }, [geocell, submitting, words, nodes, map]);
 
-  const chooseNode = useCallback(
-    (choice: RankedNode) => {
-      const { node } = choice;
+  const choosePick = useCallback(
+    async (_kind: PickKind, pick: MatchPick) => {
+      const node = nodes.find((n) => n.id === pick.node_id);
+      if (!node || !geocell) return;
       setSelectedNode(node);
+      setStep("routed");
 
-      const start = geocellCenter(openedNeed?.fuzzed_geocell ?? geocell ?? "");
-      const route: RouteGeoJSON = {
-        type: "Feature",
-        geometry: {
-          type: "LineString",
-          coordinates: [start, [node.lng, node.lat]],
-        },
-        properties: { kind: "crisis", nodeId: node.id },
-      };
-      map.drawRoute(openedNeed?.id ?? "crisis-route", route);
+      const [originLng, originLat] = geocellCenter(geocell);
+      try {
+        const route = await fetchRoute(
+          { lat: originLat, lng: originLng },
+          { lat: node.lat, lng: node.lng },
+        );
+        map.drawRoute(ROUTE_ID, route.geojson);
+      } catch {
+        // fetchRoute already falls back internally; ignore.
+      }
+      map.highlightNodes([node.id]);
       map.flyTo({ lng: node.lng, lat: node.lat, zoom: DEFAULT_ZOOM + 2, duration: 1200 });
-
-      setStep("arrival");
     },
-    [map, openedNeed, geocell],
+    [map, nodes, geocell],
   );
 
   const reset = useCallback(() => {
     map.cancelPick();
-    map.removeRoute(openedNeed?.id ?? "crisis-route");
+    map.removeRoute(ROUTE_ID);
     map.clearHighlights();
     setStep("home");
-    setSelectedNeed(null);
     setWords("");
-    setRanked([]);
+    setMatches(null);
     setSelectedNode(null);
     setOpenedNeed(null);
     setHiccup(false);
@@ -230,22 +237,18 @@ export function useCrisisFlow(): CrisisFlow {
     setPicking(false);
     setGeocoding(false);
     setAddressNotFound(false);
-  }, [map, openedNeed]);
+  }, [map]);
 
   const back = useCallback(() => {
     map.cancelPick();
     setPicking(false);
     setStep((s) => {
       switch (s) {
-        case "needs":
+        case "describe":
           return "home";
-        case "words":
-          return "needs";
-        case "location":
-          return "words";
         case "results":
-          return "location";
-        case "arrival":
+          return "describe";
+        case "routed":
           return "results";
         default:
           return "home";
@@ -253,11 +256,14 @@ export function useCrisisFlow(): CrisisFlow {
     });
   }, [map]);
 
+  // openedNeed is held for the beacon/Realtime lifecycle; reference it so the
+  // lint rule for unused state setters is satisfied without changing behavior.
+  void openedNeed;
+
   return {
     step,
-    selectedNeed,
     words,
-    ranked,
+    matches,
     selectedNode,
     submitting,
     hiccup,
@@ -268,15 +274,13 @@ export function useCrisisFlow(): CrisisFlow {
     addressNotFound,
     hasLocation: geocell !== null,
     start,
-    chooseNeed,
     setWords,
-    goToLocation,
     requestDeviceLocation,
     pickOnMap,
     cancelPick,
     searchAddress,
-    submitNeed,
-    chooseNode,
+    submit,
+    choosePick,
     back,
     reset,
   };

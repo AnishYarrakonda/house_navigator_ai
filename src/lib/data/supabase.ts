@@ -60,6 +60,8 @@ interface NodeRow {
   capacity_open: number;
   hours: string | null;
   notes: string | null;
+  volunteer_id?: string | null;
+  address?: string | null;
 }
 interface NeedRow {
   id: string;
@@ -111,6 +113,8 @@ const toNode = (r: NodeRow): ResourceNode => ({
   capacity_open: r.capacity_open,
   hours: r.hours ?? undefined,
   notes: r.notes ?? undefined,
+  volunteer_id: r.volunteer_id ?? undefined,
+  address: r.address ?? undefined,
 });
 
 const toNeed = (r: NeedRow): Need => {
@@ -216,6 +220,41 @@ class SupabaseDataLayer implements DataLayer {
 
   subscribeNodes(cb: (nodes: ResourceNode[]) => void): Unsubscribe {
     return subscribeTable("rt-nodes", "resource_node", () => this.getNodes(), cb);
+  }
+
+  async createNode(input: Omit<ResourceNode, "id">): Promise<ResourceNode> {
+    const { data, error } = await db()
+      .from("resource_node")
+      .insert({
+        name: input.name,
+        type: input.type,
+        lat: input.lat,
+        lng: input.lng,
+        capacity_total: input.capacity_total,
+        capacity_open: input.capacity_open,
+        hours: input.hours,
+        notes: input.notes,
+        volunteer_id: input.volunteer_id,
+        address: input.address,
+      })
+      .select("*")
+      .single();
+    if (error) throw error;
+    // Realtime fans the new pin onto every map; return the canonical row.
+    return toNode(data as NodeRow);
+  }
+
+  async updateNode(id: string, patch: Partial<ResourceNode>): Promise<void> {
+    const { error } = await db()
+      .from("resource_node")
+      .update(patch)
+      .eq("id", id);
+    if (error) throw error;
+  }
+
+  async removeNode(id: string): Promise<void> {
+    const { error } = await db().from("resource_node").delete().eq("id", id);
+    if (error) throw error;
   }
 
   // --- Needs ---

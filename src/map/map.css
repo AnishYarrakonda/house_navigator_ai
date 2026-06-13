@@ -83,6 +83,25 @@
   transition:
     transform 160ms ease,
     opacity 160ms ease;
+
+  /* DECLUTTER (the "overlapping pills" bug): like Google Maps, labels appear on
+   * demand — the capacity pill is removed from layout by default and revealed
+   * only when the pin is hovered/focused or highlighted (a match). This keeps
+   * dense areas legible: just clean icon badges, no colliding numbers, and the
+   * `gap` collapses too so adjacent badges sit tight. */
+  display: none;
+  white-space: nowrap;
+}
+.wp-pin:hover .wp-pin__cap,
+.wp-pin:focus-within .wp-pin__cap,
+.wp-pin.is-highlighted .wp-pin__cap {
+  display: inline-flex;
+}
+/* Hovered/highlighted pins float above their neighbors so the revealed pill is
+ * never clipped by an adjacent badge. */
+.wp-pin:hover,
+.wp-pin:focus-within {
+  z-index: 6;
 }
 .wp-pin__num {
   font-family: "Space Mono", ui-monospace, monospace;

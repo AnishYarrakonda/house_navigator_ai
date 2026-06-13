@@ -77,6 +77,29 @@ class MockDataLayer implements DataLayer {
     this.emitter.emit("nodes", structuredClone(this.nodes));
   }
 
+  async createNode(input: Omit<ResourceNode, "id">): Promise<ResourceNode> {
+    const node: ResourceNode = {
+      ...input,
+      id: `node-vol-${Math.random().toString(36).slice(2, 8)}`,
+    };
+    this.nodes.push(node);
+    this.fireNodes(); // re-push so useNodes() re-renders → map pin appears live
+    return structuredClone(node);
+  }
+
+  async updateNode(id: string, patch: Partial<ResourceNode>): Promise<void> {
+    const node = this.nodes.find((n) => n.id === id);
+    if (!node) throw new Error(`Node not found: ${id}`);
+    Object.assign(node, patch);
+    this.fireNodes();
+  }
+
+  async removeNode(id: string): Promise<void> {
+    const before = this.nodes.length;
+    this.nodes = this.nodes.filter((n) => n.id !== id);
+    if (this.nodes.length !== before) this.fireNodes();
+  }
+
   // --- Needs ---
   private liveNeeds(): Need[] {
     // Server-side expiry enforcement (privacy invariant #5): expired beacons

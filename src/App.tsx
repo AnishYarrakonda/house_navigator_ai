@@ -5,7 +5,7 @@
 // RoleProvider + MapProvider + ToastProvider + i18n.
 
 import { useTranslation } from "react-i18next";
-import { MapProvider, MapView } from "./map";
+import { MapBoundary, MapProvider, MapView } from "./map";
 import { RoleProvider, ROLES, useRole } from "./lib/useRole";
 import { SegmentedControl, ToastProvider } from "./components/kit";
 import type { SegmentItem } from "./components/kit";
@@ -70,8 +70,11 @@ export default function App() {
       <MapProvider>
         <ToastProvider>
           <div className="relative h-dvh w-screen overflow-hidden bg-wp-bg">
-            {/* Map is the home screen on every side */}
-            <MapView />
+            {/* Map is the home screen on every side. A failure here (no WebGL,
+                basemap unreachable) must not blank the panels. */}
+            <MapBoundary>
+              <MapView />
+            </MapBoundary>
 
             {/* Overlay UI */}
             <div className="pointer-events-none absolute inset-0">

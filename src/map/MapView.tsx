@@ -1,8 +1,9 @@
-// The real full-bleed MapLibre map (Lane 1) — the home screen on every side.
-// Mounts the warm-dark SF basemap, builds the real MapController, registers it
-// so crisis/volunteer/coordinator calls actually move the map, and feeds it the
-// live data hooks (nodes → pins, open needs → beacons, journeys → glowing
-// routes). See .claude/rules/map.md.
+// The real full-bleed MapLibre map (Lane 1) — the home screen on both sides.
+// Mounts the CARTO vector dark SF basemap, builds the real MapController,
+// registers it so the Find-help / Volunteer panels actually move the map, and
+// feeds it the live data hooks (nodes → pins, open needs → beacons). Routes are
+// drawn on demand (a person's fuzzed area → the resource they pick) via
+// MapController.drawRoute. See .claude/rules/map.md.
 
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";

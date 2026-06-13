@@ -1,12 +1,13 @@
-// "Where are you?" step. Acquires the person's location as a FUZZED ~250m cell
-// (privacy.md): one device-GPS attempt on entry, with clear loading + error
-// states and a manual fallback that always works — tap your spot on the map, or
-// type a city/address. No endless retries: GPS is attempted once and the person
-// re-tries only by choice. We never store or show a precise point.
+// Location capture — acquires the person's location as a FUZZED ~250m cell
+// (privacy.md): one device-GPS attempt, with clear loading + error states and a
+// manual fallback that always works — tap your spot on the map, or type a
+// city/address. No endless retries: GPS is attempted once and the person
+// re-tries only by choice. We never store or show a precise point. This block
+// lives inside the "describe" step alongside the free-text box.
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BigButton, Button, Icon } from "../../components/kit";
+import { Button, Icon } from "../../components/kit";
 import type { CrisisFlow } from "./useCrisisFlow";
 
 type Props = Pick<
@@ -17,13 +18,10 @@ type Props = Pick<
   | "geocoding"
   | "addressNotFound"
   | "hasLocation"
-  | "submitting"
-  | "hiccup"
   | "requestDeviceLocation"
   | "pickOnMap"
   | "cancelPick"
   | "searchAddress"
-  | "submitNeed"
 >;
 
 export default function LocationStep(props: Props) {
@@ -38,10 +36,10 @@ export default function LocationStep(props: Props) {
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <h2 className="text-lg font-semibold text-wp-tx">
+        <h3 className="text-sm font-semibold text-wp-txd">
           {t("crisis.location.title")}
-        </h2>
-        <p className="mt-1 text-sm text-wp-txd">{t("crisis.location.subtitle")}</p>
+        </h3>
+        <p className="mt-0.5 text-xs text-wp-txf">{t("crisis.location.subtitle")}</p>
       </div>
 
       {/* Locating (single attempt in flight) */}
@@ -143,21 +141,6 @@ export default function LocationStep(props: Props) {
           </Button>
         ) : null}
       </div>
-
-      {props.hiccup ? (
-        <p className="text-sm text-wp-txd" role="status">
-          {t("crisis.words.retry")}
-        </p>
-      ) : null}
-
-      <BigButton
-        onClick={() => void props.submitNeed()}
-        disabled={!props.hasLocation || props.submitting}
-      >
-        {props.submitting
-          ? t("crisis.words.finding")
-          : t("crisis.location.continue")}
-      </BigButton>
     </div>
   );
 }
