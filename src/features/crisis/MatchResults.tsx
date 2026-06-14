@@ -28,7 +28,7 @@ interface MatchResultsProps {
 interface CardSpec {
   kind: PickKind;
   pick: MatchPick;
-  labelKey: string;
+  label: string;
   recommended: boolean;
 }
 
@@ -44,19 +44,16 @@ export default function MatchResults({
 
   // Order: Best overall (recommended) first, then Closest, then Most resources.
   // De-dupe so the same place doesn't appear twice when data is thin.
-  const raw: { kind: PickKind; pick: MatchPick | null; labelKey: string; recommended: boolean }[] = [
-    { kind: "balanced", pick: matches.balanced, labelKey: "crisis.results.bestOverall", recommended: true },
-    { kind: "closest", pick: matches.closest, labelKey: "crisis.results.closest", recommended: false },
-    { kind: "mostResources", pick: matches.mostResources, labelKey: "crisis.results.mostResources", recommended: false },
+  const raw: { kind: PickKind; pick: MatchPick | null; label: string; recommended: boolean }[] = [
+    { kind: "balanced", pick: matches.balanced, label: "Best Fit", recommended: true },
+    { kind: "closest", pick: matches.closest, label: "Fastest", recommended: false },
+    { kind: "mostResources", pick: matches.mostResources, label: "Most Resources", recommended: false },
   ];
 
-  const seen = new Set<string>();
   const cards: CardSpec[] = [];
   for (const r of raw) {
     if (!r.pick) continue;
-    if (seen.has(r.pick.node_id)) continue;
-    seen.add(r.pick.node_id);
-    cards.push({ kind: r.kind, pick: r.pick, labelKey: r.labelKey, recommended: r.recommended });
+    cards.push({ kind: r.kind, pick: r.pick, label: r.label, recommended: r.recommended });
   }
 
   if (cards.length === 0) {
@@ -69,7 +66,7 @@ export default function MatchResults({
 
   return (
     <ul className="flex flex-col gap-3">
-      {cards.map(({ kind, pick, labelKey, recommended }) => {
+      {cards.map(({ kind, pick, label, recommended }) => {
         const node = byId.get(pick.node_id);
         if (!node) return null;
         return (
@@ -78,7 +75,7 @@ export default function MatchResults({
               node={node}
               pick={pick}
               kind={kind}
-              label={t(labelKey)}
+              label={label}
               recommended={recommended}
               selected={selectedKind === kind}
               onSelect={() => onSelect(kind, pick)}
@@ -152,7 +149,12 @@ function PickCard({
             />
             {label}
           </span>
-          <span className="text-base font-semibold text-wp-tx">{node.name}</span>
+          <h4 className="font-semibold text-wp-tx">{node.name}</h4>
+          {node.description ? (
+            <p className="text-[12px] italic leading-snug text-wp-txf">
+              {node.description}
+            </p>
+          ) : null}
         </div>
         {recommended ? (
           <RecommendedChip label={t("crisis.results.recommended")} />

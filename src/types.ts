@@ -63,6 +63,8 @@ export interface ResourceNode {
   capacity_open: number;
   hours?: string;
   notes?: string;
+  /** Short (3–7 word) tagline shown on the location card. SIMULATED demo copy. */
+  description?: string;
   /** The volunteer who posted this listing (volunteer-side "post & manage"). */
   volunteer_id?: string;
   /** Human-readable street address the listing was geocoded from. */

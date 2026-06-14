@@ -48,9 +48,9 @@ export type PickKind = "closest" | "mostResources" | "balanced";
  * green/amber/red palette. Cobalt / teal / violet read clearly on the dark map.
  */
 export const ROUTE_COLORS: Record<PickKind, string> = {
-  closest: "#5ab8ff", // cobalt
-  mostResources: "#2cb8b4", // teal
-  balanced: "#b98cff", // violet
+  closest: "#5ab8ff", // cobalt/blue
+  mostResources: "#ff7eb6", // pink
+  balanced: "#b98cff", // violet/purple
 };
 
 /** Stable per-kind route id drawn on the map. */

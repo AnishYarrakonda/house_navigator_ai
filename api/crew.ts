@@ -506,8 +506,16 @@ function selectThree(enriched: Enriched[]): CrewResult {
   });
 
   const closest = enriched.reduce((a, b) => (b.distanceMeters < a.distanceMeters ? b : a));
-  const mostResources = enriched.reduce((a, b) => (b.resourceScore > a.resourceScore ? b : a));
-  const balanced = scored.reduce((a, b) => (b.combined > a.combined ? b : a)).e;
+  
+  const mostResourcesPool = enriched.filter(e => e.node.id !== closest.node.id);
+  const mostResources = mostResourcesPool.length > 0
+    ? mostResourcesPool.reduce((a, b) => (b.resourceScore > a.resourceScore ? b : a))
+    : closest;
+
+  const balancedPool = scored.filter(s => s.e.node.id !== closest.node.id && s.e.node.id !== mostResources.node.id);
+  const balanced = balancedPool.length > 0
+    ? balancedPool.reduce((a, b) => (b.combined > a.combined ? b : a)).e
+    : (mostResourcesPool.length > 0 ? mostResources : closest);
 
   return {
     closest: toPick(closest),

@@ -123,10 +123,16 @@ export function localMatches(
   const closest = enriched.reduce((a, b) =>
     b.distanceMeters < a.distanceMeters ? b : a,
   );
-  const mostResources = enriched.reduce((a, b) =>
-    b.node.capacity_open > a.node.capacity_open ? b : a,
-  );
-  const balanced = enriched.reduce((a, b) => (b.combined > a.combined ? b : a));
+  
+  const mostResourcesPool = enriched.filter(e => e.node.id !== closest.node.id);
+  const mostResources = mostResourcesPool.length > 0 
+    ? mostResourcesPool.reduce((a, b) => b.node.capacity_open > a.node.capacity_open ? b : a)
+    : closest;
+
+  const balancedPool = enriched.filter(e => e.node.id !== closest.node.id && e.node.id !== mostResources.node.id);
+  const balanced = balancedPool.length > 0 
+    ? balancedPool.reduce((a, b) => b.combined > a.combined ? b : a)
+    : (mostResourcesPool.length > 0 ? mostResources : closest);
 
   return {
     closest: toPick(closest, "The nearest place open right now."),

@@ -149,6 +149,81 @@ function slug(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+// ── Short fake taglines (3–7 words) ─────────────────────────────────────────
+// A LEAD phrase + a TAIL phrase combine into a unique, concise description per
+// node. 24 × 24 = 576 combos for 200 nodes, deduped so every location is unique.
+// All SIMULATED demo copy.
+const DESC_LEADS = [
+  "Warm beds",
+  "Quiet rooms",
+  "Safe space",
+  "Clean cots",
+  "Cozy bunks",
+  "Private rooms",
+  "Family suites",
+  "Calm, welcoming shelter",
+  "Bright, friendly site",
+  "Restful overnight stay",
+  "Drop-in beds",
+  "Low-barrier shelter",
+  "Pet-friendly beds",
+  "Women-only refuge",
+  "Youth-friendly haven",
+  "Wheelchair-accessible rooms",
+  "Trauma-informed care",
+  "Sober-living beds",
+  "Heated cabins",
+  "Secure overnight parking",
+  "Spacious dorms",
+  "Newly renovated site",
+  "Trusted neighborhood shelter",
+  "Welcoming front desk",
+];
+const DESC_TAILS = [
+  "hot meals nightly",
+  "showers and lockers",
+  "open late, no waitlist",
+  "friendly on-site staff",
+  "pets always welcome",
+  "free laundry on-site",
+  "case workers ready",
+  "quiet hours respected",
+  "coffee every morning",
+  "24-hour security",
+  "kids' play area",
+  "fresh linens daily",
+  "near transit lines",
+  "walk-ins welcome tonight",
+  "warm and judgment-free",
+  "storage for belongings",
+  "meals and counseling",
+  "Wi-Fi and charging",
+  "blankets provided",
+  "step toward housing",
+  "calm, dignified setting",
+  "support every step",
+  "no questions asked",
+  "a fresh start here",
+];
+
+function generateDescriptions(count: number, rng: () => number): string[] {
+  const used = new Set<string>();
+  const out: string[] = [];
+  let guard = 0;
+  while (out.length < count && guard < count * 50) {
+    guard++;
+    const lead = DESC_LEADS[Math.floor(rng() * DESC_LEADS.length)];
+    const tail = DESC_TAILS[Math.floor(rng() * DESC_TAILS.length)];
+    const desc = `${lead}, ${tail}`;
+    if (used.has(desc)) continue;
+    used.add(desc);
+    out.push(desc);
+  }
+  // Fallback (should never hit given combo count) — index-disambiguate.
+  while (out.length < count) out.push(`${DESC_LEADS[out.length % DESC_LEADS.length]} #${out.length}`);
+  return out;
+}
+
 function generateNodes(): ResourceNode[] {
   const rng = mulberry32(20240607);
   const pick = <T,>(arr: T[]): T => arr[Math.floor(rng() * arr.length)];
@@ -194,6 +269,7 @@ function generateNodes(): ResourceNode[] {
     [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
   }
   const chosen = candidates.slice(0, typeBag.length);
+  const descriptions = generateDescriptions(chosen.length, rng);
 
   return chosen.map((c, i) => {
     const type = typeBag[i % typeBag.length];
@@ -211,6 +287,7 @@ function generateNodes(): ResourceNode[] {
       capacity_open: open,
       hours: pick(HOURS),
       notes: pick(plan.notes(total)),
+      description: descriptions[i],
       address: `${c.hood.name}, San Francisco`,
       simulated: true,
     };

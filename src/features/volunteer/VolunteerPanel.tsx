@@ -299,6 +299,11 @@ export default function VolunteerPanel() {
                     {t(`volunteer.type.${node.type}`)}
                     {node.address ? ` · ${node.address}` : ""}
                   </p>
+                  {node.description ? (
+                    <p className="truncate text-[11px] italic text-wp-txf">
+                      {node.description}
+                    </p>
+                  ) : null}
                 </div>
                 <button
                   type="button"

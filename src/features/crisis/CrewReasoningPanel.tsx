@@ -36,7 +36,7 @@ export default function CrewReasoningPanel({
   handoff,
 }: CrewReasoningPanelProps) {
   const { t } = useTranslation();
-  const [showDetail, setShowDetail] = useState(false);
+  const [showDetail, setShowDetail] = useState(true);
 
   return (
     <div className="flex flex-col items-center gap-6 py-6" role="status" aria-live="polite">
