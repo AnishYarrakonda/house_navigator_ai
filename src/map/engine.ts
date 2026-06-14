@@ -372,6 +372,42 @@ export function createMapEngine(map: MlMap): MapEngine {
       },
     } as unknown as LayerSpecification);
 
+    // Per-location tagline — name + short description, shown for EVERY
+    // unclustered node once you zoom in enough (minzoom 14.5). MapLibre's
+    // collision detection (text-allow-overlap NOT set) hides labels that would
+    // overlap, so they reveal progressively as you keep zooming in — by street
+    // zoom every visible pin shows its tagline.
+    map.addLayer({
+      id: "node-tagline",
+      type: "symbol",
+      source: "nodes",
+      minzoom: 14.5,
+      filter: ["!", ["has", "point_count"]],
+      layout: {
+        "text-field": [
+          "format",
+          ["get", "name"],
+          { "font-scale": 1.0, "text-font": ["literal", ["Open Sans Bold"]] },
+          "\n",
+          {},
+          ["get", "description"],
+          { "font-scale": 0.85 },
+        ],
+        "text-font": ["Open Sans Regular"],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 14.5, 10, 17, 12],
+        "text-offset": [0, 1.4],
+        "text-anchor": "top",
+        "text-max-width": 12,
+        "text-optional": true,
+      },
+      paint: {
+        "text-color": "#eaf4ff",
+        "text-halo-color": "rgba(8,9,10,0.96)",
+        "text-halo-width": 1.6,
+        "text-opacity": ["interpolate", ["linear"], ["zoom"], 14.5, 0, 15.2, 1],
+      },
+    } as unknown as LayerSpecification);
+
     // Cluster bubble — a uniform house badge (no count number). Every collapsed
     // cluster renders identically: same-size teal circle + white house glyph.
     map.addLayer({
@@ -805,6 +841,7 @@ export function createMapEngine(map: MlMap): MapEngine {
             type: node.type,
             level: capacityLevel(node.capacity_open, node.capacity_total),
             name: node.name,
+            description: node.description ?? "",
             capOpen: node.capacity_open,
             capTotal: node.capacity_total,
           },

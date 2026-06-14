@@ -80,10 +80,12 @@ export default function CrisisPanel() {
             geocoding={flow.geocoding}
             addressNotFound={flow.addressNotFound}
             hasLocation={flow.hasLocation}
+            addressOptions={flow.addressOptions}
             requestDeviceLocation={flow.requestDeviceLocation}
             pickOnMap={flow.pickOnMap}
             cancelPick={flow.cancelPick}
             searchAddress={flow.searchAddress}
+            selectAddressOption={flow.selectAddressOption}
           />
 
           {flow.hiccup ? (

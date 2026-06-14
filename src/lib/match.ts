@@ -15,6 +15,37 @@ import { matchNodesFromText } from "../features/crisis/matching";
 // ~1.35 m/s walking pace (mirrors src/lib/routing.ts and api/match.ts).
 const WALK_MPS = 1.35;
 
+import { DEMO_MODE, DEMO_TRIGGER_GEOCELL } from "../demo";
+
+function getDemoResult(): MatchResult {
+  return {
+    closest: {
+      node_id: "node-bed-30-south-beach",
+      why: "The closest shelter open right now, but it only has 1 bed available.",
+      score: 80,
+      resourceScore: 33,
+      distanceMeters: 280,
+      etaMinutes: 3,
+    },
+    balanced: {
+      node_id: "node-bed-88-dogpatch",
+      why: "A tough trade-off: it has 2 beds (short of the 3 you need), but is a much more manageable walk than the larger shelter.",
+      score: 60,
+      resourceScore: 66,
+      distanceMeters: 3425,
+      etaMinutes: 42,
+    },
+    mostResources: {
+      node_id: "node-bed-13-inner-richmond",
+      why: "This location has 3 beds to fit your whole family perfectly, but it is a very long walk across the city.",
+      score: 95,
+      resourceScore: 100,
+      distanceMeters: 7063,
+      etaMinutes: 87,
+    }
+  };
+}
+
 /** One of the three returned picks. */
 export interface MatchPick {
   node_id: string;
@@ -72,6 +103,10 @@ export function localMatches(
   fuzzed_geocell: string,
   resources: ResourceNode[],
 ): MatchResult {
+  if (DEMO_MODE && fuzzed_geocell === DEMO_TRIGGER_GEOCELL) {
+    return getDemoResult();
+  }
+  
   const [originLng, originLat] = geocellCenter(fuzzed_geocell);
   const candidates = matchNodesFromText(words, resources)
     .map((node) => ({

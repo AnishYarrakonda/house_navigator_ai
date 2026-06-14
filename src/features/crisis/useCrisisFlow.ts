@@ -18,8 +18,9 @@ import { db } from "../../lib/data";
 import {
   geocellCenter,
   geocodeToGeocell,
-  getCurrentGeocell,
   toGeocell,
+  searchAddressOptions,
+  type AddressOption,
   type GeoFailReason,
 } from "../../lib/geocell";
 import { useNodes } from "../../lib/data/hooks";
@@ -82,6 +83,8 @@ export interface CrisisFlow {
   addressNotFound: boolean;
   /** True once we have a fuzzed cell and can proceed. */
   hasLocation: boolean;
+  /** List of address matches from the geocoder. */
+  addressOptions: AddressOption[];
 
   start: () => void;
   setWords: (value: string) => void;
@@ -89,6 +92,7 @@ export interface CrisisFlow {
   pickOnMap: () => void;
   cancelPick: () => void;
   searchAddress: (query: string) => Promise<void>;
+  selectAddressOption: (option: AddressOption) => void;
   submit: () => Promise<void>;
   /** Emphasize a pick's route on the map (dims the others) without committing. */
   selectPick: (kind: PickKind, pick: MatchPick) => void;
@@ -118,6 +122,7 @@ export function useCrisisFlow(): CrisisFlow {
   const [picking, setPicking] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const [addressNotFound, setAddressNotFound] = useState(false);
+  const [addressOptions, setAddressOptions] = useState<AddressOption[]>([]);
 
   // Confirm a fuzzed cell from any source, and show it on the map.
   const acceptLocation = useCallback(
@@ -153,6 +158,7 @@ export function useCrisisFlow(): CrisisFlow {
     setGeocell(null);
     setLocationSource(null);
     setAddressNotFound(false);
+    setAddressOptions([]);
     void requestDeviceLocation();
   }, [requestDeviceLocation]);
 
@@ -174,10 +180,23 @@ export function useCrisisFlow(): CrisisFlow {
     async (query: string) => {
       setGeocoding(true);
       setAddressNotFound(false);
-      const cell = await geocodeToGeocell(query);
+      setAddressOptions([]);
+      const options = await searchAddressOptions(query);
       setGeocoding(false);
-      if (cell) acceptLocation(cell, "manual");
-      else setAddressNotFound(true);
+      if (options.length > 0) {
+        setAddressOptions(options);
+      } else {
+        setAddressNotFound(true);
+      }
+    },
+    [],
+  );
+
+  const selectAddressOption = useCallback(
+    (option: AddressOption) => {
+      setAddressOptions([]);
+      const cell = toGeocell(option.lat, option.lng);
+      acceptLocation(cell, "manual");
     },
     [acceptLocation],
   );
@@ -192,12 +211,11 @@ export function useCrisisFlow(): CrisisFlow {
       const seenNodes = new Set<string>();
 
       const tasks = ALL_KINDS.flatMap((kind) => {
-        const pick = result[kind];
+        // Fall back to other picks if this kind is missing to ensure 3 routes
+        const pick = result[kind] || result.balanced || result.closest || result.mostResources;
         if (!pick) return [];
-        if (seenNodes.has(pick.node_id)) return []; // de-dupe shared nodes
         const node = nodes.find((n) => n.id === pick.node_id);
         if (!node) return [];
-        seenNodes.add(pick.node_id);
         return [{ kind, node }];
       });
 
@@ -339,6 +357,7 @@ export function useCrisisFlow(): CrisisFlow {
     setPicking(false);
     setGeocoding(false);
     setAddressNotFound(false);
+    setAddressOptions([]);
   }, [map, crew]);
 
   const back = useCallback(() => {
@@ -382,12 +401,14 @@ export function useCrisisFlow(): CrisisFlow {
     geocoding,
     addressNotFound,
     hasLocation: geocell !== null,
+    addressOptions,
     start,
     setWords,
     requestDeviceLocation,
     pickOnMap,
     cancelPick,
     searchAddress,
+    selectAddressOption,
     submit,
     selectPick,
     choosePick,

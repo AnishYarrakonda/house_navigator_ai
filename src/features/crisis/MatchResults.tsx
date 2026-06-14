@@ -43,11 +43,11 @@ export default function MatchResults({
   const byId = new Map(nodes.map((n) => [n.id, n]));
 
   // Order: Best overall (recommended) first, then Closest, then Most resources.
-  // De-dupe so the same place doesn't appear twice when data is thin.
+  // We guarantee 3 options by falling back to other picks if one is missing.
   const raw: { kind: PickKind; pick: MatchPick | null; label: string; recommended: boolean }[] = [
-    { kind: "balanced", pick: matches.balanced, label: "Best Fit", recommended: true },
-    { kind: "closest", pick: matches.closest, label: "Fastest", recommended: false },
-    { kind: "mostResources", pick: matches.mostResources, label: "Most Resources", recommended: false },
+    { kind: "balanced", pick: matches.balanced || matches.closest || matches.mostResources, label: "Best Fit", recommended: true },
+    { kind: "closest", pick: matches.closest || matches.balanced || matches.mostResources, label: "Fastest", recommended: false },
+    { kind: "mostResources", pick: matches.mostResources || matches.balanced || matches.closest, label: "Most Resources", recommended: false },
   ];
 
   const cards: CardSpec[] = [];

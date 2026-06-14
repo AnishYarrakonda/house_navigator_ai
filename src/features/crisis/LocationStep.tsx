@@ -18,10 +18,12 @@ type Props = Pick<
   | "geocoding"
   | "addressNotFound"
   | "hasLocation"
+  | "addressOptions"
   | "requestDeviceLocation"
   | "pickOnMap"
   | "cancelPick"
   | "searchAddress"
+  | "selectAddressOption"
 >;
 
 export default function LocationStep(props: Props) {
@@ -123,6 +125,22 @@ export default function LocationStep(props: Props) {
               : t("crisis.location.search")}
           </Button>
         </form>
+
+        {props.addressOptions.length > 0 ? (
+          <div className="flex flex-col gap-1 mt-1">
+            {props.addressOptions.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => props.selectAddressOption(opt)}
+                className="text-left rounded-[8px] border border-wp-line2 bg-wp-surf p-2.5 text-xs text-wp-tx hover:bg-wp-surf3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wp-acc/60"
+              >
+                {opt.name}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
         {props.addressNotFound ? (
           <p className="text-xs text-wp-txd" role="status">
             {t("crisis.location.notFound")}

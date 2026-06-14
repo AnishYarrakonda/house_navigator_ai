@@ -32,6 +32,37 @@ import { badRequest, readJson } from "./_lib/http";
 const WALK_MPS = 1.35; // ~walking pace (mirrors src/lib/routing.ts, api/match.ts)
 const MAX_CANDIDATES = 10;
 
+import { DEMO_MODE, DEMO_TRIGGER_GEOCELL } from "../src/demo";
+
+function getDemoResult(): CrewResult {
+  return {
+    closest: {
+      node_id: "node-bed-30-south-beach",
+      why: "The closest shelter open right now, but it only has 1 bed available.",
+      score: 80,
+      resourceScore: 33,
+      distanceMeters: 280,
+      etaMinutes: 3,
+    },
+    balanced: {
+      node_id: "node-bed-88-dogpatch",
+      why: "A tough trade-off: it has 2 beds (short of the 3 you need), but is a much more manageable walk than the larger shelter.",
+      score: 60,
+      resourceScore: 66,
+      distanceMeters: 3425,
+      etaMinutes: 42,
+    },
+    mostResources: {
+      node_id: "node-bed-13-inner-richmond",
+      why: "This location has 3 beds to fit your whole family perfectly, but it is a very long walk across the city.",
+      score: 95,
+      resourceScore: 100,
+      distanceMeters: 7063,
+      etaMinutes: 87,
+    }
+  };
+}
+
 // ~250m geofuzzing grid resolution in degrees (mirrors GEOCELL_SIZE_DEG in
 // src/config.ts — inlined so the api build stays isolated from vite config).
 const GEOCELL_SIZE_DEG = 0.00225;
@@ -409,7 +440,10 @@ async function runCrew(body: CrewBody, send: Send): Promise<void> {
       onToken: (text) => send({ type: "token", agent: "presenter", text }),
     });
 
-    const result = applyPresenterWhys(picks, presenter.data, validIds, enriched);
+    let result = applyPresenterWhys(picks, presenter.data, validIds, enriched);
+    if (DEMO_MODE && fuzzed_geocell === DEMO_TRIGGER_GEOCELL) {
+      result = getDemoResult();
+    }
     send({ type: "result", result });
   } catch (err) {
     // Any step failed mid-crew — degrade to the local heuristic so the person
@@ -622,9 +656,11 @@ function localSelect(
     inferNeedTypes(words).flatMap((n) => NEED_TO_RESOURCE[n] ?? []),
   );
   const candidates = gatherCandidates(resources, allowed, originLat, originLng, 4000);
-  if (candidates.length === 0) return emptyResult();
+  const isDemo = DEMO_MODE && fuzzed_geocell === DEMO_TRIGGER_GEOCELL;
+  
+  if (candidates.length === 0) return isDemo ? getDemoResult() : emptyResult();
   const enriched = enrich(candidates, new Map());
-  return selectThree(enriched);
+  return isDemo ? getDemoResult() : selectThree(enriched);
 }
 
 /** Keyword need-type inference for the no-model path (broad on purpose). */

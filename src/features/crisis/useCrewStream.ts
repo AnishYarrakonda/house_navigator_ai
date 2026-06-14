@@ -148,45 +148,35 @@ export function useCrewStream(): UseCrewStream {
       setHandoff(null);
       setRunning(true);
 
-      try {
-        const result = await streamCrew(
-          words,
-          fuzzedGeocell,
-          resources,
-          {
-            onAgentStart: (id, title, blurb) => {
-              if (!live()) return;
-              patchAgent(id, { status: "active", title, blurb });
-            },
-            onToken: (id, text) => {
-              if (!live()) return;
-              appendToken(id, text);
-            },
-            onHandoff: (h) => {
-              if (!live()) return;
-              patchAgent(h.from, { status: "done" });
-              setHandoff(h);
-            },
-          },
-        );
-        if (!live()) return toMatchResult(result);
-        // Mark every agent done once the result lands.
+      // The visible Scout → Analyst → Presenter animation ALWAYS runs on a fixed,
+      // drift-free 5s clock (see runFixedTimeline) — its duration NEVER depends on
+      // how fast or slow the backend responds. The real crew result is fetched in
+      // PARALLEL, best-effort: if it lands within the 5s window we use it; if it's
+      // unavailable/slow/errors, we fall back to the instant local heuristic. This
+      // is what guarantees the experience is exactly 5 seconds, every single time.
+      let realResult: MatchResult | null = null;
+      // Floating but safe: it has its own catch, so it never rejects unhandled.
+      void fetchCrewResult(words, fuzzedGeocell, resources)
+        .then((r) => {
+          realResult = toMatchResult(r);
+        })
+        .catch(() => {
+          /* leave realResult null → local heuristic at the 5s boundary */
+        });
+
+      await runFixedTimeline(
+        { patchAgent, appendToken, setHandoff, live },
+      );
+
+      // At the exact 5s boundary, resolve with the real result if it arrived in
+      // time, otherwise the instant local heuristic — always three options, never
+      // a wait past 5s for the network.
+      const result = realResult ?? localMatches(words, fuzzedGeocell, resources);
+      if (live()) {
         AGENT_ORDER.forEach((id) => patchAgent(id, { status: "done" }));
         setRunning(false);
-        return toMatchResult(result);
-      } catch {
-        // Unreachable / non-stream / network error → synthetic narration +
-        // local heuristic. Never throws; the demo always moves.
-        if (!live()) return localMatches(words, fuzzedGeocell, resources);
-        const result = await runSynthetic(
-          words,
-          fuzzedGeocell,
-          resources,
-          { patchAgent, appendToken, setHandoff, live },
-        );
-        if (live()) setRunning(false);
-        return result;
       }
+      return result;
     },
     [patchAgent, appendToken],
   );
@@ -200,6 +190,21 @@ interface StreamCallbacks {
   onAgentStart: (id: AgentId, title: string, blurb: string) => void;
   onToken: (id: AgentId, text: string) => void;
   onHandoff: (h: Handoff) => void;
+}
+
+/** Fetch ONLY the final crew result, with no UI side-effects — the visible
+ * animation is driven separately by the fixed 5s timeline. Throws on any
+ * non-stream / error condition so the caller can fall back to the heuristic. */
+function fetchCrewResult(
+  words: string,
+  fuzzedGeocell: string,
+  resources: ResourceNode[],
+): Promise<CrewResult> {
+  return streamCrew(words, fuzzedGeocell, resources, {
+    onAgentStart: () => {},
+    onToken: () => {},
+    onHandoff: () => {},
+  });
 }
 
 /** POST /api/crew and read the SSE stream. Throws on any non-stream condition so
@@ -336,35 +341,59 @@ const SYNTH: Record<AgentId, { title: string; blurb: string; lines: string[] }> 
   },
 };
 
-async function runSynthetic(
-  words: string,
-  fuzzedGeocell: string,
-  resources: ResourceNode[],
-  deps: SyntheticDeps,
-): Promise<MatchResult> {
+// The handoff animation is pinned to EXACTLY 5 seconds total — three agents,
+// each given EXACTLY 5000/3 ≈ 1666.67ms of "work + handoff". The even, metronomic
+// cadence is deliberate: a steady, predictable rhythm reads as deliberate care
+// and builds trust. Timing is anchored to absolute deadlines from a single start
+// timestamp (not chained setTimeouts), so per-segment jitter never accumulates
+// and the total lands on 5000ms regardless of how slow any individual frame is.
+const TOTAL_MS = 5000;
+const SEGMENT_MS = TOTAL_MS / AGENT_ORDER.length; // 1666.666… ms per agent
+
+const HANDOFF_SUMMARY: Partial<Record<AgentId, { to: AgentId; summary: string }>> = {
+  scout: { to: "analyst", summary: "Found nearby places." },
+  analyst: { to: "presenter", summary: "Ranked your options." },
+};
+
+/**
+ * Plays the Scout → Analyst → Presenter animation over EXACTLY 5000ms — three
+ * agents, each given EXACTLY 5000/3 ≈ 1666.67ms of work + handoff. Timing is
+ * anchored to absolute deadlines from a single start timestamp (not chained
+ * setTimeouts), so per-segment jitter never accumulates and the total lands on
+ * 5000ms no matter how slow any individual frame is. Returns when the 5s clock
+ * completes; it does NOT compute matches — the caller owns the result.
+ */
+async function runFixedTimeline(deps: SyntheticDeps): Promise<void> {
   const { patchAgent, appendToken, setHandoff, live } = deps;
 
-  const playAgent = async (id: AgentId) => {
+  // Absolute clock so segment boundaries are exact and drift-free.
+  const start = performance.now();
+  const sleepUntil = (offset: number) =>
+    sleep(Math.max(0, start + offset - performance.now()));
+
+  for (let i = 0; i < AGENT_ORDER.length; i++) {
     if (!live()) return;
+    const id = AGENT_ORDER[i];
     const def = SYNTH[id];
+    const segStart = i * SEGMENT_MS;
+    const segEnd = (i + 1) * SEGMENT_MS;
+
     patchAgent(id, { status: "active", title: def.title, blurb: def.blurb });
-    for (const line of def.lines) {
-      await sleep(420);
+
+    // Reveal each line evenly across this agent's 1.666s window, leaving a short
+    // tail before the boundary so the last line is readable before the handoff.
+    const n = def.lines.length;
+    for (let k = 0; k < n; k++) {
+      await sleepUntil(segStart + ((k + 1) / (n + 1)) * SEGMENT_MS);
       if (!live()) return;
-      appendToken(id, line + " ");
+      appendToken(id, def.lines[k] + " ");
     }
-    await sleep(260);
-    if (live()) patchAgent(id, { status: "done" });
-  };
 
-  await playAgent("scout");
-  if (live()) setHandoff({ from: "scout", to: "analyst", summary: "Found nearby places." });
-  await sleep(320);
-  await playAgent("analyst");
-  if (live()) setHandoff({ from: "analyst", to: "presenter", summary: "Ranked your options." });
-  await sleep(320);
-  await playAgent("presenter");
-  await sleep(200);
-
-  return localMatches(words, fuzzedGeocell, resources);
+    // Land exactly on the segment boundary, then mark done + fire the handoff.
+    await sleepUntil(segEnd);
+    if (!live()) return;
+    patchAgent(id, { status: "done" });
+    const next = HANDOFF_SUMMARY[id];
+    if (next) setHandoff({ from: id, to: next.to, summary: next.summary });
+  }
 }

@@ -76,6 +76,7 @@ export async function getCurrentGeocell(): Promise<GeoResult> {
 export async function geocodeToGeocell(query: string): Promise<string | null> {
   const q = query.trim();
   if (!q) return null;
+
   try {
     const url =
       "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=" +
@@ -90,5 +91,44 @@ export async function geocodeToGeocell(query: string): Promise<string | null> {
     return toGeocell(lat, lng);
   } catch {
     return null;
+  }
+}
+
+export interface AddressOption {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+}
+
+/**
+ * Return a list of address matches. Adds 'San Francisco' context if missing.
+ */
+export async function searchAddressOptions(query: string): Promise<AddressOption[]> {
+  const q = query.trim();
+  if (!q) return [];
+  try {
+    const searchQ = q.toLowerCase().includes("san francisco") || q.toLowerCase().includes("sf") 
+      ? q 
+      : `${q}, San Francisco, CA`;
+      
+    const url =
+      "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&q=" +
+      encodeURIComponent(searchQ);
+      
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!res.ok) return [];
+    
+    const data = (await res.json()) as Array<{ place_id: number; display_name: string; lat: string; lon: string }>;
+    return data
+      .map(d => ({
+        id: String(d.place_id),
+        name: d.display_name,
+        lat: Number(d.lat),
+        lng: Number(d.lon),
+      }))
+      .filter(d => Number.isFinite(d.lat) && Number.isFinite(d.lng));
+  } catch {
+    return [];
   }
 }
