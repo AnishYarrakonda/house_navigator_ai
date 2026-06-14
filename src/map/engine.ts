@@ -287,6 +287,25 @@ export function createMapEngine(map: MlMap): MapEngine {
       const data = ctx.getImageData(0, 0, SIZE, SIZE);
       if (!map.hasImage(name)) map.addImage(name, data, { pixelRatio: 2 });
     }
+
+    // Cluster glyph: a single white house symbol drawn on every collapsed
+    // bubble (no count number — clusters read as "homes here", all identical).
+    if (!map.hasImage("pin-cluster")) {
+      const CSIZE = 56;
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = CSIZE;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = '400 50px "Material Symbols Rounded"';
+        ctx.fillText("home", CSIZE / 2, CSIZE / 2 + 1);
+        const data = ctx.getImageData(0, 0, CSIZE, CSIZE);
+        if (!map.hasImage("pin-cluster")) map.addImage("pin-cluster", data, { pixelRatio: 2 });
+      }
+    }
+
     map.triggerRepaint();
   }
 
@@ -352,7 +371,8 @@ export function createMapEngine(map: MlMap): MapEngine {
       },
     } as unknown as LayerSpecification);
 
-    // Cluster bubble + count.
+    // Cluster bubble — a uniform house badge (no count number). Every collapsed
+    // cluster renders identically: same-size teal circle + white house glyph.
     map.addLayer({
       id: "node-cluster",
       type: "circle",
@@ -362,7 +382,7 @@ export function createMapEngine(map: MlMap): MapEngine {
         "circle-color": "rgba(47,109,246,0.82)",
         "circle-stroke-color": "#5ab8ff",
         "circle-stroke-width": 1.5,
-        "circle-radius": ["step", ["get", "point_count"], 15, 10, 19, 30, 24],
+        "circle-radius": 18,
       },
     } as unknown as LayerSpecification);
     map.addLayer({
@@ -371,11 +391,11 @@ export function createMapEngine(map: MlMap): MapEngine {
       source: "nodes",
       filter: ["has", "point_count"],
       layout: {
-        "text-field": ["get", "point_count_abbreviated"],
-        "text-font": ["Open Sans Bold"],
-        "text-size": 12,
+        "icon-image": "pin-cluster",
+        "icon-size": 1.05,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
       },
-      paint: { "text-color": "#eaf4ff" },
     } as unknown as LayerSpecification);
 
     // The "capacity pill" — name + open/total — shown ONLY for matched nodes
