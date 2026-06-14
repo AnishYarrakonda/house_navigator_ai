@@ -36,7 +36,7 @@ export default function LocationStep(props: Props) {
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <h3 className="text-sm font-semibold text-wp-txd">
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.06em] text-wp-txd">
           {t("crisis.location.title")}
         </h3>
         <p className="mt-0.5 text-xs text-wp-txf">{t("crisis.location.subtitle")}</p>

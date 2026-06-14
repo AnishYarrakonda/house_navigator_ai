@@ -16,8 +16,8 @@ interface BigButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-wp-acc text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_28px_rgba(47,109,246,0.32)] " +
-    "hover:bg-wp-acc2 active:bg-wp-accd active:translate-y-px",
+    "bg-gradient-to-b from-wp-acc to-[#2358d2] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_8px_28px_rgba(47,109,246,0.32)] " +
+    "hover:from-wp-acc2 hover:to-wp-acc active:from-wp-accd active:to-[#1743a6] hover:scale-[1.015] active:scale-[0.985] active:translate-y-0",
   secondary:
     "bg-wp-surf3 text-wp-tx border border-wp-line2 hover:bg-wp-surf4 active:translate-y-px",
 };

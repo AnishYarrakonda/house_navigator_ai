@@ -25,8 +25,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    "bg-wp-acc text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_2px_6px_rgba(0,0,0,0.35)] " +
-    "hover:bg-wp-acc2 active:bg-wp-accd disabled:bg-wp-surf3 disabled:text-wp-txf disabled:shadow-none",
+    "bg-gradient-to-b from-wp-acc to-[#2358d2] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_6px_rgba(0,0,0,0.35)] " +
+    "hover:from-wp-acc2 hover:to-wp-acc hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_4px_12px_rgba(47,109,246,0.4)] " +
+    "active:from-wp-accd active:to-[#1743a6] hover:scale-[1.02] active:scale-[0.97] " +
+    "disabled:from-wp-surf3 disabled:to-wp-surf3 disabled:text-wp-txf disabled:shadow-none disabled:transform-none",
   secondary:
     "bg-wp-surf3 text-wp-tx border border-wp-line2 hover:bg-wp-surf4 disabled:text-wp-txf",
   ghost:

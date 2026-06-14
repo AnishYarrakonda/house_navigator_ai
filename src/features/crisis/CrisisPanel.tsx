@@ -53,7 +53,7 @@ export default function CrisisPanel() {
           <div>
             <label
               htmlFor="crisis-words"
-              className="text-lg font-semibold text-wp-tx"
+              className="font-serif text-2xl text-wp-tx"
             >
               {t("crisis.describe.prompt")}
             </label>
@@ -107,7 +107,7 @@ export default function CrisisPanel() {
 
       {flow.step === "results" && flow.matches ? (
         <div className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold text-wp-tx">
+          <h2 className="font-serif text-2xl text-wp-tx">
             {t("crisis.results.title")}
           </h2>
           <p className="text-sm text-wp-txd">{t("crisis.results.pickHint")}</p>
@@ -128,7 +128,7 @@ export default function CrisisPanel() {
               <Icon name="check_circle" size={28} fill />
             </span>
             <div className="flex flex-col gap-1">
-              <h2 className="text-lg font-semibold text-wp-tx">
+              <h2 className="font-serif text-2xl text-wp-tx">
                 {t("crisis.routed.title")}
               </h2>
               <p className="text-sm text-wp-txd">

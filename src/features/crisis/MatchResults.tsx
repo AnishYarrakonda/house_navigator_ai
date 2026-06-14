@@ -131,13 +131,14 @@ function PickCard({
         }
       }}
       className={
-        "flex cursor-pointer flex-col gap-3 rounded-[14px] border p-4 transition " +
+        "flex cursor-pointer flex-col gap-3 rounded-[14px] border p-4 transition-all duration-200 " +
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wp-acc/60 " +
+        "hover:-translate-y-0.5 hover:shadow-lg backdrop-blur-md " +
         (selected
-          ? "border-wp-acc bg-[rgba(47,109,246,0.10)] shadow-[0_8px_28px_rgba(47,109,246,0.18)]"
+          ? "border-wp-acc bg-[rgba(47,109,246,0.15)] shadow-[0_8px_28px_rgba(47,109,246,0.25)] scale-[1.01]"
           : recommended
-            ? "border-[rgba(47,109,246,0.4)] bg-[rgba(47,109,246,0.07)]"
-            : "border-wp-line bg-wp-surf2")
+            ? "border-[rgba(47,109,246,0.4)] bg-[rgba(47,109,246,0.08)] hover:border-wp-acc hover:bg-[rgba(47,109,246,0.12)]"
+            : "border-wp-line bg-white/5 hover:bg-white/10 hover:border-wp-line2")
       }
     >
       <div className="flex items-start justify-between gap-3">
@@ -161,7 +162,7 @@ function PickCard({
       <p className="text-sm leading-snug text-wp-txd">{pick.why}</p>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-wp-line2 bg-wp-surf px-3 py-1.5 text-[13px] text-wp-txd">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-wp-line2 bg-black/20 px-3.5 py-1.5 text-[13px] text-wp-txd">
           <Icon name="directions_walk" size={15} className="text-wp-acc2" />
           {t("crisis.results.distanceEta", {
             min: pick.etaMinutes,
@@ -173,7 +174,7 @@ function PickCard({
           label={t("crisis.results.spotsOpen", { count: node.capacity_open })}
         />
         {node.simulated ? (
-          <span className="inline-flex items-center gap-1 rounded-full border border-wp-line2 bg-wp-surf px-2.5 py-1 text-[11px] text-wp-txf">
+          <span className="inline-flex items-center gap-1 rounded-full border border-wp-line2 bg-black/20 px-3 py-1 text-[11px] text-wp-txf">
             <Icon name="science" size={13} />
             {t("crisis.results.demoData")}
           </span>
