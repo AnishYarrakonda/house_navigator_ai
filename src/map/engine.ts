@@ -348,6 +348,7 @@ export function createMapEngine(map: MlMap): MapEngine {
       type: "circle",
       source: "nodes",
       filter: ["!", ["has", "point_count"]],
+      layout: { visibility: "none" },
       paint: {
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 14, 8, 16, 11],
         "circle-color": PIN_BLUE,
@@ -364,6 +365,7 @@ export function createMapEngine(map: MlMap): MapEngine {
       source: "nodes",
       filter: ["!", ["has", "point_count"]],
       layout: {
+        visibility: "none",
         "icon-image": ["concat", "pin-", ["get", "type"]],
         "icon-size": ["interpolate", ["linear"], ["zoom"], 10, 0.32, 14, 0.46, 16, 0.6],
         "icon-allow-overlap": true,
