@@ -342,32 +342,31 @@ export function createMapEngine(map: MlMap): MapEngine {
       },
     } as unknown as LayerSpecification);
 
-    // Unclustered capacity dot.
+    // Unclustered capacity dot (styled as a smaller house)
     map.addLayer({
       id: "node-dot",
       type: "circle",
       source: "nodes",
       filter: ["!", ["has", "point_count"]],
-      layout: { visibility: "none" },
       paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 14, 8, 16, 11],
-        "circle-color": PIN_BLUE,
-        "circle-stroke-color": "rgba(8,9,10,0.92)",
-        "circle-stroke-width": 2,
-        "circle-opacity": 0.96,
+        // Scale down as you zoom in
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 16, 13, 13, 16, 10],
+        "circle-color": "rgba(47,109,246,0.82)",
+        "circle-stroke-color": "#5ab8ff",
+        "circle-stroke-width": 1.5,
       },
     } as unknown as LayerSpecification);
 
-    // Type glyph on top of the dot.
+    // Type glyph on top of the dot (always house icon)
     map.addLayer({
       id: "node-icon",
       type: "symbol",
       source: "nodes",
       filter: ["!", ["has", "point_count"]],
       layout: {
-        visibility: "none",
-        "icon-image": ["concat", "pin-", ["get", "type"]],
-        "icon-size": ["interpolate", ["linear"], ["zoom"], 10, 0.32, 14, 0.46, 16, 0.6],
+        "icon-image": "pin-cluster",
+        // Scale down the icon proportionally with the circle
+        "icon-size": ["interpolate", ["linear"], ["zoom"], 10, 0.95, 13, 0.75, 16, 0.55],
         "icon-allow-overlap": true,
         "icon-ignore-placement": true,
       },
