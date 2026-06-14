@@ -27,6 +27,7 @@ import {
   Skeleton,
   useToast,
 } from "../../components/kit";
+import NavigatePanel from "./NavigatePanel";
 
 /** The signed-in volunteer for the demo (no auth — see lib/useRole). */
 const CURRENT_VOLUNTEER = { id: "vol-amara", name: "Amara" } as const;
@@ -262,6 +263,9 @@ export default function VolunteerPanel() {
           {posting ? t("volunteer.post.posting") : t("volunteer.post.submit")}
         </Button>
       </Card>
+
+      {/* Navigate to a meetup — route options + turn-by-turn */}
+      <NavigatePanel />
 
       {/* My listings */}
       <SectionLabel className="mt-1">{t("volunteer.mine.title")}</SectionLabel>

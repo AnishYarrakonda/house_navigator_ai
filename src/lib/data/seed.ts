@@ -1,9 +1,14 @@
-// Seed data for the in-memory mock layer. Real SF resource nodes only — no
-// scripted journeys, needs, messages, or alerts. Those are created by real use
-// (a person opening a need, a co-pilot accepting it), not pre-baked demo theater.
+// Seed data for the in-memory mock layer. The whole app runs on this — no
+// backend, no external feeds. Resource nodes are DEMO data: ~200 believable SF
+// resource locations spread across the city's real neighborhoods, each with a
+// plain-language description of what's available and a (simulated) capacity, so
+// the matcher's "closest / most-resources / balanced" ranking is meaningful.
 //
-// Resource LOCATIONS are real, verifiable SF services. capacity_open is
-// SIMULATED (SF has no public per-bed feed — see .claude/rules/data-sources.md).
+// Everything here is SIMULATED for the demo (`simulated: true`) — SF publishes
+// no public per-site inventory or per-bed availability feed, so we generate a
+// rich, stable dataset deterministically rather than depending on a flaky live
+// API (see .claude/rules/data-sources.md). Generation is seeded, so the same
+// 200 nodes (names, coords, capacity) appear on every load.
 
 import type {
   ForesightAlert,
@@ -11,630 +16,213 @@ import type {
   Message,
   Need,
   ResourceNode,
+  ResourceType,
   Volunteer,
   Waypoint,
 } from "../../types";
 
-/**
- * Real SF nodes spanning bed / food / hygiene / water / medical / charging,
- * spread ACROSS the city — Tenderloin, SoMa, Mission, Bayview, Castro,
- * Haight, Western Addition, Richmond, Sunset, Marina, North Beach, Chinatown,
- * Excelsior, Visitacion Valley, Potrero Hill, Civic Center, FiDi, Dogpatch.
- * Locations are real/plausible SF services; capacity_open is SIMULATED.
- */
-export const seedNodes: ResourceNode[] = [
-  // ── BED / SHELTER (14) ─────────────────────────────────────────────
-  {
-    id: "node-msc-south",
-    name: "MSC South Shelter",
-    type: "bed",
-    lat: 37.7765,
-    lng: -122.4053,
-    capacity_total: 110,
-    capacity_open: 12,
-    hours: "24/7 intake",
-    notes: "SoMa, 5th & Bryant. ≈110 mats & beds, hot dinner and breakfast, showers, lockers, case managers on site.",
-    simulated: true,
-  },
-  {
-    id: "node-next-door",
-    name: "Next Door Shelter",
-    type: "bed",
-    lat: 37.7836,
-    lng: -122.4189,
-    capacity_total: 88,
-    capacity_open: 4,
-    hours: "Reservation-based",
-    notes: "Polk St. ≈88 reservation beds, pet-friendly kennels, blankets, dinner, on-site showers and laundry.",
-    simulated: true,
-  },
-  {
-    id: "node-sanctuary",
-    name: "Sanctuary SF",
-    type: "bed",
-    lat: 37.7785,
-    lng: -122.4096,
-    capacity_total: 64,
-    capacity_open: 0,
-    hours: "Evening intake",
-    notes: "8th St, SoMa. ≈64 beds, warm meal and hygiene kits. Currently full — check back after 6pm.",
-    simulated: true,
-  },
-  {
-    id: "node-hospitality-house",
-    name: "Hospitality House Shelter",
-    type: "bed",
-    lat: 37.7847,
-    lng: -122.4111,
-    capacity_total: 30,
-    capacity_open: 6,
-    hours: "Evening lottery 5p",
-    notes: "Tenderloin, Turk St. 30 low-barrier men's beds via 5pm lottery, blankets, coffee, mail service.",
-    simulated: true,
-  },
-  {
-    id: "node-providence",
-    name: "Providence Family Shelter",
-    type: "bed",
-    lat: 37.7339,
-    lng: -122.3911,
-    capacity_total: 72,
-    capacity_open: 14,
-    hours: "24/7 intake",
-    notes: "Bayview, McKinnon Ave. ≈72 family beds, cribs and high chairs, hot meals, kids' play area, laundry.",
-    simulated: true,
-  },
-  {
-    id: "node-bayview-nav",
-    name: "Bayview Navigation Center",
-    type: "bed",
-    lat: 37.7361,
-    lng: -122.3801,
-    capacity_total: 96,
-    capacity_open: 0,
-    hours: "Referral-based",
-    notes: "Evans Ave. ≈96 beds with meals, storage, showers and case management. Full tonight — waitlist via outreach.",
-    simulated: true,
-  },
-  {
-    id: "node-dogpatch-nav",
-    name: "Dogpatch Navigation Center",
-    type: "bed",
-    lat: 37.7556,
-    lng: -122.3877,
-    capacity_total: 84,
-    capacity_open: 9,
-    hours: "Referral-based",
-    notes: "25th St near 3rd. 84 tents and cabins, three meals a day, restrooms, showers, pets and partners welcome.",
-    simulated: true,
-  },
-  {
-    id: "node-division-circle",
-    name: "Division Circle Navigation Center",
-    type: "bed",
-    lat: 37.7693,
-    lng: -122.4122,
-    capacity_total: 118,
-    capacity_open: 3,
-    hours: "24/7 intake",
-    notes: "13th & South Van Ness, Mission. ≈118 beds, couples and pets OK, kennels, meals, lockers, showers.",
-    simulated: true,
-  },
-  {
-    id: "node-a-woman-place",
-    name: "A Woman's Place Shelter",
-    type: "bed",
-    lat: 37.7823,
-    lng: -122.4137,
-    capacity_total: 34,
-    capacity_open: 5,
-    hours: "Drop-in 24/7",
-    notes: "Tenderloin. 34 beds for women and nonbinary guests, trauma-informed staff, hygiene kits, hot meals, counselor on call.",
-    simulated: true,
-  },
-  {
-    id: "node-episcopal-sanctuary",
-    name: "Episcopal Community Services Sanctuary",
-    type: "bed",
-    lat: 37.7779,
-    lng: -122.4089,
-    capacity_total: 102,
-    capacity_open: 18,
-    hours: "Evening intake",
-    notes: "8th & Howard, SoMa. ≈102 reservation beds and overflow mats, dinner, showers, locker storage.",
-    simulated: true,
-  },
-  {
-    id: "node-buena-vista-cabins",
-    name: "Buena Vista Horace Mann Stay-Over",
-    type: "bed",
-    lat: 37.7493,
-    lng: -122.4188,
-    capacity_total: 48,
-    capacity_open: 11,
-    hours: "Overnight 6p–7a",
-    notes: "Mission, 23rd St. ≈48 overnight cots for SFUSD families, dinner and breakfast, showers, homework space.",
-    simulated: true,
-  },
-  {
-    id: "node-richmond-rest",
-    name: "Richmond District Shelter",
-    type: "bed",
-    lat: 37.7801,
-    lng: -122.4641,
-    capacity_total: 50,
-    capacity_open: 8,
-    hours: "Evening intake 6p",
-    notes: "Inner Richmond, Geary Blvd. 50 low-barrier beds, warm dinner, blankets, morning coffee, quiet sleeping area.",
-    simulated: true,
-  },
-  {
-    id: "node-vis-valley-cabins",
-    name: "Visitacion Valley Cabin Site",
-    type: "bed",
-    lat: 37.7148,
-    lng: -122.4053,
-    capacity_total: 70,
-    capacity_open: 2,
-    hours: "Referral-based",
-    notes: "Sunnydale Ave. 70 tiny cabins with locking doors, meals, restrooms and showers — near full tonight.",
-    simulated: true,
-  },
-  {
-    id: "node-mission-st-vincent",
-    name: "St. Vincent de Paul Multi-Service",
-    type: "bed",
-    lat: 37.7705,
-    lng: -122.4231,
-    capacity_total: 120,
-    capacity_open: 21,
-    hours: "24/7 intake",
-    notes: "Mission, near 16th St. ≈120 beds, on-site case management, three meals, showers, lockers and benefits help.",
-    simulated: true,
-  },
+// ── Deterministic PRNG (mulberry32) so the dataset is stable across reloads ──
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
-  // ── FOOD (10) ──────────────────────────────────────────────────────
-  {
-    id: "node-glide",
-    name: "GLIDE Daily Free Meals",
-    type: "food",
-    lat: 37.7831,
-    lng: -122.4126,
-    capacity_total: 600,
-    capacity_open: 420,
-    hours: "Breakfast 8a, Lunch 12p, Dinner 4p",
-    notes: "Tenderloin, Ellis St. ≈600 hot meals daily across three services, to-go plates, no ID and no questions asked.",
-    simulated: true,
-  },
-  {
-    id: "node-stanthony",
-    name: "St. Anthony's Dining Room",
-    type: "food",
-    lat: 37.7826,
-    lng: -122.4097,
-    capacity_total: 450,
-    capacity_open: 310,
-    hours: "Lunch 11:30a–1:30p daily",
-    notes: "Tenderloin, Golden Gate Ave. ≈450 free hot lunches a day, seconds when available, no ID required.",
-    simulated: true,
-  },
-  {
-    id: "node-foodbank-pantry",
-    name: "SF-Marin Food Bank Pantry (Potrero)",
-    type: "food",
-    lat: 37.7561,
-    lng: -122.4041,
-    capacity_total: 300,
-    capacity_open: 180,
-    hours: "Wed & Sat 10a–1p",
-    notes: "Potrero Hill. ≈300 free grocery bags per distribution: fresh produce, canned goods, rice and bread. Bring a bag.",
-    simulated: true,
-  },
-  {
-    id: "node-martin-deporres",
-    name: "Martin de Porres House of Hospitality",
-    type: "food",
-    lat: 37.7651,
-    lng: -122.4088,
-    capacity_total: 240,
-    capacity_open: 95,
-    hours: "Mon–Sat 7a–12p",
-    notes: "Potrero, Mariposa St. ≈240 free vegetarian breakfasts and lunches, coffee, fresh fruit, no ID needed.",
-    simulated: true,
-  },
-  {
-    id: "node-curry-senior",
-    name: "Curry Senior Center Meals",
-    type: "food",
-    lat: 37.7841,
-    lng: -122.4135,
-    capacity_total: 120,
-    capacity_open: 0,
-    hours: "Breakfast 7a, Lunch 11a",
-    notes: "Tenderloin, Turk St. ≈120 senior meals (55+), soft-food options, coffee and social hour. Full now.",
-    simulated: true,
-  },
-  {
-    id: "node-mission-pantry",
-    name: "Mission Food Hub",
-    type: "food",
-    lat: 37.7591,
-    lng: -122.4148,
-    capacity_total: 380,
-    capacity_open: 260,
-    hours: "Fri 9a–2p",
-    notes: "Mission, Alabama St. ≈380 free produce boxes, beans and rice staples, baby formula, bilingual volunteers.",
-    simulated: true,
-  },
-  {
-    id: "node-bayview-pantry",
-    name: "Bayview Hunters Point Pantry",
-    type: "food",
-    lat: 37.7301,
-    lng: -122.3834,
-    capacity_total: 220,
-    capacity_open: 140,
-    hours: "Tue & Thu 10a–1p",
-    notes: "3rd St, Bayview. ≈220 grocery bags, diapers and wipes, fresh produce and shelf-stable goods, no ID required.",
-    simulated: true,
-  },
-  {
-    id: "node-haight-meals",
-    name: "Free Lunch — Haight Ashbury",
-    type: "food",
-    lat: 37.7700,
-    lng: -122.4469,
-    capacity_total: 150,
-    capacity_open: 70,
-    hours: "Daily 12p–1:30p",
-    notes: "Haight St near Cole. ≈150 hot lunches daily, vegetarian option, coffee and water, all welcome.",
-    simulated: true,
-  },
-  {
-    id: "node-excelsior-pantry",
-    name: "Excelsior Community Pantry",
-    type: "food",
-    lat: 37.7244,
-    lng: -122.4262,
-    capacity_total: 200,
-    capacity_open: 0,
-    hours: "Sat 9a–12p",
-    notes: "Mission St, Excelsior. ≈200 weekly grocery bags, culturally familiar staples, produce. Closed until Saturday.",
-    simulated: true,
-  },
-  {
-    id: "node-chinatown-meals",
-    name: "Chinatown Community Meals",
-    type: "food",
-    lat: 37.7941,
-    lng: -122.4078,
-    capacity_total: 180,
-    capacity_open: 88,
-    hours: "Lunch 11:30a–1p",
-    notes: "Stockton St. ≈180 culturally familiar hot lunches, rice and congee, tea, Cantonese-speaking volunteers.",
-    simulated: true,
-  },
+// Real SF neighborhoods (approx. centroids) — pins spread believably citywide.
+interface Hood {
+  name: string;
+  lat: number;
+  lng: number;
+}
+const HOODS: Hood[] = [
+  { name: "Tenderloin", lat: 37.784, lng: -122.413 },
+  { name: "SoMa", lat: 37.7785, lng: -122.4056 },
+  { name: "Mission", lat: 37.7599, lng: -122.4148 },
+  { name: "Bayview", lat: 37.7299, lng: -122.387 },
+  { name: "Castro", lat: 37.7609, lng: -122.435 },
+  { name: "Haight-Ashbury", lat: 37.77, lng: -122.4469 },
+  { name: "Western Addition", lat: 37.7805, lng: -122.4324 },
+  { name: "Inner Richmond", lat: 37.78, lng: -122.4646 },
+  { name: "Outer Richmond", lat: 37.778, lng: -122.486 },
+  { name: "Inner Sunset", lat: 37.76, lng: -122.469 },
+  { name: "Outer Sunset", lat: 37.752, lng: -122.494 },
+  { name: "Marina", lat: 37.803, lng: -122.436 },
+  { name: "North Beach", lat: 37.806, lng: -122.41 },
+  { name: "Chinatown", lat: 37.7941, lng: -122.4078 },
+  { name: "Excelsior", lat: 37.724, lng: -122.43 },
+  { name: "Visitacion Valley", lat: 37.717, lng: -122.405 },
+  { name: "Potrero Hill", lat: 37.758, lng: -122.4 },
+  { name: "Civic Center", lat: 37.779, lng: -122.417 },
+  { name: "Financial District", lat: 37.7946, lng: -122.3999 },
+  { name: "Dogpatch", lat: 37.76, lng: -122.388 },
+  { name: "Nob Hill", lat: 37.793, lng: -122.415 },
+  { name: "Russian Hill", lat: 37.801, lng: -122.418 },
+  { name: "Hayes Valley", lat: 37.776, lng: -122.424 },
+  { name: "NoPa", lat: 37.775, lng: -122.44 },
+  { name: "Glen Park", lat: 37.734, lng: -122.433 },
+  { name: "Ingleside", lat: 37.722, lng: -122.456 },
+  { name: "Portola", lat: 37.725, lng: -122.406 },
+  { name: "Outer Mission", lat: 37.723, lng: -122.446 },
+  { name: "Lower Haight", lat: 37.772, lng: -122.431 },
+  { name: "Japantown", lat: 37.786, lng: -122.429 },
+  { name: "Cole Valley", lat: 37.7665, lng: -122.45 },
+  { name: "Noe Valley", lat: 37.751, lng: -122.433 },
+  { name: "Bernal Heights", lat: 37.741, lng: -122.415 },
+  { name: "Twin Peaks", lat: 37.754, lng: -122.447 },
+  { name: "Diamond Heights", lat: 37.741, lng: -122.44 },
+  { name: "West Portal", lat: 37.7405, lng: -122.4663 },
+  { name: "Forest Hill", lat: 37.747, lng: -122.466 },
+  { name: "Parkside", lat: 37.741, lng: -122.488 },
+  { name: "Mission Bay", lat: 37.77, lng: -122.39 },
+  { name: "South Beach", lat: 37.782, lng: -122.3893 },
+  { name: "Cow Hollow", lat: 37.797, lng: -122.436 },
+  { name: "Pacific Heights", lat: 37.7925, lng: -122.438 },
+  { name: "Presidio Heights", lat: 37.788, lng: -122.456 },
+  { name: "Sunnyside", lat: 37.732, lng: -122.447 },
+  { name: "Oceanview", lat: 37.718, lng: -122.457 },
+  { name: "Crocker-Amazon", lat: 37.712, lng: -122.44 },
+  { name: "Mission Terrace", lat: 37.727, lng: -122.435 },
+  { name: "Duboce Triangle", lat: 37.769, lng: -122.433 },
+  { name: "Lone Mountain", lat: 37.78, lng: -122.452 },
+];
 
-  // ── HYGIENE (8) ────────────────────────────────────────────────────
-  {
-    id: "node-pitstop-16th",
-    name: "Pit Stop — 16th & Mission",
-    type: "hygiene",
-    lat: 37.7649,
-    lng: -122.4197,
-    capacity_total: 4,
-    capacity_open: 3,
-    hours: "9a–7p",
-    notes: "Mission. 4 staffed toilet stalls, sinks, needle disposal, dog waste bags, hygiene kits on request.",
-    simulated: true,
-  },
-  {
-    id: "node-pitstop-civic",
-    name: "Pit Stop — Civic Center",
-    type: "hygiene",
-    lat: 37.7796,
-    lng: -122.4156,
-    capacity_total: 4,
-    capacity_open: 2,
-    hours: "7a–9p",
-    notes: "UN Plaza. 4 staffed toilets, handwashing sinks, drinking water, needle disposal, attendant on duty.",
-    simulated: true,
-  },
-  {
-    id: "node-lava-mae",
-    name: "Mobile Showers (Bayview)",
-    type: "hygiene",
-    lat: 37.7299,
-    lng: -122.3892,
-    capacity_total: 6,
-    capacity_open: 5,
-    hours: "Tue/Thu 9a–12p",
-    notes: "Bayview. 6 private hot-shower stalls, towels, soap and shampoo, fresh socks and hygiene kits.",
-    simulated: true,
-  },
-  {
-    id: "node-pitstop-castro",
-    name: "Pit Stop — Castro & Market",
-    type: "hygiene",
-    lat: 37.7625,
-    lng: -122.4350,
-    capacity_total: 3,
-    capacity_open: 1,
-    hours: "10a–8p",
-    notes: "Castro. 3 staffed restroom stalls, handwashing, needle disposal and a dog relief area.",
-    simulated: true,
-  },
-  {
-    id: "node-pitstop-haight",
-    name: "Pit Stop — Haight Street",
-    type: "hygiene",
-    lat: 37.7702,
-    lng: -122.4495,
-    capacity_total: 3,
-    capacity_open: 2,
-    hours: "9a–6p",
-    notes: "Upper Haight, near Ashbury. 3 staffed toilet stalls, sinks, needle disposal and drinking water.",
-    simulated: true,
-  },
-  {
-    id: "node-showers-western-add",
-    name: "Mobile Showers (Western Addition)",
-    type: "hygiene",
-    lat: 37.7806,
-    lng: -122.4318,
-    capacity_total: 5,
-    capacity_open: 0,
-    hours: "Mon/Wed 9a–1p",
-    notes: "Fillmore St. 5 hot-shower stalls plus laundry tokens, towels and hygiene kits. Full now.",
-    simulated: true,
-  },
-  {
-    id: "node-pitstop-soma",
-    name: "Pit Stop — 6th & Folsom",
-    type: "hygiene",
-    lat: 37.7785,
-    lng: -122.4047,
-    capacity_total: 4,
-    capacity_open: 3,
-    hours: "8a–8p",
-    notes: "SoMa. 4 staffed toilet stalls, sinks, needle disposal, dog waste bags, attendant on site.",
-    simulated: true,
-  },
-  {
-    id: "node-pitstop-excelsior",
-    name: "Pit Stop — Excelsior",
-    type: "hygiene",
-    lat: 37.7236,
-    lng: -122.4327,
-    capacity_total: 3,
-    capacity_open: 2,
-    hours: "9a–6p",
-    notes: "Mission St near Geneva. 3 staffed toilet stalls, handwashing sinks and needle disposal.",
-    simulated: true,
-  },
+// SF bounding box (rough). Points are kept only near a neighborhood anchor, a
+// coarse land mask that keeps pins out of the bay/ocean.
+const SF_BOUNDS = { minLat: 37.708, maxLat: 37.806, minLng: -122.51, maxLng: -122.357 };
 
-  // ── WATER (4) ──────────────────────────────────────────────────────
-  {
-    id: "node-water-dolores",
-    name: "Public Water — Dolores Park",
-    type: "water",
-    lat: 37.7596,
-    lng: -122.4269,
-    capacity_total: 6,
-    capacity_open: 6,
-    hours: "Daylight",
-    notes: "Mission Dolores. 6 bottle-fill stations and fountains by the playground, shade, dog bowl.",
-    simulated: true,
-  },
-  {
-    id: "node-water-ggpark",
-    name: "Public Water — Golden Gate Park (Panhandle)",
-    type: "water",
-    lat: 37.7716,
-    lng: -122.4520,
-    capacity_total: 8,
-    capacity_open: 8,
-    hours: "Daylight",
-    notes: "Haight/Panhandle. 8 fountains and bottle fillers along the path, shade, benches.",
-    simulated: true,
-  },
-  {
-    id: "node-water-marina-green",
-    name: "Public Water — Marina Green",
-    type: "water",
-    lat: 37.8064,
-    lng: -122.4426,
-    capacity_total: 3,
-    capacity_open: 3,
-    hours: "Daylight",
-    notes: "Marina. 3 refill stations near the harbor path, cups, shade by the green.",
-    simulated: true,
-  },
-  {
-    id: "node-water-sunset-rec",
-    name: "Public Water — Sunset Rec Center",
-    type: "water",
-    lat: 37.7466,
-    lng: -122.4956,
-    capacity_total: 2,
-    capacity_open: 2,
-    hours: "Daylight",
-    notes: "Outer Sunset, 28th Ave. 2 outdoor bottle fillers and a fountain, cups during open hours.",
-    simulated: true,
-  },
+const HOURS = ["24/7", "Daily 7a–10p", "Mon–Fri 9a–6p", "Daily 6a–9p", "Mon–Sat 8a–8p", "Daily 8a–6p"];
 
-  // ── MEDICAL (7) ────────────────────────────────────────────────────
-  {
-    id: "node-clinic-tom-waddell",
-    name: "Tom Waddell Urban Health Clinic",
-    type: "medical",
-    lat: 37.7818,
-    lng: -122.4136,
-    capacity_total: 80,
-    capacity_open: 22,
-    hours: "Mon–Fri 8a–5p",
-    notes: "Tenderloin. ≈80 walk-in slots/day: wound care, meds refill, mental-health counselor, free flu shots.",
-    simulated: true,
-  },
-  {
-    id: "node-clinic-mission",
-    name: "Mission Neighborhood Health Center",
-    type: "medical",
-    lat: 37.7541,
-    lng: -122.4181,
-    capacity_total: 95,
-    capacity_open: 35,
-    hours: "Mon–Sat 8a–5p",
-    notes: "Mission, Shotwell St. ≈95 slots/day: primary care, dental, sliding-scale fees, bilingual staff.",
-    simulated: true,
-  },
-  {
-    id: "node-clinic-haight",
-    name: "Haight Ashbury Free Clinic",
-    type: "medical",
-    lat: 37.7704,
-    lng: -122.4462,
-    capacity_total: 55,
-    capacity_open: 0,
-    hours: "Mon–Fri 9a–5p",
-    notes: "Haight St. ≈55 no-cost slots/day: primary care, substance-use support, mental health. Full today.",
-    simulated: true,
-  },
-  {
-    id: "node-clinic-bayview",
-    name: "Southeast Health Center",
-    type: "medical",
-    lat: 37.7339,
-    lng: -122.3865,
-    capacity_total: 88,
-    capacity_open: 28,
-    hours: "Mon–Fri 8a–5p",
-    notes: "Bayview, Keith St. ≈88 slots/day: primary care, behavioral health, pediatrics, pharmacy on site.",
-    simulated: true,
-  },
-  {
-    id: "node-clinic-chinatown",
-    name: "NEMS Chinatown Clinic",
-    type: "medical",
-    lat: 37.7956,
-    lng: -122.4071,
-    capacity_total: 68,
-    capacity_open: 15,
-    hours: "Mon–Sat 8:30a–5p",
-    notes: "Jackson St. ≈68 slots/day: primary care in Cantonese and Mandarin, sliding scale, on-site pharmacy.",
-    simulated: true,
-  },
-  {
-    id: "node-clinic-castro",
-    name: "Castro-Mission Health Center",
-    type: "medical",
-    lat: 37.7621,
-    lng: -122.4302,
-    capacity_total: 62,
-    capacity_open: 9,
-    hours: "Mon–Fri 8a–5p",
-    notes: "Castro. ≈62 slots/day: PrEP and HIV care, primary care, mental health, free STI testing.",
-    simulated: true,
-  },
-  {
-    id: "node-street-medicine-soma",
-    name: "Street Medicine Team (SoMa)",
-    type: "medical",
-    lat: 37.7742,
-    lng: -122.4112,
-    capacity_total: 40,
-    capacity_open: 18,
-    hours: "Daily 10a–4p, mobile",
-    notes: "SoMa encampment outreach. ≈40 visits/day: wound care, overdose response, naloxone kits, meds delivery.",
-    simulated: true,
-  },
+interface TypePlan {
+  type: ResourceType;
+  count: number;
+  minCap: number;
+  maxCap: number;
+  suffixes: string[];
+  notes: (total: number) => string[];
+}
 
-  // ── CHARGING / WI-FI (7) ───────────────────────────────────────────
+// HOUSING ONLY — every node is a shelter / bed / housing site (type "bed").
+// Food / hygiene / water / medical / charging were removed; this is a
+// housing-focused map. Volunteer-posted listings (added at runtime) can still be
+// any type. Capacity varies widely so "most resources" is meaningful.
+const TYPE_PLAN: TypePlan[] = [
   {
-    id: "node-library-main",
-    name: "SF Main Library — Charging & Wi-Fi",
-    type: "charging-wifi",
-    lat: 37.7786,
-    lng: -122.4156,
-    capacity_total: 120,
-    capacity_open: 64,
-    hours: "Mon–Sat 10a–6p",
-    notes: "Civic Center. ≈120 outlets and study seats, fast free Wi-Fi, device lockers, on-site social worker Tue.",
-    simulated: true,
-  },
-  {
-    id: "node-library-mission",
-    name: "Mission Branch Library — Charging",
-    type: "charging-wifi",
-    lat: 37.7569,
-    lng: -122.4163,
-    capacity_total: 40,
-    capacity_open: 22,
-    hours: "Mon–Sat 10a–6p",
-    notes: "24th St. ≈40 outlets and warm seats, free Wi-Fi, bilingual staff, quiet reading room.",
-    simulated: true,
-  },
-  {
-    id: "node-library-richmond",
-    name: "Richmond Branch Library — Charging",
-    type: "charging-wifi",
-    lat: 37.7825,
-    lng: -122.4683,
-    capacity_total: 35,
-    capacity_open: 18,
-    hours: "Mon–Sat 10a–6p",
-    notes: "Inner Richmond, 9th Ave. ≈35 outlets and quiet warm seats, free Wi-Fi, restrooms inside.",
-    simulated: true,
-  },
-  {
-    id: "node-library-sunset",
-    name: "Sunset Branch Library — Charging",
-    type: "charging-wifi",
-    lat: 37.7585,
-    lng: -122.4768,
-    capacity_total: 30,
-    capacity_open: 0,
-    hours: "Mon–Sat 10a–6p",
-    notes: "Inner Sunset, 18th Ave. ≈30 outlets and warm seats, free Wi-Fi, restrooms. Outlets full now.",
-    simulated: true,
-  },
-  {
-    id: "node-library-northbeach",
-    name: "North Beach Branch Library — Charging",
-    type: "charging-wifi",
-    lat: 37.8009,
-    lng: -122.4106,
-    capacity_total: 28,
-    capacity_open: 12,
-    hours: "Mon–Sat 10a–6p",
-    notes: "Columbus Ave. ≈28 outlets and seats, free Wi-Fi, warm reading area, restrooms inside.",
-    simulated: true,
-  },
-  {
-    id: "node-charging-fidi",
-    name: "Financial District Drop-In — Charging",
-    type: "charging-wifi",
-    lat: 37.7936,
-    lng: -122.3998,
-    capacity_total: 25,
-    capacity_open: 10,
-    hours: "Mon–Fri 9a–5p",
-    notes: "Front St, FiDi. ≈25 charging ports and seats, free Wi-Fi, hot coffee, device lockers.",
-    simulated: true,
-  },
-  {
-    id: "node-charging-western-add",
-    name: "Western Addition Resource Hub — Charging",
-    type: "charging-wifi",
-    lat: 37.7795,
-    lng: -122.4296,
-    capacity_total: 30,
-    capacity_open: 16,
-    hours: "Mon–Fri 9a–6p",
-    notes: "Fillmore St. ≈30 charging ports and warm seats, free Wi-Fi, mail service, coffee and water.",
-    simulated: true,
+    type: "bed",
+    count: 200,
+    minCap: 12,
+    maxCap: 140,
+    suffixes: [
+      "Navigation Center",
+      "Emergency Shelter",
+      "Family Shelter",
+      "Interfaith Shelter",
+      "Safe Haven",
+      "Overnight Shelter",
+      "Transitional Housing",
+      "SRO Residence",
+      "Supportive Housing",
+      "Safe Parking Site",
+      "Cabin Village",
+      "Shelter & Beds",
+      "Women's Shelter",
+      "Youth Shelter",
+      "Respite Beds",
+    ],
+    notes: (t) => [
+      `≈${t} beds — cots, blankets, hot dinner & breakfast, lockers, and showers.`,
+      `≈${t} beds with family rooms so you can stay together, a kids' area, and meals.`,
+      `≈${t} mats and beds, evening meal, case management, pets OK in on-site kennels.`,
+      `≈${t} single beds, laundry, secure storage, restrooms, and 24-hour staff.`,
+      `≈${t} private SRO rooms with a shared kitchen, case management, and mail service.`,
+      `≈${t} safe-parking spots with restrooms, overnight security, and morning coffee.`,
+      `≈${t} cabins with heat and power, meals on site, and housing navigation.`,
+      `≈${t} beds for women & families — showers, a clothing closet, and counseling.`,
+    ],
   },
 ];
+
+function slug(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function generateNodes(): ResourceNode[] {
+  const rng = mulberry32(20240607);
+  const pick = <T,>(arr: T[]): T => arr[Math.floor(rng() * arr.length)];
+  const planByType = new Map(TYPE_PLAN.map((p) => [p.type, p]));
+
+  // A deterministic "bag" of types matching the per-type quotas (sums to 200),
+  // shuffled so the categories interleave across the city.
+  const typeBag: ResourceType[] = [];
+  for (const p of TYPE_PLAN) for (let j = 0; j < p.count; j++) typeBag.push(p.type);
+  for (let i = typeBag.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [typeBag[i], typeBag[j]] = [typeBag[j], typeBag[i]];
+  }
+
+  // Even citywide spread: walk a jittered grid over the SF bbox and keep every
+  // cell whose center is within ~1.1km of a neighborhood anchor (a coarse land
+  // mask — keeps pins off the bay/ocean and names each by its nearest hood).
+  // Grid spacing (~0.6km) is well above the map's cluster radius, so the result
+  // reads as ~200 individual pins at city zoom rather than a few fat clusters.
+  const STEP_LAT = 0.0055;
+  const STEP_LNG = 0.0068;
+  const LAND_R2 = 0.0105 * 0.0105; // (~1.1km)^2 in squared degrees
+  const candidates: Array<{ lat: number; lng: number; hood: Hood }> = [];
+  for (let lat = SF_BOUNDS.minLat; lat <= SF_BOUNDS.maxLat; lat += STEP_LAT) {
+    for (let lng = SF_BOUNDS.minLng; lng <= SF_BOUNDS.maxLng; lng += STEP_LNG) {
+      const jlat = lat + (rng() - 0.5) * STEP_LAT * 0.9;
+      const jlng = lng + (rng() - 0.5) * STEP_LNG * 0.9;
+      let best: Hood | null = null;
+      let bestD = Infinity;
+      for (const h of HOODS) {
+        const d = (h.lat - jlat) ** 2 + (h.lng - jlng) ** 2;
+        if (d < bestD) {
+          bestD = d;
+          best = h;
+        }
+      }
+      if (best && bestD <= LAND_R2) candidates.push({ lat: jlat, lng: jlng, hood: best });
+    }
+  }
+  // Shuffle then take 200 — a random subset of an even grid is still even.
+  for (let i = candidates.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  }
+  const chosen = candidates.slice(0, typeBag.length);
+
+  return chosen.map((c, i) => {
+    const type = typeBag[i % typeBag.length];
+    const plan = planByType.get(type) ?? TYPE_PLAN[0];
+    const total = plan.minCap + Math.floor(rng() * (plan.maxCap - plan.minCap + 1));
+    // Open is a believable fraction of total; some sites are full (0).
+    const open = Math.min(total, Math.round(total * (rng() * 0.95)));
+    return {
+      id: `node-${type}-${i}-${slug(c.hood.name)}`,
+      name: `${c.hood.name} ${pick(plan.suffixes)}`,
+      type,
+      lat: c.lat,
+      lng: c.lng,
+      capacity_total: total,
+      capacity_open: open,
+      hours: pick(HOURS),
+      notes: pick(plan.notes(total)),
+      address: `${c.hood.name}, San Francisco`,
+      simulated: true,
+    };
+  });
+}
+
+/**
+ * ~200 believable SF resource locations (bed / food / hygiene / water / medical
+ * / charging-wifi) spread across the city. DEMO data — locations and capacity
+ * are simulated and stable (deterministically generated).
+ */
+export const seedNodes: ResourceNode[] = generateNodes();
 
 export const seedVolunteers: Volunteer[] = [
   { id: "vol-amara", name: "Amara", skills: ["housing", "spanish"], active: true },
@@ -643,9 +231,8 @@ export const seedVolunteers: Volunteer[] = [
 ];
 
 // No scripted needs / journeys / messages / alerts. These are created by real
-// use of the app, not pre-seeded. (Removed the placeholder Tenderloin overflow
-// alert and the synthetic Maria/Theo/Rosa journeys + their fabricated message
-// threads, which rendered as meaningless routes and fake history on the map.)
+// use of the app (a person opening a need, a co-pilot accepting it), not
+// pre-seeded demo theater.
 export const seedNeeds: Need[] = [];
 export const seedJourneys: Journey[] = [];
 export const seedWaypoints: Waypoint[] = [];

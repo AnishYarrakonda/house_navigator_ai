@@ -67,6 +67,28 @@ function revealGradient(color: string, p: number): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
+/** A zoom-interpolated line-width whose thickness also varies by route state
+ * (selected / dim / normal). The zoom `interpolate` MUST be the top-level
+ * expression — MapLibre rejects a zoom expression nested inside another
+ * expression (e.g. wrapping it in a `*`) — so the per-state multiplier is baked
+ * into each interpolation OUTPUT as a `case`, instead of multiplying the whole
+ * interpolate by a separate case. */
+function emphasizedWidth(
+  stops: Array<[number, number]>,
+  mul: { selected: number; dim: number; normal: number },
+): ExpressionSpecification {
+  const out: unknown[] = ["interpolate", ["linear"], ["zoom"]];
+  for (const [z, base] of stops) {
+    out.push(z, [
+      "case",
+      ["==", ["get", "selected"], 1], base * mul.selected,
+      ["==", ["get", "dim"], 1], base * mul.dim,
+      base * mul.normal,
+    ]);
+  }
+  return out as unknown as ExpressionSpecification;
+}
+
 function classifyZoom(z: number): ZoomLayer {
   if (z >= 13.5) return "street";
   if (z >= 11.3) return "city";
@@ -268,18 +290,10 @@ export function createMapEngine(map: MlMap): MapEngine {
     map.triggerRepaint();
   }
 
-  /** Capacity color (open/limited/full) as a data-driven match expression. */
-  const LEVEL_COLOR: ExpressionSpecification = [
-    "match",
-    ["get", "level"],
-    "open",
-    "#4cc38a",
-    "limited",
-    "#d8b65c",
-    "full",
-    "#e36a7d",
-    "#4cc38a",
-  ] as unknown as ExpressionSpecification;
+  // Pins are a uniform cobalt blue — the map reads as one clear resource layer.
+  // (Capacity open/total is surfaced on the match cards, not encoded by pin
+  // color, so there's no green/amber/red here.)
+  const PIN_BLUE = "#2f6df6";
 
   const NONE_FILTER = ["in", ["get", "id"], ["literal", []]] as unknown as ExpressionSpecification;
 
@@ -288,8 +302,11 @@ export function createMapEngine(map: MlMap): MapEngine {
       type: "geojson",
       data: { type: "FeatureCollection", features: [] },
       cluster: true,
-      clusterMaxZoom: 13,
-      clusterRadius: 48,
+      // Cluster only tightly-overlapping pins, and stop clustering a bit sooner,
+      // so the ~200 locations read as a full, populated field rather than a
+      // handful of fat count-bubbles. They split into individual pins on zoom-in.
+      clusterMaxZoom: 12,
+      clusterRadius: 18,
     });
 
     // Highlight ring for matched nodes (under the dot so the dot stays crisp).
@@ -314,7 +331,7 @@ export function createMapEngine(map: MlMap): MapEngine {
       filter: ["!", ["has", "point_count"]],
       paint: {
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 14, 8, 16, 11],
-        "circle-color": LEVEL_COLOR,
+        "circle-color": PIN_BLUE,
         "circle-stroke-color": "rgba(8,9,10,0.92)",
         "circle-stroke-width": 2,
         "circle-opacity": 0.96,
@@ -342,7 +359,7 @@ export function createMapEngine(map: MlMap): MapEngine {
       source: "nodes",
       filter: ["has", "point_count"],
       paint: {
-        "circle-color": "rgba(14,149,148,0.82)",
+        "circle-color": "rgba(47,109,246,0.82)",
         "circle-stroke-color": "#5ab8ff",
         "circle-stroke-width": 1.5,
         "circle-radius": ["step", ["get", "point_count"], 15, 10, 19, 30, 24],
@@ -488,32 +505,20 @@ export function createMapEngine(map: MlMap): MapEngine {
           ["==", ["get", "dim"], 1], 0.12,
           0.32,
         ],
-        "line-width": [
-          "*",
-          ["interpolate", ["linear"], ["zoom"], 10, 6, 14, 12, 16, 18],
-          [
-            "case",
-            ["==", ["get", "selected"], 1], 1.15,
-            ["==", ["get", "dim"], 1], 0.55,
-            0.85,
-          ],
-        ],
+        "line-width": emphasizedWidth(
+          [[10, 6], [14, 12], [16, 18]],
+          { selected: 1.15, dim: 0.55, normal: 0.85 },
+        ),
       },
     } as unknown as LayerSpecification);
     // Two core layers split by selection: the SELECTED route draws solid + thick;
     // every other option draws dotted (a shape cue), so the chosen path reads
     // without relying on color/opacity alone (accessibility.md). `line-dasharray`
     // can't be data-driven, hence the split.
-    const optionWidth: ExpressionSpecification = [
-      "*",
-      ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 4, 16, 6],
-      [
-        "case",
-        ["==", ["get", "selected"], 1], 1.3,
-        ["==", ["get", "dim"], 1], 0.55,
-        0.9,
-      ],
-    ] as unknown as ExpressionSpecification;
+    const optionWidth: ExpressionSpecification = emphasizedWidth(
+      [[10, 2.5], [14, 4], [16, 6]],
+      { selected: 1.3, dim: 0.55, normal: 0.9 },
+    );
     const optionOpacity: ExpressionSpecification = [
       "case",
       ["==", ["get", "selected"], 1], 1,

@@ -12,9 +12,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "./map.css";
 
 import { DEFAULT_ZOOM, SF_CENTER } from "../config";
-import { useNeeds, useNodes } from "../lib/data/hooks";
+import { useJourneys, useNeeds, useNodes } from "../lib/data/hooks";
 import { registerMapController } from "./MapContext";
 import { warmDarkStyle } from "./style";
+import { buildJourneyRoutes } from "./routes";
 import { createMapEngine, type MapEngine } from "./engine";
 
 export default function MapView() {
@@ -24,6 +25,7 @@ export default function MapView() {
 
   const { data: nodes } = useNodes();
   const { data: needs } = useNeeds();
+  const { data: journeys } = useJourneys();
 
   // Create the map + engine once, and register the real controller.
   useEffect(() => {
@@ -67,10 +69,20 @@ export default function MapView() {
     engineRef.current?.setOpenNeeds(needs);
   }, [needs]);
 
-  // NOTE: we intentionally do NOT auto-draw decorative "journey" routes. The
-  // only routes shown are real ones the user creates (a person's fuzzed area →
-  // the resource they pick). Synthetic journey lines were removed because their
-  // origins were pseudo-random points with no real-world meaning.
+  // Seeded "path home" journeys — the glowing many-routes reveal. Each journey's
+  // done/todo segments are road-snapped (src/map/routes.ts) so they trace real
+  // streets, not a straight hop. Origins are synthetic, non-identifying points
+  // (privacy.md #1) — there is no real person coordinate anywhere.
+  useEffect(() => {
+    if (nodes.length === 0 || journeys.length === 0) return;
+    let active = true;
+    buildJourneyRoutes(journeys, nodes).then((features) => {
+      if (active) engineRef.current?.setSeededRoutes(features);
+    });
+    return () => {
+      active = false;
+    };
+  }, [nodes, journeys]);
 
   return <div ref={containerRef} className="absolute inset-0" aria-label="map" />;
 }

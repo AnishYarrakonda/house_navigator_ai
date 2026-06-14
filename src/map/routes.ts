@@ -6,6 +6,7 @@
 
 import { db } from "../lib/data";
 import { SF_CENTER } from "../config";
+import { fetchRouteMulti, type LatLng } from "../lib/routing";
 import type { Journey, ResourceNode, Waypoint } from "../types";
 
 export type RouteSegment = "done" | "todo";
@@ -75,14 +76,28 @@ function waypointCoords(
 }
 
 /**
+ * Snap a run of stop coordinates to real walking roads via the ORS proxy.
+ * Falls back (inside fetchRouteMulti) to a curved line if ORS is unavailable, so
+ * this never throws and never blanks the map.
+ */
+async function snapRun(coords: Coord[]): Promise<Coord[]> {
+  if (coords.length < 2) return coords;
+  const points: LatLng[] = coords.map(([lng, lat]) => ({ lat, lng }));
+  const route = await fetchRouteMulti(points);
+  const snapped = route.geojson.geometry.coordinates;
+  return snapped.length >= 2 ? snapped : coords;
+}
+
+/**
  * Build done + todo line features for one journey. `done` = the bright solid
  * glow up to the current waypoint; `todo` = the dim dotted path still ahead.
+ * Both runs are road-snapped so the glow traces streets, not a straight hop.
  */
-export function journeyToFeatures(
+export async function journeyToFeatures(
   journey: Journey,
   waypoints: Waypoint[],
   nodeById: Map<string, ResourceNode>,
-): RouteFeature[] {
+): Promise<RouteFeature[]> {
   const ordered = [...waypoints].sort((a, b) => a.order - b.order);
   const { coords, lastDoneIndex } = waypointCoords(ordered, nodeById);
   if (coords.length < 2) return [];
@@ -94,7 +109,7 @@ export function journeyToFeatures(
       type: "Feature",
       geometry: {
         type: "LineString",
-        coordinates: coords.slice(0, lastDoneIndex + 1),
+        coordinates: await snapRun(coords.slice(0, lastDoneIndex + 1)),
       },
       properties: { journeyId: journey.id, segment: "done" },
     });
@@ -106,7 +121,7 @@ export function journeyToFeatures(
   if (todoCoords.length >= 2) {
     features.push({
       type: "Feature",
-      geometry: { type: "LineString", coordinates: todoCoords },
+      geometry: { type: "LineString", coordinates: await snapRun(todoCoords) },
       properties: { journeyId: journey.id, segment: "todo" },
     });
   }
