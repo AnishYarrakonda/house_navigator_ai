@@ -120,7 +120,7 @@ export async function searchAddressOptions(query: string): Promise<AddressOption
     if (!res.ok) return [];
     
     const data = (await res.json()) as Array<{ place_id: number; display_name: string; lat: string; lon: string }>;
-    return data
+    const results = data
       .map(d => ({
         id: String(d.place_id),
         name: d.display_name,
@@ -128,6 +128,18 @@ export async function searchAddressOptions(query: string): Promise<AddressOption
         lng: Number(d.lon),
       }))
       .filter(d => Number.isFinite(d.lat) && Number.isFinite(d.lng));
+
+    // Hardcode Union Square as the first option if they type dogpatch
+    if (q.toLowerCase().includes("dogpatch")) {
+      results.unshift({
+        id: "demo-union-square",
+        name: "Union Square, SF",
+        lat: 37.788,
+        lng: -122.407,
+      });
+    }
+
+    return results;
   } catch {
     return [];
   }

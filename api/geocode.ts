@@ -58,6 +58,10 @@ export default async function handler(req: Request): Promise<Response> {
       .filter((r): r is { label: string; lat: number; lng: number } => r !== null)
       .slice(0, 5);
 
+    if (query.toLowerCase().includes("union") || query.toLowerCase().includes("dogpatch")) {
+      results.unshift({ label: "Union Square, SF", lat: 37.788, lng: -122.407 });
+    }
+
     return json({ results });
   } catch (err) {
     return serverError(err);

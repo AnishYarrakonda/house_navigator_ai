@@ -63,14 +63,12 @@ export default function NavigatePanel() {
 
   const [start, setStart] = useState<GeoPlace | null>(null);
   const [pickingStart, setPickingStart] = useState(false);
-  const [destId, setDestId] = useState<string>("");
+  const [dest, setDest] = useState<GeoPlace | null>(null);
   const [options, setOptions] = useState<RouteOption[]>([]);
   const [kinds, setKinds] = useState<string[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [finding, setFinding] = useState(false);
   const [navigating, setNavigating] = useState(false);
-
-  const dest = useMemo(() => nodes.find((n) => n.id === destId) ?? null, [nodes, destId]);
 
   const items: RouteOptionItem[] = options.map((o, i) => ({
     id: navRouteId(i),
@@ -156,7 +154,7 @@ export default function NavigatePanel() {
     return (
       <NavigationView
         steps={options[selected].steps}
-        destinationLabel={dest?.name ?? t("volunteer.nav.destination")}
+        destinationLabel={dest?.label ?? t("volunteer.nav.destination")}
         onExit={exitNavigation}
       />
     );
@@ -221,26 +219,25 @@ export default function NavigatePanel() {
       )}
 
       {/* Destination — a meetup resource */}
-      <label
-        htmlFor="nav-dest"
-        className="mb-1.5 mt-3 block text-[13px] font-semibold text-wp-tx"
-      >
+      <label className="mb-1.5 mt-3 block text-[13px] font-semibold text-wp-tx">
         {t("volunteer.nav.destLabel")}
       </label>
-      <select
-        id="nav-dest"
-        value={destId}
-        onChange={(e) => setDestId(e.target.value)}
-        data-no-drag
-        className="min-h-[44px] w-full rounded-[12px] border border-wp-line bg-wp-surf px-3 text-[14px] text-wp-tx focus-visible:border-wp-acc focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wp-acc/40"
-      >
-        <option value="">{t("volunteer.nav.destPlaceholder")}</option>
-        {nodes.map((n) => (
-          <option key={n.id} value={n.id}>
-            {n.name}
-          </option>
-        ))}
-      </select>
+      {dest ? (
+        <div className="mb-2 flex items-center gap-2.5 rounded-[12px] border border-wp-line2 bg-wp-surf2 p-3 text-sm text-wp-tx">
+          <Icon name="place" size={18} className="text-wp-acc" />
+          <span className="min-w-0 flex-1 truncate">{dest.label}</span>
+          <Button variant="ghost" size="sm" onClick={() => setDest(null)} data-no-drag>
+            {t("volunteer.nav.change")}
+          </Button>
+        </div>
+      ) : (
+        <AddressSearch
+          placeholder={t("volunteer.nav.destPlaceholder")}
+          ariaLabel={t("volunteer.nav.destLabel")}
+          value={null}
+          onPick={setDest}
+        />
+      )}
 
       <Button
         variant="primary"
